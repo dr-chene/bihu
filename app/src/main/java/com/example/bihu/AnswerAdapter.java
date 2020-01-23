@@ -3,6 +3,7 @@ package com.example.bihu;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,11 +34,12 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerViewHolder>
-//        implements View.OnClickListener
+        implements View.OnClickListener
 {
 
     private Context context;
@@ -117,31 +119,31 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
             Drawable drawable = ResourcesCompat.getDrawable(Resources.getSystem(), R.drawable.accept_bg, null);
             answerItemBestBtn.setBackground(drawable);
         }
-//        answerItemExciting.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.d("debug2","点击了");
-//                answerItemContent.setText("debug");
-//                Map<String,String>  queryExciting=new HashMap<>();
-//                queryExciting.put("id",aid+"");
-//                queryExciting.put("type",MainActivity.TYPE_ANSWER+"");
-//                queryExciting.put("token",MainActivity.person.getToken());
-//                    if(isExciting){
-//                        sendPost(UrlPost.URL_CANCELEXCITING,queryExciting);
-//                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
-//                        String s = answerItemExcitingCount.getText().toString();
-//                        answerItemExcitingCount.setText(Integer.parseInt(s)-1+"");
-//                        isExciting =false;
-//                    }else {
-//                        sendPost(UrlPost.URL_EXCITING,queryExciting);
-//                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-//                        String s = answerItemExcitingCount.getText().toString();
-//                        answerItemExcitingCount.setText((Integer.parseInt(s)+1)+"");
-//                        isExciting = true;
-//                    }
-//            }
-//        });
-////        setOnClickListener();
+        answerItemExciting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("debug2","点击了");
+                answerItemContent.setText("debug");
+                Map<String,String>  queryExciting=new HashMap<>();
+                queryExciting.put("id",aid+"");
+                queryExciting.put("type",MainActivity.TYPE_ANSWER+"");
+                queryExciting.put("token",MainActivity.person.getToken());
+                    if(isExciting){
+                        sendPost(UrlPost.URL_CANCELEXCITING,queryExciting);
+                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+                        String s = answerItemExcitingCount.getText().toString();
+                        answerItemExcitingCount.setText(Integer.parseInt(s)-1+"");
+                        isExciting =false;
+                    }else {
+                        sendPost(UrlPost.URL_EXCITING,queryExciting);
+                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+                        String s = answerItemExcitingCount.getText().toString();
+                        answerItemExcitingCount.setText((Integer.parseInt(s)+1)+"");
+                        isExciting = true;
+                    }
+            }
+        });
+        setOnClickListener();
     }
 
 
@@ -150,64 +152,65 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
         return answerList.size();
     }
 //
-//    @Override
-//    public void onClick(View v) {
-//        switch (v.getId()) {
-//            case R.id.answer_item_best:
-//                    Map<String,String> queryBest = new HashMap<>();
-//                    queryBest.put("qid",qid+"");
-//                    queryBest.put("aid",aid+"");
-//                    queryBest.put("token",MainActivity.person.getToken());
-//                    sendPost(UrlPost.URL_ACCEPT,queryBest);
-//                    answerItemBestBtn.setText("已采纳");
-//                    answerItemBestBtn.setTextColor(Integer.parseInt("#FFFF00"));
-//                    Drawable drawable = ResourcesCompat.getDrawable(Resources.getSystem(),R.drawable.accept_bg,null);
-//                    answerItemBestBtn.setBackground(drawable);
-//
-//                    break;
-//            case R.id.answer_item_exciting:
-//                Map<String,String>  queryExciting=new HashMap<>();
-//                queryExciting.put("id",aid+"");
-//                queryExciting.put("type",MainActivity.TYPE_ANSWER+"");
-//                queryExciting.put("token",MainActivity.person.getToken());
-//                    if(isExciting){
-//                        sendPost(UrlPost.URL_CANCELEXCITING,queryExciting);
-//                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
-//                        String s = answerItemExcitingCount.getText().toString();
-//                        answerItemExcitingCount.setText(Integer.parseInt(s)-1+"");
-//                        isExciting =false;
-//                    }else {
-//                        sendPost(UrlPost.URL_EXCITING,queryExciting);
-//                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-//                        String s = answerItemExcitingCount.getText().toString();
-//                        answerItemExcitingCount.setText((Integer.parseInt(s)+1)+"");
-//                        isExciting = true;
-//                    }
-//                    break;
-//            case R.id.answer_item_naive:
-//                Map<String,String>  queryNaive=new HashMap<>();
-//                queryNaive.put("id",aid+"");
-//                queryNaive.put("type",MainActivity.TYPE_ANSWER+"");
-//                queryNaive.put("token",MainActivity.person.getToken());
-//                if (isNaive){
-//                    sendPost(UrlPost.URL_CANCELNAIVE,queryNaive);
-//                    answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
-//                    answerItemNaiveCount.setText(Integer.getInteger(String.valueOf(answerItemNaiveCount.getText()))-1+"");
-//                    isNaive = false;
-//                }else {
-//                    sendPost(UrlPost.URL_NAIVE,queryNaive);
-//                    answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
-//                    answerItemNaiveCount.setText(Integer.getInteger(String.valueOf(answerItemNaiveCount.getText()))+1+"");
-//                    isNaive = true;
-//                }
-//        }
-//    }
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.answer_item_best:
+                    Map<String,String> queryBest = new HashMap<>();
+                    queryBest.put("qid",qid+"");
+                    queryBest.put("aid",aid+"");
+                    queryBest.put("token",MainActivity.person.getToken());
+                    sendPost(UrlPost.URL_ACCEPT,queryBest);
+                    answerItemBestBtn.setText("已采纳");
+                    answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
+                    Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg,null);
+                    answerItemBestBtn.setBackground(drawable);
+                    break;
+            case R.id.answer_item_exciting:
+                Map<String,String>  queryExciting=new HashMap<>();
+                queryExciting.put("id",aid+"");
+                queryExciting.put("type",MainActivity.TYPE_ANSWER+"");
+                queryExciting.put("token",MainActivity.person.getToken());
+                    if(isExciting){
+                        sendPost(UrlPost.URL_CANCELEXCITING,queryExciting);
+                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+                        String s = answerItemExcitingCount.getText().toString();
+                        answerItemExcitingCount.setText(Integer.parseInt(s)-1+"");
+                        isExciting =false;
+                    }else {
+                        sendPost(UrlPost.URL_EXCITING,queryExciting);
+                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+                        String s = answerItemExcitingCount.getText().toString();
+                        answerItemExcitingCount.setText((Integer.parseInt(s)+1)+"");
+                        isExciting = true;
+                    }
+                    break;
+            case R.id.answer_item_naive:
+                Map<String,String>  queryNaive=new HashMap<>();
+                queryNaive.put("id",aid+"");
+                queryNaive.put("type",MainActivity.TYPE_ANSWER+"");
+                queryNaive.put("token",MainActivity.person.getToken());
+                if (isNaive) {
+                    sendPost(UrlPost.URL_CANCELNAIVE, queryNaive);
+                    answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
+                    String s = answerItemNaiveCount.getText().toString();
+                    answerItemNaiveCount.setText(Integer.parseInt(s) - 1 + "");
+                    isNaive = false;
+                } else {
+                    sendPost(UrlPost.URL_NAIVE, queryNaive);
+                    answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsdown_fill);
+                    String s = answerItemNaiveCount.getText().toString();
+                    answerItemNaiveCount.setText((Integer.parseInt(s) + 1) + "");
+                    isNaive = true;
+                }
+        }
+    }
 
-//    private void setOnClickListener() {
-//        answerItemBestBtn.setOnClickListener(this);
-//        answerItemExciting.setOnClickListener(this);
-//        answerItemNaive.setOnClickListener(this);
-//    }
+    private void setOnClickListener() {
+        answerItemBestBtn.setOnClickListener(this);
+        answerItemExciting.setOnClickListener(this);
+        answerItemNaive.setOnClickListener(this);
+    }
 
     public void refresh() {
         Log.d("question", "开始刷新数据");
