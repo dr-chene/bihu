@@ -70,10 +70,6 @@ public class Question {
         return exciting;
     }
 
-    public Boolean getIsExciting(){
-        return isExciting;
-    }
-
     public void setExciting(Boolean exciting) {
         isExciting = exciting;
     }
@@ -82,12 +78,12 @@ public class Question {
         this.exciting = exciting;
     }
 
-    public int getNaive() {
-        return naive;
+    public Boolean getIsExciting() {
+        return isExciting;
     }
 
-    public Boolean getIsNaive(){
-        return isNaive;
+    public int getNaive() {
+        return naive;
     }
 
     public void setNaive(Boolean naive) {
@@ -96,6 +92,10 @@ public class Question {
 
     public void setNaive(int naive) {
         this.naive = naive;
+    }
+
+    public Boolean getIsNaive() {
+        return isNaive;
     }
 
     public Boolean getFavorite() {

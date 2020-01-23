@@ -1,8 +1,8 @@
 package com.example.bihu;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,8 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.bihu.tool.MyHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,56 +26,50 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
+public class EnterQuestionActivity extends AppCompatActivity {
 
-    private LinearLayout loginBack;
-    private Button loginButton;
-    private EditText loginUsernameET;
-    private EditText loginPasswordET;
-    private String username;
-    private String password;
-    private MyHelper myHelper;
-    private SQLiteDatabase db;
+    private EditText titleEd;
+    private EditText contentEd;
+    private Button questionEnterBtn;
+    private LinearLayout enterQuestionBack;
+    private String title;
+    private String content;
+    private String images;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_enter_question);
         initView();
-        setOnClickListener();
-    }
-
-
-    private void setOnClickListener() {
-        loginBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                username = loginUsernameET.getText().toString();
-                password = loginPasswordET.getText().toString();
-                Map<String, String> query = new HashMap<>();
-                query.put("username", username);
-                query.put("password", password);
-                sendPost(UrlPost.URL_LOGIN, query);
-            }
-        });
     }
 
     private void initView() {
-
-        myHelper = new MyHelper(LoginActivity.this, MainActivity.vision);
-        db = myHelper.getReadableDatabase();
-        loginBack = findViewById(R.id.login_back);
-        loginButton = findViewById(R.id.register_btn);
-        loginUsernameET = findViewById(R.id.register_username);
-        loginPasswordET = findViewById(R.id.register_password);
+        enterQuestionBack = findViewById(R.id.enter_question_back);
+        questionEnterBtn = findViewById(R.id.enter_question_btn);
+        titleEd = findViewById(R.id.title_ed);
+        contentEd = findViewById(R.id.content_ed);
+        enterQuestionBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(EnterQuestionActivity.this,MainActivity.class);
+                startActivity(intent);
+            }
+        });
+        questionEnterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                title = titleEd.getText().toString();
+                content = contentEd.getText().toString();
+                if ((!title.equals("")) && (!content.equals(""))) {
+                    Map<String, String> query = new HashMap<>();
+                    query.put("title", title);
+                    query.put("content", content);
+                    query.put("images", "");
+                    query.put("token", MainActivity.person.getToken());
+                    sendPost(UrlPost.URL_QUESTION, query);
+                }
+            }
+        });
     }
 
     private void sendPost(final String urlParam, Map<String, String> params) {
@@ -141,38 +133,31 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 try {
                     JSONObject jsonObject = new JSONObject(data);
+//                   Toast.makeText(QuestionActivity.this, jsonObject.toString(), Toast.LENGTH_SHORT).show();
+                    Log.d("cheney",jsonObject+"");
                     switch (jsonObject.getInt("status")) {
                         case 400:
-                            Toast.makeText(LoginActivity.this, "参数错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EnterQuestionActivity.this, "参数错误", Toast.LENGTH_SHORT).show();
                             break;
                         case 401:
-                            Toast.makeText(LoginActivity.this, "用户认证错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EnterQuestionActivity.this, "用户认证错误", Toast.LENGTH_SHORT).show();
                             break;
                         case 500:
-                            Toast.makeText(LoginActivity.this, "奇怪的错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EnterQuestionActivity.this, "奇怪的错误", Toast.LENGTH_SHORT).show();
                             break;
                         case 200:
-                            JSONObject object = jsonObject.getJSONObject("data");
-                            MainActivity.person.setId(object.getInt("id"));
-                            MainActivity.person.setUsername(object.getString("username"));
-                            MainActivity.person.setToken(object.getString("token"));
-                            MainActivity.person.setAvatar(object.getString("avatar"));
-                            myHelper.addPerson(db, object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"), object.getInt("id"));
-                            Toast.makeText(LoginActivity.this, "登录成功，即将跳转", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
+                            if (!jsonObject.getString("info").equals("success"))
+                                Toast.makeText(EnterQuestionActivity.this, "登录失效，请重新登录", Toast.LENGTH_LONG).show();
+                            else {
+                                Toast.makeText(EnterQuestionActivity.this, "发布成功", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(EnterQuestionActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        db.close();
-
-        super.onDestroy();
     }
 }

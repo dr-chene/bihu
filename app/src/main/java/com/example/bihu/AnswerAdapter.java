@@ -2,7 +2,6 @@ package com.example.bihu;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -13,9 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bihu.tool.Answer;
 import com.example.bihu.tool.MyHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,7 +33,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,9 +70,9 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
 
     private void getAnswerData() {
         myHelper.readAnswer(db, answerList, qid);
-        Log.d("debug",answerList.size()+"");
+        Log.d("debug", answerList.size() + "");
         for (int i = 0; i < answerList.size(); i++) {
-            Log.d("question","content = "+answerList.get(i).getContent());
+            Log.d("question", "content = " + answerList.get(i).getContent());
         }
     }
 
@@ -96,30 +91,30 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
         answerItemDate.setText(answer.getDate());
         answerItemExcitingCount.setText(answer.getExciting() + "");
         answerItemNaiveCount.setText(answer.getNaive() + "");
-        Log.d("debug","position = "+position);
-        Log.d("debug","content = "+answer.getContent());
+        Log.d("debug", "position = " + position);
+        Log.d("debug", "content = " + answer.getContent());
         aid = answer.getId();
         isExciting = answer.getIsExciting();
         isNaive = answer.getIsNaive();
         answerItemExciting = holder.itemView.findViewById(R.id.answer_item_exciting);
-        if (isExciting){
+        if (isExciting) {
             answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-        }else {
+        } else {
             answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
         }
-        if (isNaive){
+        if (isNaive) {
             answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
-        }else {
+        } else {
             answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
         }
-        if (!answer.getAuthorName().equals(MainActivity.person.getUsername())){
+        if (!answer.getAuthorName().equals(MainActivity.person.getUsername())) {
             answerItemBestBtn.setVisibility(View.GONE);
         }
-        if (answer.getBest()==1){
+        if (answer.getBest() == 1) {
             answerItemBestBtn.setVisibility(View.VISIBLE);
             answerItemBestBtn.setText("已采纳");
             answerItemBestBtn.setTextColor(Integer.parseInt("#FFFF00"));
-            Drawable drawable = ResourcesCompat.getDrawable(Resources.getSystem(),R.drawable.accept_bg,null);
+            Drawable drawable = ResourcesCompat.getDrawable(Resources.getSystem(), R.drawable.accept_bg, null);
             answerItemBestBtn.setBackground(drawable);
         }
 //        answerItemExciting.setOnClickListener(new View.OnClickListener() {
@@ -214,31 +209,10 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
 //        answerItemNaive.setOnClickListener(this);
 //    }
 
-    public void refresh(List<Answer> list) {
-        Log.d("question","开始刷新数据");
-        this.answerList.clear();
-        for (int i = 0; i < list.size(); i++) {
-            answerList.add(list.get(i));
-        }
-        Log.d("question","数据刷新成功");
-    }
-
-    public class MyInnerViewHolder extends RecyclerView.ViewHolder {
-
-        public MyInnerViewHolder(@NonNull View itemView) {
-            super(itemView);
-            answerItemAuthorImg = itemView.findViewById(R.id.answer_item_user_img);
-            answerItemAuthorName = itemView.findViewById(R.id.answer_item_username);
-            answerItemBestBtn = itemView.findViewById(R.id.answer_item_best);
-            answerItemContent = itemView.findViewById(R.id.answer_item_content);
-            answerItemDate = itemView.findViewById(R.id.answer_item_date);
-            answerItemExciting = itemView.findViewById(R.id.answer_item_exciting);
-            answerItemExcitingImg = itemView.findViewById(R.id.answer_item_exciting_img);
-            answerItemExcitingCount = itemView.findViewById(R.id.answer_item_exciting_count);
-            answerItemNaive = itemView.findViewById(R.id.answer_item_naive);
-            answerItemNaiveImg = itemView.findViewById(R.id.answer_item_naive_img);
-            answerItemNaiveCount = itemView.findViewById(R.id.answer_item_naive_count);
-        }
+    public void refresh() {
+        Log.d("question", "开始刷新数据");
+        myHelper.readAnswer(db, answerList, qid);
+        Log.d("question", "数据刷新成功");
     }
 
     private void sendPost(final String urlParam, Map<String, String> params) {
@@ -297,8 +271,8 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
     }
 
     private void json(final String data) {
-        JSONObject jsonObject = null;
         try {
+            JSONObject jsonObject = null;
             jsonObject = new JSONObject(data);
             switch (jsonObject.getInt("status")) {
                 case 400:
@@ -311,12 +285,30 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
 //                    Toast.makeText(context, "奇怪的错误", Toast.LENGTH_SHORT).show();
                     break;
                 case 200:
-                    if (!jsonObject.getString("info").equals("success")){
+                    if (!jsonObject.getString("info").equals("success")) {
 //                        Toast.makeText(context,"登录失效，请重新登录",Toast.LENGTH_LONG).show();
                     }
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    public class MyInnerViewHolder extends RecyclerView.ViewHolder {
+
+        public MyInnerViewHolder(@NonNull View itemView) {
+            super(itemView);
+            answerItemAuthorImg = itemView.findViewById(R.id.answer_item_user_img);
+            answerItemAuthorName = itemView.findViewById(R.id.answer_item_username);
+            answerItemBestBtn = itemView.findViewById(R.id.answer_item_best);
+            answerItemContent = itemView.findViewById(R.id.answer_item_content);
+            answerItemDate = itemView.findViewById(R.id.answer_item_date);
+            answerItemExciting = itemView.findViewById(R.id.answer_item_exciting);
+            answerItemExcitingImg = itemView.findViewById(R.id.answer_item_exciting_img);
+            answerItemExcitingCount = itemView.findViewById(R.id.answer_item_exciting_count);
+            answerItemNaive = itemView.findViewById(R.id.answer_item_naive);
+            answerItemNaiveImg = itemView.findViewById(R.id.answer_item_naive_img);
+            answerItemNaiveCount = itemView.findViewById(R.id.answer_item_naive_count);
         }
     }
 }

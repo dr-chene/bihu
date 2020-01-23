@@ -67,10 +67,6 @@ public class Answer {
         return exciting;
     }
 
-    public Boolean getIsExciting(){
-        return isExciting;
-    }
-
     public void setExciting(Boolean exciting) {
         isExciting = exciting;
     }
@@ -79,12 +75,12 @@ public class Answer {
         this.exciting = exciting;
     }
 
-    public int getNaive() {
-        return naive;
+    public Boolean getIsExciting() {
+        return isExciting;
     }
 
-    public Boolean getIsNaive(){
-        return isNaive;
+    public int getNaive() {
+        return naive;
     }
 
     public void setNaive(Boolean naive) {
@@ -93,6 +89,10 @@ public class Answer {
 
     public void setNaive(int naive) {
         this.naive = naive;
+    }
+
+    public Boolean getIsNaive() {
+        return isNaive;
     }
 
     public int getAuthorId() {

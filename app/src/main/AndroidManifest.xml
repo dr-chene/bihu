@@ -12,7 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".QuestionActivity"></activity>
+        <activity android:name=".FavoriteActivity"></activity>
+        <activity android:name=".EnterQuestionActivity" />
+        <activity android:name=".QuestionActivity" />
         <activity android:name=".ChangePasswordActivity" />
         <activity android:name=".SettingActivity" />
         <activity android:name=".RegisterActivity" />

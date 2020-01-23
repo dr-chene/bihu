@@ -3,7 +3,6 @@ package com.example.bihu;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,16 +17,14 @@ import com.example.bihu.tool.MyHelper;
 import com.example.bihu.tool.Question;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInnerViewHolder> {
 
     private MyHelper myHelper;
     private SQLiteDatabase db;
-    private List<Question> questionList =new ArrayList<>();
+    private List<Question> questionList = new ArrayList<>();
     private Context context;
     private Question question;
     private ImageView questionItemUserImg;
@@ -40,12 +37,15 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
     private TextView questionItemAnswerCount;
     private TextView questionItemNaiveCount;
     private LinearLayout questionItem;
+    private List<Question> favoriteList = new ArrayList<>();
+    private int type;
 
-    public QuestionAdapter(Context context) {
+    public QuestionAdapter(Context context, int type) {
         this.context = context;
         myHelper = new MyHelper(this.context, MainActivity.vision);
         db = myHelper.getReadableDatabase();
         getQuestionData();
+        this.type = type;
     }
 
     @NonNull
@@ -57,7 +57,13 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
 
     @Override
     public void onBindViewHolder(@NonNull MyInnerViewHolder holder, final int position) {
-        question = questionList.get(position);
+        switch (type) {
+            case MainActivity.TYPE_QUESTION:
+                question = questionList.get(position);
+                break;
+            case MainActivity.TYPE_FAVORITE:
+                question = favoriteList.get(position);
+        }
         questionItemAuthorName.setText(question.getAuthorName());
         questionItemRecent.setText(question.getRecent());
         questionItemTitle.setText(question.getTitle());
@@ -78,16 +84,37 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
 
     @Override
     public int getItemCount() {
-            return questionList.size();
+        switch (type) {
+            case MainActivity.TYPE_QUESTION:
+                return questionList.size();
+            case MainActivity.TYPE_FAVORITE:
+                return favoriteList.size();
+        }
+        return 0;
+    }
+
+    public void refresh(int type) {
+        switch (type) {
+            case MainActivity.TYPE_QUESTION:
+                getQuestionData();
+                break;
+            case MainActivity.TYPE_FAVORITE:
+                getFavorite();
+                break;
+        }
 
     }
 
-    public void refresh() {
-       getQuestionData();
+    private void getFavorite() {
+        myHelper.readFavorite(db, favoriteList);
     }
 
     public void getQuestionData() {
         myHelper.readQuestion(db, questionList);
+    }
+
+    public void getFavoriteData() {
+        myHelper.readFavorite(db, favoriteList);
     }
 
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {

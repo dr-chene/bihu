@@ -1,7 +1,6 @@
 package com.example.bihu;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.Menu;
@@ -22,7 +21,6 @@ import com.example.bihu.tool.MyHelper;
 import com.example.bihu.tool.Person;
 import com.example.bihu.tool.Question;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +40,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int TYPE_QUESTION =1;
+    public static final int TYPE_QUESTION = 1;
     public static final int TYPE_ANSWER = 2;
     public static final int TYPE_ACCEPT = 3;
     public static final int TYPE_EXCITING = 4;
@@ -88,10 +86,12 @@ public class MainActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.action_settings:
-                if (person != null) {
+                if (person.getId() != -1) {
                     Intent intent2 = new Intent(MainActivity.this, SettingActivity.class);
                     startActivity(intent2);
-                } else Toast.makeText(MainActivity.this, "请先登录", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "请先登录或注册", Toast.LENGTH_LONG).show();
+                }
                 break;
             case R.id.action_login:
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -100,6 +100,14 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_register:
                 Intent intent1 = new Intent(MainActivity.this, RegisterActivity.class);
                 startActivity(intent1);
+                break;
+            case R.id.action_favoriteList:
+                if (person.getId() != -1) {
+                    Intent intent2 = new Intent(MainActivity.this, FavoriteActivity.class);
+                    startActivity(intent2);
+                } else {
+                    Toast.makeText(MainActivity.this, "请先登录或注册", Toast.LENGTH_LONG).show();
+                }
                 break;
         }
         return true;
@@ -117,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.srl);
         recyclerView = findViewById(R.id.main_rv);
         loadData();
-        questionAdapter = new QuestionAdapter(this);
+        questionAdapter = new QuestionAdapter(this, MainActivity.TYPE_QUESTION);
         recyclerView.setAdapter(questionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, new LinearLayoutManager(this).getOrientation());
@@ -131,8 +139,12 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (person.getId() != -1) {
+                    Intent intent = new Intent(MainActivity.this, EnterQuestionActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(MainActivity.this, "请先登录或注册", Toast.LENGTH_LONG).show();
+                }
             }
         });
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -143,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 query.put("count", "" + count);
                 query.put("token", person.getToken());
                 sendPost(UrlPost.URL_GETQUESTIONLIST, query);
-                questionAdapter.refresh();
+                questionAdapter.refresh(MainActivity.TYPE_QUESTION);
                 questionAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -229,20 +241,17 @@ public class MainActivity extends AppCompatActivity {
                             if (!jsonObject.getString("info").equals("success"))
                                 Toast.makeText(MainActivity.this, "登录失效，请重新登录", Toast.LENGTH_LONG).show();
                             else {
-                                Cursor cursor = db.rawQuery("select * from question", null);
-                                if (totalCount != cursor.getCount()) {
-                                    JSONArray jsonArray = object.getJSONArray("questions");
-                                    JSONObject questionData = null;
+                                JSONArray jsonArray = object.getJSONArray("questions");
+                                JSONObject questionData = null;
 //                                Log.d("MainActivity",jsonArray.toString());
-                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                for (int i = 0; i < jsonArray.length(); i++) {
 //                                    Log.d("MainActivity","jsonArray "+ i);
-                                        questionData = jsonArray.getJSONObject(i);
+                                    questionData = jsonArray.getJSONObject(i);
 //                                    Log.d("MainActivity",questionData.toString());
-                                        myHelper.addQuestion(db, questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
-                                                , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
-                                                questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
-                                                questionData.getBoolean("is_favorite") == true ? 1 : 0);
-                                    }
+                                    myHelper.addQuestion(db, questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
+                                            , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
+                                            questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
+                                            questionData.getBoolean("is_favorite") == true ? 1 : 0);
                                 }
                             }
                     }

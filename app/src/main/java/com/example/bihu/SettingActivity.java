@@ -53,7 +53,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         settingBack = findViewById(R.id.setting_back);
         settingAvatar = findViewById(R.id.setting_avatar);
         settingUsername = findViewById(R.id.setting_username);
-        if (MainActivity.person != null) {
+        if (MainActivity.person.getId() != -1) {
             //设置头像settingAvatar
             settingUsername.setText(MainActivity.person.getUsername());
 
@@ -78,7 +78,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.login_out:
                 dialog(v);
-                if (MainActivity.person == null) {
+                if (MainActivity.person.getId() == -1) {
                     Toast.makeText(SettingActivity.this, "正在返回主页", LENGTH_SHORT).show();
                     Intent intent1 = new Intent(SettingActivity.this, MainActivity.class);
                     startActivity(intent1);
@@ -99,7 +99,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MainActivity.person = null;
+                MainActivity.person.setId(-1);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
