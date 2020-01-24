@@ -2,10 +2,8 @@ package com.example.bihu;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,27 +18,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bihu.tool.Answer;
 import com.example.bihu.tool.MyHelper;
+import com.example.bihu.tool.Question;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerViewHolder>
-        implements View.OnClickListener
-{
+public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerViewHolder> implements View.OnClickListener {
 
     private Context context;
     private ImageView answerItemAuthorImg;
@@ -54,28 +39,23 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
     private LinearLayout answerItemNaive;
     private ImageView answerItemNaiveImg;
     private TextView answerItemNaiveCount;
-    private MyHelper myHelper;
-    private SQLiteDatabase db;
     private List<Answer> answerList = new ArrayList<>();
     private int qid;
     private int aid;
     private Boolean isExciting;
     private Boolean isNaive;
+    private Question question;
 
     public AnswerAdapter(Context context, int qid) {
         this.qid = qid;
         this.context = context;
-        myHelper = new MyHelper(this.context, MainActivity.vision);
-        db = myHelper.getReadableDatabase();
+        question = new Question();
+        MyHelper.searchQuestion(context, qid, question);
         getAnswerData();
     }
 
     private void getAnswerData() {
-        myHelper.readAnswer(db, answerList, qid);
-        Log.d("debug", answerList.size() + "");
-        for (int i = 0; i < answerList.size(); i++) {
-            Log.d("question", "content = " + answerList.get(i).getContent());
-        }
+        MyHelper.readAnswer(context, answerList, qid);
     }
 
     @NonNull
@@ -93,12 +73,9 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
         answerItemDate.setText(answer.getDate());
         answerItemExcitingCount.setText(answer.getExciting() + "");
         answerItemNaiveCount.setText(answer.getNaive() + "");
-        Log.d("debug", "position = " + position);
-        Log.d("debug", "content = " + answer.getContent());
         aid = answer.getId();
         isExciting = answer.getIsExciting();
         isNaive = answer.getIsNaive();
-        answerItemExciting = holder.itemView.findViewById(R.id.answer_item_exciting);
         if (isExciting) {
             answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
         } else {
@@ -109,40 +86,15 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
         } else {
             answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
         }
-        if (!answer.getAuthorName().equals(MainActivity.person.getUsername())) {
+        if (!(question.getAuthorId() == MainActivity.person.getId())) {
             answerItemBestBtn.setVisibility(View.GONE);
         }
         if (answer.getBest() == 1) {
-            answerItemBestBtn.setVisibility(View.VISIBLE);
             answerItemBestBtn.setText("已采纳");
             answerItemBestBtn.setTextColor(Integer.parseInt("#FFFF00"));
             Drawable drawable = ResourcesCompat.getDrawable(Resources.getSystem(), R.drawable.accept_bg, null);
             answerItemBestBtn.setBackground(drawable);
         }
-        answerItemExciting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("debug2","点击了");
-                answerItemContent.setText("debug");
-                Map<String,String>  queryExciting=new HashMap<>();
-                queryExciting.put("id",aid+"");
-                queryExciting.put("type",MainActivity.TYPE_ANSWER+"");
-                queryExciting.put("token",MainActivity.person.getToken());
-                    if(isExciting){
-                        sendPost(UrlPost.URL_CANCELEXCITING,queryExciting);
-                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
-                        String s = answerItemExcitingCount.getText().toString();
-                        answerItemExcitingCount.setText(Integer.parseInt(s)-1+"");
-                        isExciting =false;
-                    }else {
-                        sendPost(UrlPost.URL_EXCITING,queryExciting);
-                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-                        String s = answerItemExcitingCount.getText().toString();
-                        answerItemExcitingCount.setText((Integer.parseInt(s)+1)+"");
-                        isExciting = true;
-                    }
-            }
-        });
         setOnClickListener();
     }
 
@@ -151,53 +103,57 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
     public int getItemCount() {
         return answerList.size();
     }
-//
+
+    //
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.answer_item_best:
-                    Map<String,String> queryBest = new HashMap<>();
-                    queryBest.put("qid",qid+"");
-                    queryBest.put("aid",aid+"");
-                    queryBest.put("token",MainActivity.person.getToken());
-                    sendPost(UrlPost.URL_ACCEPT,queryBest);
-                    answerItemBestBtn.setText("已采纳");
-                    answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
-                    Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg,null);
-                    answerItemBestBtn.setBackground(drawable);
-                    break;
+                Map<String, String> queryBest = new HashMap<>();
+                queryBest.put("qid", qid + "");
+                queryBest.put("aid", aid + "");
+                queryBest.put("token", MainActivity.person.getToken());
+                URLPost urlPost5 = new URLPost(context);
+                urlPost5.post(URLPost.URL_ACCEPT, queryBest, URLPost.TYPE_ACCEPT);
+                answerItemBestBtn.setText("已采纳");
+                answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
+                Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg, null);
+                answerItemBestBtn.setBackground(drawable);
+                break;
             case R.id.answer_item_exciting:
-                Map<String,String>  queryExciting=new HashMap<>();
-                queryExciting.put("id",aid+"");
-                queryExciting.put("type",MainActivity.TYPE_ANSWER+"");
-                queryExciting.put("token",MainActivity.person.getToken());
-                    if(isExciting){
-                        sendPost(UrlPost.URL_CANCELEXCITING,queryExciting);
-                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
-                        String s = answerItemExcitingCount.getText().toString();
-                        answerItemExcitingCount.setText(Integer.parseInt(s)-1+"");
-                        isExciting =false;
-                    }else {
-                        sendPost(UrlPost.URL_EXCITING,queryExciting);
-                        answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-                        String s = answerItemExcitingCount.getText().toString();
-                        answerItemExcitingCount.setText((Integer.parseInt(s)+1)+"");
-                        isExciting = true;
-                    }
-                    break;
+                Map<String, String> queryExciting = new HashMap<>();
+                queryExciting.put("id", aid + "");
+                queryExciting.put("type", MainActivity.TYPE_ANSWER + "");
+                queryExciting.put("token", MainActivity.person.getToken());
+                URLPost urlPost = new URLPost(context);
+                if (isExciting) {
+                    urlPost.post(URLPost.URL_CANCEL_EXCITING, queryExciting, URLPost.TYPE_CANCEL_EXCITING);
+                    answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+                    String s = answerItemExcitingCount.getText().toString();
+                    answerItemExcitingCount.setText(Integer.parseInt(s) - 1 + "");
+                    isExciting = false;
+                } else {
+                    urlPost.post(URLPost.URL_EXCITING, queryExciting, URLPost.TYPE_EXCITING);
+                    answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+                    String s = answerItemExcitingCount.getText().toString();
+                    answerItemExcitingCount.setText((Integer.parseInt(s) + 1) + "");
+                    isExciting = true;
+                }
+                break;
             case R.id.answer_item_naive:
-                Map<String,String>  queryNaive=new HashMap<>();
-                queryNaive.put("id",aid+"");
-                queryNaive.put("type",MainActivity.TYPE_ANSWER+"");
-                queryNaive.put("token",MainActivity.person.getToken());
+                Map<String, String> queryNaive = new HashMap<>();
+                queryNaive.put("id", aid + "");
+                queryNaive.put("type", MainActivity.TYPE_ANSWER + "");
+                queryNaive.put("token", MainActivity.person.getToken());
+                URLPost urlPost1 = new URLPost(context);
                 if (isNaive) {
-                    sendPost(UrlPost.URL_CANCELNAIVE, queryNaive);
+                    urlPost1.post(URLPost.URL_CANCEL_NAIVE, queryNaive, URLPost.TYPE_CANCEL_NAIVE);
                     answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
                     String s = answerItemNaiveCount.getText().toString();
                     answerItemNaiveCount.setText(Integer.parseInt(s) - 1 + "");
                     isNaive = false;
                 } else {
-                    sendPost(UrlPost.URL_NAIVE, queryNaive);
+                    urlPost1.post(URLPost.URL_NAIVE, queryNaive, URLPost.TYPE_NAIVE);
                     answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsdown_fill);
                     String s = answerItemNaiveCount.getText().toString();
                     answerItemNaiveCount.setText((Integer.parseInt(s) + 1) + "");
@@ -213,88 +169,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
     }
 
     public void refresh() {
-        Log.d("question", "开始刷新数据");
-        myHelper.readAnswer(db, answerList, qid);
-        Log.d("question", "数据刷新成功");
-    }
-
-    private void sendPost(final String urlParam, Map<String, String> params) {
-        final StringBuffer sbParams = new StringBuffer();
-        if (params != null && params.size() > 0) {
-            for (Map.Entry<String, String> e : params.entrySet()) {
-                sbParams.append(e.getKey());
-                sbParams.append("=");
-                sbParams.append(e.getValue());
-                sbParams.append("&");
-            }
-        }
-        sbParams.deleteCharAt(sbParams.length() - 1);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpURLConnection connection = null;
-                BufferedReader reader = null;
-                URL url = null;
-                try {
-                    url = new URL(urlParam);
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                    out.writeBytes(sbParams.toString());
-                    connection.setReadTimeout(8000);
-                    connection.setConnectTimeout(8000);
-                    InputStream in = connection.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuffer response = new StringBuffer();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-                    json(response.toString());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (ProtocolException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
-                }
-            }
-        }).start();
-    }
-
-    private void json(final String data) {
-        try {
-            JSONObject jsonObject = null;
-            jsonObject = new JSONObject(data);
-            switch (jsonObject.getInt("status")) {
-                case 400:
-//                    Toast.makeText(context, "参数错误", Toast.LENGTH_SHORT).show();
-                    break;
-                case 401:
-//                    Toast.makeText(context, "用户认证错误", Toast.LENGTH_SHORT).show();
-                    break;
-                case 500:
-//                    Toast.makeText(context, "奇怪的错误", Toast.LENGTH_SHORT).show();
-                    break;
-                case 200:
-                    if (!jsonObject.getString("info").equals("success")) {
-//                        Toast.makeText(context,"登录失效，请重新登录",Toast.LENGTH_LONG).show();
-                    }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        MyHelper.readAnswer(context, answerList, qid);
     }
 
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {

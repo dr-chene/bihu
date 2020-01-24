@@ -2,7 +2,6 @@ package com.example.bihu;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,9 +21,8 @@ import java.util.List;
 
 public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInnerViewHolder> {
 
-    private MyHelper myHelper;
-    private SQLiteDatabase db;
     private List<Question> questionList = new ArrayList<>();
+    private List<Question> favoriteList = new ArrayList<>();
     private Context context;
     private Question question;
     private ImageView questionItemUserImg;
@@ -37,15 +35,15 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
     private TextView questionItemAnswerCount;
     private TextView questionItemNaiveCount;
     private LinearLayout questionItem;
-    private List<Question> favoriteList = new ArrayList<>();
     private int type;
 
     public QuestionAdapter(Context context, int type) {
         this.context = context;
-        myHelper = new MyHelper(this.context, MainActivity.vision);
-        db = myHelper.getReadableDatabase();
-        getQuestionData();
         this.type = type;
+       switch (type){
+           case MainActivity.TYPE_QUESTION:getQuestionData();break;
+           case MainActivity.TYPE_FAVORITE:getFavoriteData();break;
+       }
     }
 
     @NonNull
@@ -99,22 +97,18 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
                 getQuestionData();
                 break;
             case MainActivity.TYPE_FAVORITE:
-                getFavorite();
+                getFavoriteData();
                 break;
         }
 
     }
 
-    private void getFavorite() {
-        myHelper.readFavorite(db, favoriteList);
-    }
-
     public void getQuestionData() {
-        myHelper.readQuestion(db, questionList);
+        MyHelper.readQuestion(context,questionList);
     }
 
     public void getFavoriteData() {
-        myHelper.readFavorite(db, favoriteList);
+        MyHelper.readFavorite(context,favoriteList);
     }
 
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {
