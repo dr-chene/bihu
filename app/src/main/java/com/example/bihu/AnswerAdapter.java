@@ -1,9 +1,9 @@
 package com.example.bihu;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +11,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bihu.tool.Answer;
@@ -25,38 +25,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerViewHolder> implements View.OnClickListener {
+public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerViewHolder> {
 
     private Context context;
-    private ImageView answerItemAuthorImg;
-    private TextView answerItemAuthorName;
-    private Button answerItemBestBtn;
-    private TextView answerItemContent;
-    private TextView answerItemDate;
-    private LinearLayout answerItemExciting;
-    private ImageView answerItemExcitingImg;
-    private TextView answerItemExcitingCount;
-    private LinearLayout answerItemNaive;
-    private ImageView answerItemNaiveImg;
-    private TextView answerItemNaiveCount;
     private List<Answer> answerList = new ArrayList<>();
     private int qid;
     private int aid;
-    private Boolean isExciting;
-    private Boolean isNaive;
     private Question question;
+    private Boolean best = true;
 
     public AnswerAdapter(Context context, int qid) {
         this.qid = qid;
         this.context = context;
         question = new Question();
         MyHelper.searchQuestion(context, qid, question);
-        getAnswerData();
-    }
-
-    private void getAnswerData() {
         MyHelper.readAnswer(context, answerList, qid);
     }
+
 
     @NonNull
     @Override
@@ -66,113 +51,126 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MyInnerVie
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AnswerAdapter.MyInnerViewHolder holder, int position) {
-        Answer answer = answerList.get(position);
-        answerItemAuthorName.setText(answer.getAuthorName());
-        answerItemContent.setText(answer.getContent());
-        answerItemDate.setText(answer.getDate());
-        answerItemExcitingCount.setText(answer.getExciting() + "");
-        answerItemNaiveCount.setText(answer.getNaive() + "");
+    public void onBindViewHolder(@NonNull final AnswerAdapter.MyInnerViewHolder holder, int position) {
+        final Answer answer = answerList.get(position);
+        holder.answerItemAuthorName.setText(answer.getAuthorName());
+        holder.answerItemContent.setText(answer.getContent());
+        holder.answerItemDate.setText(answer.getDate());
+        holder.answerItemExcitingCount.setText(answer.getExciting() + "");
+        holder.answerItemNaiveCount.setText(answer.getNaive() + "");
         aid = answer.getId();
-        isExciting = answer.getIsExciting();
-        isNaive = answer.getIsNaive();
-        if (isExciting) {
-            answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+        final Boolean[] isExciting = {answer.getIsExciting()};
+        final Boolean[] isNaive = {answer.getIsNaive()};
+        if (isExciting[0]) {
+            holder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
         } else {
-            answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+            holder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
         }
-        if (isNaive) {
-            answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
+        if (isNaive[0]) {
+            holder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
         } else {
-            answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
+            holder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
         }
         if (!(question.getAuthorId() == MainActivity.person.getId())) {
-            answerItemBestBtn.setVisibility(View.GONE);
+            holder.answerItemBestBtn.setVisibility(View.GONE);
         }
         if (answer.getBest() == 1) {
-            answerItemBestBtn.setText("已采纳");
-            answerItemBestBtn.setTextColor(Integer.parseInt("#FFFF00"));
-            Drawable drawable = ResourcesCompat.getDrawable(Resources.getSystem(), R.drawable.accept_bg, null);
-            answerItemBestBtn.setBackground(drawable);
+            best = false;
+            holder.answerItemBestBtn.setText("已采纳");
+            holder.answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
+            Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg, null);
+            holder.answerItemBestBtn.setBackground(drawable);
         }
-        setOnClickListener();
-    }
+        holder.answerItemBestBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (best) {
+                    Map<String, String> queryBest = new HashMap<>();
+                    queryBest.put("qid", qid + "");
+                    queryBest.put("aid", aid + "");
+                    queryBest.put("token", MainActivity.person.getToken());
+                    URLPost urlPost5 = new URLPost(context);
+                    urlPost5.post(URLPost.URL_ACCEPT, queryBest, URLPost.TYPE_ACCEPT);
+                    holder.answerItemBestBtn.setText("已采纳");
+                    holder.answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
+                    Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg, null);
+                    holder.answerItemBestBtn.setBackground(drawable);
+                }else {
+                    Toast.makeText(context,"best只能有一位",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        holder.answerItemExcitingImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Map<String, String> queryExciting = new HashMap<>();
+                queryExciting.put("id", aid + "");
+                queryExciting.put("type", MainActivity.TYPE_ANSWER + "");
+                queryExciting.put("token", MainActivity.person.getToken());
+                URLPost urlPost = new URLPost(context);
+                if (isExciting[0]) {
+                    Log.d("debug", "isExciting = " + isExciting[0]);
+                    urlPost.post(URLPost.URL_CANCEL_EXCITING, queryExciting, URLPost.TYPE_CANCEL_EXCITING);
+                    holder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+                    String s = holder.answerItemExcitingCount.getText().toString();
+                    holder.answerItemExcitingCount.setText(Integer.parseInt(s) - 1 + "");
+                    isExciting[0] = false;
+                } else {
+                    urlPost.post(URLPost.URL_EXCITING, queryExciting, URLPost.TYPE_EXCITING);
+                    holder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+                    String s = holder.answerItemExcitingCount.getText().toString();
+                    holder.answerItemExcitingCount.setText((Integer.parseInt(s) + 1) + "");
+                    isExciting[0] = true;
+                }
+            }
+        });
+        holder.answerItemNaiveImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Map<String, String> queryNaive = new HashMap<>();
+                queryNaive.put("id", aid + "");
+                queryNaive.put("type", MainActivity.TYPE_ANSWER + "");
+                queryNaive.put("token", MainActivity.person.getToken());
+                URLPost urlPost1 = new URLPost(context);
+                if (isNaive[0]) {
+                    urlPost1.post(URLPost.URL_CANCEL_NAIVE, queryNaive, URLPost.TYPE_CANCEL_NAIVE);
+                    holder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
+                    String s = holder.answerItemNaiveCount.getText().toString();
+                    holder.answerItemNaiveCount.setText(Integer.parseInt(s) - 1 + "");
+                    isNaive[0] = false;
+                } else {
+                    urlPost1.post(URLPost.URL_NAIVE, queryNaive, URLPost.TYPE_NAIVE);
+                    holder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
+                    String s = holder.answerItemNaiveCount.getText().toString();
+                    holder.answerItemNaiveCount.setText((Integer.parseInt(s) + 1) + "");
+                    isNaive[0] = true;
+                }
+            }
+        });
 
+    }
 
     @Override
     public int getItemCount() {
         return answerList.size();
     }
 
-    //
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.answer_item_best:
-                Map<String, String> queryBest = new HashMap<>();
-                queryBest.put("qid", qid + "");
-                queryBest.put("aid", aid + "");
-                queryBest.put("token", MainActivity.person.getToken());
-                URLPost urlPost5 = new URLPost(context);
-                urlPost5.post(URLPost.URL_ACCEPT, queryBest, URLPost.TYPE_ACCEPT);
-                answerItemBestBtn.setText("已采纳");
-                answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
-                Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg, null);
-                answerItemBestBtn.setBackground(drawable);
-                break;
-            case R.id.answer_item_exciting:
-                Map<String, String> queryExciting = new HashMap<>();
-                queryExciting.put("id", aid + "");
-                queryExciting.put("type", MainActivity.TYPE_ANSWER + "");
-                queryExciting.put("token", MainActivity.person.getToken());
-                URLPost urlPost = new URLPost(context);
-                if (isExciting) {
-                    urlPost.post(URLPost.URL_CANCEL_EXCITING, queryExciting, URLPost.TYPE_CANCEL_EXCITING);
-                    answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
-                    String s = answerItemExcitingCount.getText().toString();
-                    answerItemExcitingCount.setText(Integer.parseInt(s) - 1 + "");
-                    isExciting = false;
-                } else {
-                    urlPost.post(URLPost.URL_EXCITING, queryExciting, URLPost.TYPE_EXCITING);
-                    answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-                    String s = answerItemExcitingCount.getText().toString();
-                    answerItemExcitingCount.setText((Integer.parseInt(s) + 1) + "");
-                    isExciting = true;
-                }
-                break;
-            case R.id.answer_item_naive:
-                Map<String, String> queryNaive = new HashMap<>();
-                queryNaive.put("id", aid + "");
-                queryNaive.put("type", MainActivity.TYPE_ANSWER + "");
-                queryNaive.put("token", MainActivity.person.getToken());
-                URLPost urlPost1 = new URLPost(context);
-                if (isNaive) {
-                    urlPost1.post(URLPost.URL_CANCEL_NAIVE, queryNaive, URLPost.TYPE_CANCEL_NAIVE);
-                    answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
-                    String s = answerItemNaiveCount.getText().toString();
-                    answerItemNaiveCount.setText(Integer.parseInt(s) - 1 + "");
-                    isNaive = false;
-                } else {
-                    urlPost1.post(URLPost.URL_NAIVE, queryNaive, URLPost.TYPE_NAIVE);
-                    answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsdown_fill);
-                    String s = answerItemNaiveCount.getText().toString();
-                    answerItemNaiveCount.setText((Integer.parseInt(s) + 1) + "");
-                    isNaive = true;
-                }
-        }
-    }
-
-    private void setOnClickListener() {
-        answerItemBestBtn.setOnClickListener(this);
-        answerItemExciting.setOnClickListener(this);
-        answerItemNaive.setOnClickListener(this);
-    }
-
-    public void refresh() {
-        MyHelper.readAnswer(context, answerList, qid);
+    public void dataChange(List<Answer> answerList) {
+        this.answerList = answerList;
     }
 
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {
+        private ImageView answerItemAuthorImg;
+        private TextView answerItemAuthorName;
+        private Button answerItemBestBtn;
+        private TextView answerItemContent;
+        private TextView answerItemDate;
+        private LinearLayout answerItemExciting;
+        private ImageView answerItemExcitingImg;
+        private TextView answerItemExcitingCount;
+        private LinearLayout answerItemNaive;
+        private ImageView answerItemNaiveImg;
+        private TextView answerItemNaiveCount;
 
         public MyInnerViewHolder(@NonNull View itemView) {
             super(itemView);

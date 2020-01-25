@@ -17,6 +17,12 @@ public class MyHelper extends SQLiteOpenHelper {
         super(context, "bihu.db", null, version);
     }
 
+    public static void deletePerson(Context context){
+        MyHelper myHelper = new MyHelper(context,MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
+        sqLiteDatabase.delete("person",null,null);
+    }
+
     public static void addPerson(Context context, int uid, String username, String password, String avatar, String token) {
         MyHelper myHelper = new MyHelper(context, MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
@@ -47,7 +53,7 @@ public class MyHelper extends SQLiteOpenHelper {
         MyHelper myHelper = new MyHelper(context, MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         if (!searchAnswer(context, aid, sqLiteDatabase)) {
-            Log.d("debug", "add answer");
+//            Log.d("debug", "add answer");
             ContentValues contentValues = new ContentValues();
             contentValues.put("aid", aid);
             contentValues.put("qid", qid);
@@ -64,9 +70,9 @@ public class MyHelper extends SQLiteOpenHelper {
             contentValues.put("isNaive", isNaive);
             sqLiteDatabase.insert("answer", null, contentValues);
             sqLiteDatabase.close();
-            Log.d("debug", "add answer finish");
+//            Log.d("debug", "add answer finish");
         } else {
-            Log.d("debug", "update answer");
+//            Log.d("debug", "update answer");
             ContentValues contentValues = new ContentValues();
             contentValues.put("best", best);
             contentValues.put("exciting", exciting);
@@ -75,7 +81,7 @@ public class MyHelper extends SQLiteOpenHelper {
             contentValues.put("isNaive", isNaive);
             sqLiteDatabase.update("answer", contentValues, "aid = ?", new String[]{aid + ""});
             sqLiteDatabase.close();
-            Log.d("debug", "update answer finish");
+//            Log.d("debug", "update answer finish");
         }
     }
 
@@ -93,7 +99,7 @@ public class MyHelper extends SQLiteOpenHelper {
         MyHelper myHelper = new MyHelper(context, MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         if (!searchQuestion(context, qid, sqLiteDatabase)) {
-            Log.d("debug", "add question");
+//            Log.d("debug", "add question");
             ContentValues contentValues = new ContentValues();
             contentValues.put("qid", qid);
             contentValues.put("title", title);
@@ -112,9 +118,9 @@ public class MyHelper extends SQLiteOpenHelper {
             contentValues.put("isFavorite", isFavorite);
             sqLiteDatabase.insert("question", null, contentValues);
             sqLiteDatabase.close();
-            Log.d("debug", "add question finish");
+//            Log.d("debug", "add question finish");
         } else {
-            Log.d("debug", "update question");
+//            Log.d("debug", "update question");
             ContentValues contentValues = new ContentValues();
             contentValues.put("exciting", exciting);
             contentValues.put("naive", naive);
@@ -124,7 +130,7 @@ public class MyHelper extends SQLiteOpenHelper {
             contentValues.put("isFavorite", isFavorite);
             sqLiteDatabase.update("question", contentValues, "qid = ?", new String[]{qid + ""});
             sqLiteDatabase.close();
-            Log.d("debug", "update question finish");
+//            Log.d("debug", "update question finish");
         }
     }
 

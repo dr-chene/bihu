@@ -112,7 +112,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <com.example.bihu.tool.CircleImageView
             android:id="@+id/setting_avatar"
             android:layout_width="30dp"
             android:layout_height="30dp"

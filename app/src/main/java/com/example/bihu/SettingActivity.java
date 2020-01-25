@@ -12,6 +12,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.example.bihu.tool.MyHelper;
+
 import static android.widget.Toast.LENGTH_SHORT;
 
 public class SettingActivity extends AppCompatActivity implements View.OnClickListener {
@@ -99,7 +101,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MainActivity.person.setId(-1);
+                MyHelper.deletePerson(SettingActivity.this);
+                Intent intent = new Intent(SettingActivity.this,MainActivity.class);
+                startActivity(intent);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {

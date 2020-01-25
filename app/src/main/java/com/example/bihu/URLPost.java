@@ -3,7 +3,6 @@ package com.example.bihu;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -71,7 +70,7 @@ public class URLPost {
                     Data.login(context, msg);
                     break;
                 case TYPE_GET_QUESTION_LIST:
-                    Data.getQuestionList(context, msg, totalCount);
+                    Data.getQuestionList(context, msg);
                     break;
                 case TYPE_GET_ANSWER_LIST:
                     Data.getAnswerList(context, msg, qid);
@@ -88,8 +87,9 @@ public class URLPost {
                 case TYPE_MODIFY_AVATAR:
                     try {
                         JSONObject jsonObject = new JSONObject(msg.obj.toString());
-                        Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_LONG).show();
-                        Log.d("debug", msg.obj.toString());
+                        if (jsonObject.getInt("status") != 200) {
+                            Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -97,8 +97,9 @@ public class URLPost {
                 case TYPE_CHANGE_PASSWORD:
                     try {
                         JSONObject jsonObject = new JSONObject(msg.obj.toString());
-                        Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_LONG).show();
-
+                        if (jsonObject.getInt("status") != 200) {
+                            Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                        }
                         if (jsonObject.getString("info").equals("success")) {
                             JSONObject object = jsonObject.getJSONObject("data");
                             MainActivity.person.setToken(object.getString("token"));

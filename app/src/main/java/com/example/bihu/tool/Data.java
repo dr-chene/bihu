@@ -6,13 +6,35 @@ import android.os.Message;
 import android.widget.Toast;
 
 import com.example.bihu.MainActivity;
+import com.example.bihu.QuestionActivity;
+import com.example.bihu.URLPost;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Data {
 
+    public static void refreshQuestion(Context context,int page,int count){
+        Map<String, String> query = new HashMap<>();
+        query.put("page", "" + page);
+        query.put("count", "" + count);
+        query.put("token", MainActivity.person.getToken());
+        URLPost urlPost = new URLPost(context);
+        urlPost.post(URLPost.URL_GET_QUESTION_LIST, query, URLPost.TYPE_GET_QUESTION_LIST);
+    }
+    public static void refreshAnswer(Context context,int page,int count,int qid){
+        Map<String, String> query = new HashMap<>();
+        query.put("page", page + "");
+        query.put("count", count + "");
+        query.put("qid", qid + "");
+        query.put("token", MainActivity.person.getToken());
+        URLPost urlPost = new URLPost(context, qid);
+        urlPost.post(URLPost.URL_GET_ANSWER_LIST, query, URLPost.TYPE_GET_ANSWER_LIST);
+    }
     public static void register(Context context, Message msg) {
         try {
             JSONObject jsonObject = new JSONObject(msg.obj.toString());
@@ -54,7 +76,7 @@ public class Data {
                     MainActivity.person.setToken(object.getString("token"));
                     MainActivity.person.setAvatar(object.getString("avatar"));
                     MyHelper.addPerson(context, object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
-                    Toast.makeText(context, "登录成功，即将跳转", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "登录成功，即将跳转", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(context, MainActivity.class);
                     context.startActivity(intent);
             }
@@ -63,21 +85,21 @@ public class Data {
         }
     }
 
-    public static void getQuestionList(Context context, Message msg, int totalCount) {
+    public static void getQuestionList(Context context, Message msg) {
         try {
             JSONObject jsonObject = new JSONObject(msg.obj.toString());
             switch (jsonObject.getInt("status")) {
                 case 400:
                 case 401:
                 case 500:
-                    Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                     break;
                 case 200:
                     if (!jsonObject.getString("info").equals("success"))
                         Toast.makeText(context, "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
                     else {
                         JSONObject object = jsonObject.getJSONObject("data");
-                        totalCount = object.getInt("totalCount");
+                        int totalCount = object.getInt("totalCount");
                         int totalPage = object.getInt("totalPage");
                         int curPage = object.getInt("curPage");
                         JSONArray jsonArray = object.getJSONArray("questions");
@@ -103,7 +125,7 @@ public class Data {
                 case 400:
                 case 401:
                 case 500:
-                    Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                     break;
                 case 200:
                     if (!jsonObject.getString("info").equals("success"))

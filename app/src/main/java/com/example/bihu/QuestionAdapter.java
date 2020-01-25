@@ -25,16 +25,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
     private List<Question> favoriteList = new ArrayList<>();
     private Context context;
     private Question question;
-    private ImageView questionItemUserImg;
-    private TextView questionItemAuthorName;
-    private TextView questionItemRecent;
-    private TextView questionItemTitle;
-    private TextView questionItemContent;
-    //       private ImageView questionItemContentImg;
-    private TextView questionItemExcitingCount;
-    private TextView questionItemAnswerCount;
-    private TextView questionItemNaiveCount;
-    private LinearLayout questionItem;
     private int type;
 
     public QuestionAdapter(Context context, int type) {
@@ -62,15 +52,15 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
             case MainActivity.TYPE_FAVORITE:
                 question = favoriteList.get(position);
         }
-        questionItemAuthorName.setText(question.getAuthorName());
-        questionItemRecent.setText(question.getRecent());
-        questionItemTitle.setText(question.getTitle());
-        questionItemContent.setText(question.getContent());
-        questionItemExcitingCount.setText(question.getExciting() + "");
-        questionItemAnswerCount.setText(question.getAnswerCount() + "");
-        questionItemNaiveCount.setText(question.getNaive() + "");
+        holder.questionItemAuthorName.setText(question.getAuthorName());
+        holder.questionItemRecent.setText(question.getRecent());
+        holder.questionItemTitle.setText(question.getTitle());
+        holder.questionItemContent.setText(question.getContent());
+        holder.questionItemExcitingCount.setText(question.getExciting() + "");
+        holder.questionItemAnswerCount.setText(question.getAnswerCount() + "");
+        holder.questionItemNaiveCount.setText(question.getNaive() + "");
         final int id = question.getId();
-        questionItem.setOnClickListener(new View.OnClickListener() {
+        holder.questionItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, QuestionActivity.class);
@@ -113,6 +103,16 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
 
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {
 
+        private ImageView questionItemUserImg;
+        private TextView questionItemAuthorName;
+        private TextView questionItemRecent;
+        private TextView questionItemTitle;
+        private TextView questionItemContent;
+        //       private ImageView questionItemContentImg;
+        private TextView questionItemExcitingCount;
+        private TextView questionItemAnswerCount;
+        private TextView questionItemNaiveCount;
+        private LinearLayout questionItem;
 
         public MyInnerViewHolder(@NonNull View itemView) {
             super(itemView);

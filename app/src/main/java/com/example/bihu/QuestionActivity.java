@@ -16,10 +16,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.bihu.tool.Answer;
+import com.example.bihu.tool.Data;
 import com.example.bihu.tool.MyHelper;
 import com.example.bihu.tool.Question;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class QuestionActivity extends AppCompatActivity implements View.OnClickListener {
@@ -52,6 +56,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
     private Boolean isNaive;
     private Boolean isFavorite;
     private LinearLayout questionBack;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,21 +118,21 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
         //
         isExciting = realQuestion.getIsExciting();
         if (isExciting) {
-            realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+            realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
         } else {
-            realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsup_fill);
+            realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsup);
         }
         isNaive = realQuestion.getIsNaive();
         if (isNaive) {
-            realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
-        } else {
             realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
+        } else {
+            realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
         }
         isFavorite = realQuestion.getFavorite();
         if (isFavorite) {
-            realQuestionFavoriteImg.setImageResource(R.drawable.star);
-        } else {
             realQuestionFavoriteImg.setImageResource(R.drawable.star_fill);
+        } else {
+            realQuestionFavoriteImg.setImageResource(R.drawable.star);
         }
     }
 
@@ -140,15 +145,7 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Map<String, String> query = new HashMap<>();
-                query.put("page", page + "");
-                query.put("count", count + "");
-                query.put("qid", qid + "");
-                query.put("token", MainActivity.person.getToken());
-                URLPost urlPost = new URLPost(QuestionActivity.this, qid);
-                urlPost.post(URLPost.URL_GET_ANSWER_LIST, query, URLPost.TYPE_GET_ANSWER_LIST);
-                answerAdapter.refresh();
-                answerAdapter.notifyDataSetChanged();
+                refresh();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -171,9 +168,9 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
                     isExciting = false;
                 } else {
                     urlPost.post(URLPost.URL_EXCITING, queryExciting, URLPost.TYPE_EXCITING);
-                    realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsup_fill);
-                    String s = realQuestionNaiveCount.getText().toString();
-                    realQuestionNaiveCount.setText((Integer.parseInt(s) + 1) + "");
+                    realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+                    String s = realQuestionExcitingCount.getText().toString();
+                    realQuestionExcitingCount.setText((Integer.parseInt(s) + 1) + "");
                     isExciting = true;
                 }
                 break;
@@ -231,5 +228,13 @@ public class QuestionActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(intent);
                 break;
         }
+    }
+
+        public void refresh() {
+            Data.refreshAnswer(QuestionActivity.this,page,count,qid);
+            List<Answer> answerList = new ArrayList<>();
+            MyHelper.readAnswer(QuestionActivity.this,answerList,qid);
+            answerAdapter.dataChange(answerList);
+            answerAdapter.notifyDataSetChanged();
     }
 }

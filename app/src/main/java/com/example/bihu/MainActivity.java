@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.bihu.tool.Data;
 import com.example.bihu.tool.MyHelper;
 import com.example.bihu.tool.Person;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public static int vision = 1;
     public static Person person = new Person();
     private int page = 0;
-    private int count = 10;
+    private int count = 46;
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -125,12 +126,7 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Map<String, String> query = new HashMap<>();
-                query.put("page", "" + page);
-                query.put("count", "" + count);
-                query.put("token", person.getToken());
-                URLPost urlPost = new URLPost(MainActivity.this);
-                urlPost.post(URLPost.URL_GET_QUESTION_LIST, query, URLPost.TYPE_GET_QUESTION_LIST);
+                Data.refreshQuestion(MainActivity.this,page,count);
                 questionAdapter.refresh(MainActivity.TYPE_QUESTION);
                 questionAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);

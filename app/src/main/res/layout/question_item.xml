@@ -12,10 +12,11 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageView
+        <com.example.bihu.tool.CircleImageView
+            android:layout_marginTop="6dp"
             android:id="@+id/question_item_user_img"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:src="@drawable/sora" />
