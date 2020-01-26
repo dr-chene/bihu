@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.bihu.tool.MyHelper;
 import com.example.bihu.tool.Question;
 
@@ -30,10 +31,14 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
     public QuestionAdapter(Context context, int type) {
         this.context = context;
         this.type = type;
-       switch (type){
-           case MainActivity.TYPE_QUESTION:getQuestionData();break;
-           case MainActivity.TYPE_FAVORITE:getFavoriteData();break;
-       }
+        switch (type) {
+            case MainActivity.TYPE_QUESTION:
+                getQuestionData();
+                break;
+            case MainActivity.TYPE_FAVORITE:
+                getFavoriteData();
+                break;
+        }
     }
 
     @NonNull
@@ -52,6 +57,13 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
             case MainActivity.TYPE_FAVORITE:
                 question = favoriteList.get(position);
         }
+        if (question.getAuthorAvatar() == null) {
+//            Log.d("debug","Glide");
+            Glide.with(context)
+                    .load(question.getAuthorAvatar())
+                    .into(holder.questionItemUserImg);
+        }
+//        Log.d("debug","question.getAuthorAvatar() = "+question.getAuthorAvatar());
         holder.questionItemAuthorName.setText(question.getAuthorName());
         holder.questionItemRecent.setText(question.getRecent());
         holder.questionItemTitle.setText(question.getTitle());
@@ -94,11 +106,11 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
     }
 
     public void getQuestionData() {
-        MyHelper.readQuestion(context,questionList);
+        MyHelper.readQuestion(context, questionList);
     }
 
     public void getFavoriteData() {
-        MyHelper.readFavorite(context,favoriteList);
+        MyHelper.readFavorite(context, favoriteList);
     }
 
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {
@@ -124,6 +136,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
             questionItemAnswerCount = itemView.findViewById(R.id.question_item_answer_count);
             questionItemNaiveCount = itemView.findViewById(R.id.question_item_naive_count);
             questionItem = itemView.findViewById(R.id.question_item);
+            questionItemUserImg = itemView.findViewById(R.id.question_item_user_img);
         }
     }
 }

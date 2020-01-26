@@ -11,7 +11,7 @@
         android:layout_height="wrap_content">
         <com.example.bihu.tool.CircleImageView
             android:id="@+id/answer_item_user_img"
-            android:src="@drawable/sora"
+            android:src="@drawable/no_avatar"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginRight="1dp"/>

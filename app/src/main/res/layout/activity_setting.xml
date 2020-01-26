@@ -114,6 +114,7 @@
 
         <com.example.bihu.tool.CircleImageView
             android:id="@+id/setting_avatar"
+            android:src="@drawable/no_avatar"
             android:layout_width="30dp"
             android:layout_height="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
