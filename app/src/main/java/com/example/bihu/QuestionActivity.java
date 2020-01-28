@@ -1,11 +1,14 @@
 package com.example.bihu;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,6 +26,7 @@ import java.util.Map;
 
 public class QuestionActivity extends AppCompatActivity {
 
+    public static String image = "";
     private RecyclerView realQuestionRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private AnswerAdapter answerAdapter;
@@ -31,6 +35,7 @@ public class QuestionActivity extends AppCompatActivity {
     private int qid = -1;
     private int page = 0;
     private int count = 10;
+    private ImageView enterPic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,13 +46,14 @@ public class QuestionActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        enterPic = findViewById(R.id.enter_pic_btn);
         realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
         enterAnswerED = findViewById(R.id.enter_answer_ed);
         enterAnswerBtn = findViewById(R.id.enter_answer_btn);
         swipeRefreshLayout = findViewById(R.id.real_question_refresh);
         Intent intent = getIntent();
         qid = intent.getIntExtra("question_id", 0);
-//        Toast.makeText(QuestionActivity.this,""+questionId,Toast.LENGTH_SHORT).show();
+        //        Toast.makeText(QuestionActivity.this,""+questionId,Toast.LENGTH_SHORT).show();
         realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
         answerAdapter = new AnswerAdapter(QuestionActivity.this, qid);
         realQuestionRecyclerView.setAdapter(answerAdapter);
@@ -61,16 +67,16 @@ public class QuestionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String content = enterAnswerED.getText().toString();
-                String images = "";
-                if ((!content.equals("")) && (images.equals(""))) {
+                if ((!content.equals("")) || image != "") {
                     Map<String, String> queryAnswer = new HashMap<>();
                     queryAnswer.put("qid", qid + "");
                     queryAnswer.put("content", content);
-                    queryAnswer.put("images", images);
+                    queryAnswer.put("images", image);
                     queryAnswer.put("token", MainActivity.person.getToken());
-                    URLPost urlPost3 = new URLPost(QuestionActivity.this);
-                    urlPost3.post(URLPost.URL_ANSWER, queryAnswer, URLPost.TYPE_ANSWER);
+                    URLPostUtils urlPostUtils3 = new URLPostUtils(QuestionActivity.this);
+                    urlPostUtils3.post(URLPostUtils.URL_ANSWER, queryAnswer, URLPostUtils.TYPE_ANSWER);
                     enterAnswerED.setText("");
+                    image = "";
                 }
             }
         });
@@ -81,6 +87,12 @@ public class QuestionActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+        enterPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openAlum();
+            }
+        });
     }
 
     public void refresh() {
@@ -89,5 +101,23 @@ public class QuestionActivity extends AppCompatActivity {
         MyHelper.readAnswer(QuestionActivity.this, answerList, qid);
         answerAdapter.dataChange(answerList);
         answerAdapter.notifyDataSetChanged();
+    }
+
+    private void openAlum() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, MainActivity.TYPE_CHOOSE_PHOTO);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case MainActivity.TYPE_CHOOSE_PHOTO:
+                if (resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    new QiNiuUtils(this).upload(SettingActivity.getFileByUri(this, uri), MainActivity.TYPE_ANSWER);
+                }
+        }
     }
 }

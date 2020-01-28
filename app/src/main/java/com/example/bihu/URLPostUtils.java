@@ -23,23 +23,25 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Map;
 
-public class URLPost {
-    public static final String URL_LOGIN = "http://bihu.blogofyb.com/login.php?";
-    public static final String URL_REGISTER = "http://bihu.blogofyb.com/register.php?";
-    public static final String URL_MODIFY_AVATAR = "http://bihu.blogofyb.com/modifyAvatar.php?";
-    public static final String URL_CHANGE_PASSWORD = "http://bihu.blogofyb.com/changePassword.php?";
-    public static final String URL_QUESTION = "http://bihu.blogofyb.com/question.php?";
-    public static final String URL_GET_QUESTION_LIST = "http://bihu.blogofyb.com/getQuestionList.php?";
-    public static final String URL_ANSWER = "http://bihu.blogofyb.com/answer.php?";
-    public static final String URL_GET_ANSWER_LIST = "http://bihu.blogofyb.com/getAnswerList.php?";
-    public static final String URL_FAVORITE = "http://bihu.blogofyb.com/favorite.php?";
-    public static final String URL_CANCEL_FAVORITE = "http://bihu.blogofyb.com/cancelFavorite.php?";
-    public static final String URL_GET_FAVORITE_LIST = "http://bihu.blogofyb.com/getFavoriteList.php?";
-    public static final String URL_ACCEPT = "http://bihu.blogofyb.com/accept.php?";
-    public static final String URL_EXCITING = "http://bihu.blogofyb.com/exciting.php?";
-    public static final String URL_CANCEL_EXCITING = "http://bihu.blogofyb.com/cancelExciting.php?";
-    public static final String URL_NAIVE = "http://bihu.blogofyb.com/naive.php?";
-    public static final String URL_CANCEL_NAIVE = "http://bihu.blogofyb.com/cancelNaive.php?";
+public class URLPostUtils {
+    public static final String OLD_BASE_URL = "http://bihu.blogofyb.com/";
+    public static final String NEW_BASE_URL = "http://bihu.jay86.com/";
+    public static final String URL_LOGIN = NEW_BASE_URL + "login.php";
+    public static final String URL_REGISTER = NEW_BASE_URL + "register.php";
+    public static final String URL_MODIFY_AVATAR = NEW_BASE_URL + "modifyAvatar.php";
+    public static final String URL_CHANGE_PASSWORD = NEW_BASE_URL + "changePassword.php";
+    public static final String URL_QUESTION = NEW_BASE_URL + "question.php";
+    public static final String URL_GET_QUESTION_LIST = NEW_BASE_URL + "getQuestionList.php";
+    public static final String URL_ANSWER = NEW_BASE_URL + "answer.php";
+    public static final String URL_GET_ANSWER_LIST = NEW_BASE_URL + "getAnswerList.php";
+    public static final String URL_FAVORITE = NEW_BASE_URL + "favorite.php";
+    public static final String URL_CANCEL_FAVORITE = NEW_BASE_URL + "cancelFavorite.php";
+    public static final String URL_GET_FAVORITE_LIST = NEW_BASE_URL + "getFavoriteList.php";
+    public static final String URL_ACCEPT = NEW_BASE_URL + "accept.php";
+    public static final String URL_EXCITING = NEW_BASE_URL + "exciting.php";
+    public static final String URL_CANCEL_EXCITING = NEW_BASE_URL + "cancelExciting.php";
+    public static final String URL_NAIVE = NEW_BASE_URL + "naive.php";
+    public static final String URL_CANCEL_NAIVE = NEW_BASE_URL + "cancelNaive.php";
     public static final int TYPE_LOGIN = 1;
     public static final int TYPE_REGISTER = 2;
     public static final int TYPE_MODIFY_AVATAR = 3;
@@ -50,7 +52,7 @@ public class URLPost {
     public static final int TYPE_GET_ANSWER_LIST = 8;
     public static final int TYPE_FAVORITE = 9;
     public static final int TYPE_CANCEL_FAVORITE = 10;
-    public static final int TYPE_GET_FAVORITE_LIST = 11;
+    public static final int TYPE_GET_FAVORITE_LIST = 10;
     public static final int TYPE_ACCEPT = 12;
     public static final int TYPE_EXCITING = 13;
     public static final int TYPE_CANCEL_EXCITING = 14;
@@ -59,6 +61,7 @@ public class URLPost {
     private Context context;
     private int qid;
     private int totalCount;
+    private String avatar;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -84,11 +87,22 @@ public class URLPost {
                 case TYPE_ANSWER:
                 case TYPE_ACCEPT:
                 case TYPE_QUESTION:
+                    try {
+                        JSONObject jsonObject = new JSONObject(msg.obj.toString());
+                        if (jsonObject.getInt("status") != 200) {
+                            Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
                 case TYPE_MODIFY_AVATAR:
                     try {
                         JSONObject jsonObject = new JSONObject(msg.obj.toString());
                         if (jsonObject.getInt("status") != 200) {
                             Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Data.modifyAvatar(context, avatar);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -111,14 +125,19 @@ public class URLPost {
         }
     };
 
-    public URLPost(Context context) {
+    public URLPostUtils(Context context) {
         this.context = context;
     }
 
 
-    public URLPost(Context context, int qid) {
+    public URLPostUtils(Context context, int qid) {
         this.context = context;
         this.qid = qid;
+    }
+
+    public URLPostUtils(Context context, String avatar) {
+        this.context = context;
+        this.avatar = avatar;
     }
 
     public void post(final String urlParam, Map<String, String> params, final int type) {
@@ -148,7 +167,7 @@ public class URLPost {
                     connection.setConnectTimeout(8000);
                     InputStream in = connection.getInputStream();
                     reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuffer response = new StringBuffer();
+                    StringBuilder response = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
                         response.append(line);

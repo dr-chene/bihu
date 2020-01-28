@@ -2,6 +2,7 @@ package com.example.bihu;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,13 +58,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
             case MainActivity.TYPE_FAVORITE:
                 question = favoriteList.get(position);
         }
-        if (question.getAuthorAvatar() == null) {
-//            Log.d("debug","Glide");
-            Glide.with(context)
-                    .load(question.getAuthorAvatar())
-                    .into(holder.questionItemUserImg);
-        }
-//        Log.d("debug","question.getAuthorAvatar() = "+question.getAuthorAvatar());
         holder.questionItemAuthorName.setText(question.getAuthorName());
         holder.questionItemRecent.setText(question.getRecent());
         holder.questionItemTitle.setText(question.getTitle());
@@ -71,6 +65,20 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
         holder.questionItemExcitingCount.setText(question.getExciting() + "");
         holder.questionItemAnswerCount.setText(question.getAnswerCount() + "");
         holder.questionItemNaiveCount.setText(question.getNaive() + "");
+        if (question.getAuthorAvatar().length() >= 10) {
+            Glide.with(context)
+                    .load(question.getAuthorAvatar())
+                    .into(holder.questionItemUserImg);
+        }
+        if (question.getImages().length() >= 10) {
+            Log.d("debug", "question" + position + " " + question.getImages());
+            Glide.with(context)
+                    .load(question.getImages())
+                    .fitCenter()
+                    .into(holder.questionItemContentImg);
+        } else {
+            holder.questionItemContentImg.setVisibility(View.GONE);
+        }
         final int id = question.getId();
         holder.questionItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,7 +128,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
         private TextView questionItemRecent;
         private TextView questionItemTitle;
         private TextView questionItemContent;
-        //       private ImageView questionItemContentImg;
+        private ImageView questionItemContentImg;
         private TextView questionItemExcitingCount;
         private TextView questionItemAnswerCount;
         private TextView questionItemNaiveCount;
@@ -128,6 +136,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.MyInne
 
         public MyInnerViewHolder(@NonNull View itemView) {
             super(itemView);
+            questionItemContentImg = itemView.findViewById(R.id.question_item_content_img);
             questionItemAuthorName = itemView.findViewById(R.id.question_item_username);
             questionItemRecent = itemView.findViewById(R.id.question_item_recent);
             questionItemTitle = itemView.findViewById(R.id.question_item_title);

@@ -27,13 +27,18 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    //第三方库glide用于加载图片
     implementation files('glide')
-    implementation 'com.google.android.material:material:1.0.0'
     dependencies {
-        implementation ("com.github.bumptech.glide:glide:4.9.0") {
+        implementation("com.github.bumptech.glide:glide:4.9.0") {
             exclude group: "com.android.support"
         }
         //noinspection GradleCompatible
         implementation "com.android.support:support-fragment:26.1.0"
     }
+    //七牛云所需依赖
+    implementation 'com.facebook.fresco:fresco:1.0.1'
+    implementation 'com.qiniu:qiniu-java-sdk:7.2.28'
+    implementation("com.squareup.okhttp3:okhttp:4.3.1")
+    implementation 'com.google.code.gson:gson:2.8.6'
 }

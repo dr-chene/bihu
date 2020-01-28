@@ -55,8 +55,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     Map<String, String> query = new HashMap<>();
                     query.put("username", registerUsername.getText().toString());
                     query.put("password", registerPassword.getText().toString());
-                    URLPost urlPost = new URLPost(this);
-                    urlPost.post(URLPost.URL_REGISTER, query, URLPost.TYPE_REGISTER);
+                    URLPostUtils urlPostUtils = new URLPostUtils(this);
+                    urlPostUtils.post(URLPostUtils.URL_REGISTER, query, URLPostUtils.TYPE_REGISTER);
                 } else Toast.makeText(RegisterActivity.this, "密码不一致，请重新输入", Toast.LENGTH_SHORT);
         }
     }

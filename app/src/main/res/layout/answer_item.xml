@@ -1,64 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
 
     <LinearLayout
-        android:paddingTop="10dp"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
+
         <com.example.bihu.tool.CircleImageView
             android:id="@+id/answer_item_user_img"
-            android:src="@drawable/no_avatar"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:layout_marginRight="1dp"/>
+            android:layout_marginRight="1dp"
+            android:src="@drawable/no_avatar" />
+
         <TextView
             android:id="@+id/answer_item_username"
-            android:text="赤暮"
-            android:textSize="15dp"
-            android:textColor="#000000"
-            android:layout_gravity="center_vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="赤暮"
+            android:textColor="#000000"
+            android:textSize="15dp" />
 
         <Button
             android:id="@+id/answer_item_best"
-            android:background="@drawable/question_answer_best_bg"
             android:layout_width="60dp"
             android:layout_height="20dp"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="180dp"
+            android:background="@drawable/question_answer_best_bg"
             android:gravity="center"
             android:text="采纳"
-            android:textSize="10dp"
-            android:textColor="#4169E1"/>
+            android:textColor="#4169E1"
+            android:textSize="10dp" />
     </LinearLayout>
+
     <TextView
         android:id="@+id/answer_item_content"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="3dp"
-        android:text="这是回答"
-        android:textSize="15dp"
-        android:textColor="#121212"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <LinearLayout
-        android:id="@+id/question_answer_imgs"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"/>
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"/>
-    </LinearLayout>
+        android:paddingLeft="5dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="这是回答"
+        android:textColor="#121212"
+        android:textSize="15dp" />
+
+    <ImageView
+        android:id="@+id/answer_item_img"
+        android:layout_width="wrap_content"
+        android:layout_height="250dp"
+        android:padding="10dp" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -73,54 +73,61 @@
             app:layout_constraintHorizontal_bias="0.02"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
         <LinearLayout
             android:id="@+id/answer_item_exciting"
-            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.75"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <ImageView
                 android:id="@+id/answer_item_exciting_img"
-                android:src="@drawable/exciting"
                 android:layout_width="20dp"
-                android:layout_height="20dp"/>
+                android:layout_height="20dp"
+                android:src="@drawable/exciting" />
+
             <TextView
                 android:id="@+id/answer_item_exciting_count"
-                android:gravity="center"
-                android:text="0"
-                android:paddingLeft="5dp"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingLeft="5dp"
+                android:text="0" />
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/answer_item_naive"
-            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.92"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <ImageView
                 android:id="@+id/answer_item_naive_img"
-                android:src="@drawable/naive"
                 android:layout_width="20dp"
-                android:layout_height="20dp"/>
+                android:layout_height="20dp"
+                android:src="@drawable/naive" />
+
             <TextView
                 android:id="@+id/answer_item_naive_count"
-                android:gravity="center"
-                android:text="0"
-                android:paddingLeft="5dp"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingLeft="5dp"
+                android:text="0" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <View
         android:layout_width="match_parent"
-        android:layout_height="3dp"/>
+        android:layout_height="3dp" />
 </LinearLayout>

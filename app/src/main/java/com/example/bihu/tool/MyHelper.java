@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.example.bihu.MainActivity;
 
@@ -17,10 +16,10 @@ public class MyHelper extends SQLiteOpenHelper {
         super(context, "bihu.db", null, version);
     }
 
-    public static void deletePerson(Context context){
-        MyHelper myHelper = new MyHelper(context,MainActivity.vision);
+    public static void deletePerson(Context context) {
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
-        sqLiteDatabase.delete("person",null,null);
+        sqLiteDatabase.delete("person", null, null);
     }
 
     public static void addPerson(Context context, int uid, String username, String password, String avatar, String token) {
@@ -39,6 +38,17 @@ public class MyHelper extends SQLiteOpenHelper {
         sqLiteDatabase.close();
     }
 
+    public static void modifyAvatar(Context context, String avatar) {
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
+        if (searchPerson(context, sqLiteDatabase)) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("avatar", avatar);
+            sqLiteDatabase.update("person", contentValues, null, null);
+            sqLiteDatabase.close();
+        }
+    }
+
     public static Boolean searchPerson(Context context, SQLiteDatabase sqLiteDatabase) {
         Cursor cursor = sqLiteDatabase.rawQuery("select * from person", null);
         while (cursor.moveToNext()) {
@@ -53,7 +63,6 @@ public class MyHelper extends SQLiteOpenHelper {
         MyHelper myHelper = new MyHelper(context, MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         if (!searchAnswer(context, aid, sqLiteDatabase)) {
-//            Log.d("debug", "add answer");
             ContentValues contentValues = new ContentValues();
             contentValues.put("aid", aid);
             contentValues.put("qid", qid);
@@ -70,18 +79,16 @@ public class MyHelper extends SQLiteOpenHelper {
             contentValues.put("isNaive", isNaive);
             sqLiteDatabase.insert("answer", null, contentValues);
             sqLiteDatabase.close();
-//            Log.d("debug", "add answer finish");
         } else {
-//            Log.d("debug", "update answer");
             ContentValues contentValues = new ContentValues();
             contentValues.put("best", best);
             contentValues.put("exciting", exciting);
             contentValues.put("naive", naive);
+            contentValues.put("authorAvatar", authorAvatar);
             contentValues.put("isExciting", isExciting);
             contentValues.put("isNaive", isNaive);
             sqLiteDatabase.update("answer", contentValues, "aid = ?", new String[]{aid + ""});
             sqLiteDatabase.close();
-//            Log.d("debug", "update answer finish");
         }
     }
 
@@ -99,7 +106,6 @@ public class MyHelper extends SQLiteOpenHelper {
         MyHelper myHelper = new MyHelper(context, MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         if (!searchQuestion(context, qid, sqLiteDatabase)) {
-//            Log.d("debug", "add question");
             ContentValues contentValues = new ContentValues();
             contentValues.put("qid", qid);
             contentValues.put("title", title);
@@ -118,19 +124,17 @@ public class MyHelper extends SQLiteOpenHelper {
             contentValues.put("isFavorite", isFavorite);
             sqLiteDatabase.insert("question", null, contentValues);
             sqLiteDatabase.close();
-//            Log.d("debug", "add question finish");
         } else {
-//            Log.d("debug", "update question");
             ContentValues contentValues = new ContentValues();
             contentValues.put("exciting", exciting);
             contentValues.put("naive", naive);
             contentValues.put("answerCount", answerCount);
             contentValues.put("isExciting", isExciting);
             contentValues.put("isNaive", isNaive);
+            contentValues.put("authorAvatar", authorAvatar);
             contentValues.put("isFavorite", isFavorite);
             sqLiteDatabase.update("question", contentValues, "qid = ?", new String[]{qid + ""});
             sqLiteDatabase.close();
-//            Log.d("debug", "update question finish");
         }
     }
 

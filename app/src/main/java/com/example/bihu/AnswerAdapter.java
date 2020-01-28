@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.bihu.tool.Answer;
 import com.example.bihu.tool.MyHelper;
 import com.example.bihu.tool.Question;
@@ -44,7 +45,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         MyHelper.readAnswer(context, answerList, qid);
     }
 
-
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -63,13 +63,24 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (getItemViewType(position) == MainActivity.TYPE_ANSWER) {
             final AnswerViewHolder answerViewHolder = (AnswerViewHolder) holder;
             final Answer answer = answerList.get(position - 1);
-//        if (answer.getAuthorAvatar()!=null&&answer.getAuthorAvatar()!=""){
-//            Glide.with(context)
-//                 .load(answer.getAuthorAvatar())
-//                 .into(holder.answerItemAuthorImg);
-//        }
+            if (answer.getAuthorAvatar().length() >= 10) {
+                Glide.with(context)
+                        .load(answer.getAuthorAvatar())
+                        .into(answerViewHolder.answerItemAuthorImg);
+            }
+            if (answer.getImages().length() >= 10) {
+                Glide.with(context)
+                        .load(answer.getImages())
+                        .fitCenter()
+                        .into(answerViewHolder.answerItemContentImg);
+            } else {
+                answerViewHolder.answerItemContentImg.setVisibility(View.GONE);
+            }
             answerViewHolder.answerItemAuthorName.setText(answer.getAuthorName());
             answerViewHolder.answerItemContent.setText(answer.getContent());
+            if (answer.getContent().length() < 1) {
+                answerViewHolder.answerItemContent.setVisibility(View.GONE);
+            }
             answerViewHolder.answerItemDate.setText(answer.getDate());
             answerViewHolder.answerItemExcitingCount.setText(answer.getExciting() + "");
             answerViewHolder.answerItemNaiveCount.setText(answer.getNaive() + "");
@@ -104,8 +115,8 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         queryBest.put("qid", qid + "");
                         queryBest.put("aid", aid + "");
                         queryBest.put("token", MainActivity.person.getToken());
-                        URLPost urlPost5 = new URLPost(context);
-                        urlPost5.post(URLPost.URL_ACCEPT, queryBest, URLPost.TYPE_ACCEPT);
+                        URLPostUtils urlPostUtils5 = new URLPostUtils(context);
+                        urlPostUtils5.post(URLPostUtils.URL_ACCEPT, queryBest, URLPostUtils.TYPE_ACCEPT);
                         answerViewHolder.answerItemBestBtn.setText("已采纳");
                         answerViewHolder.answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
                         Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg, null);
@@ -122,16 +133,16 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     queryExciting.put("id", aid + "");
                     queryExciting.put("type", MainActivity.TYPE_ANSWER + "");
                     queryExciting.put("token", MainActivity.person.getToken());
-                    URLPost urlPost = new URLPost(context);
+                    URLPostUtils urlPostUtils = new URLPostUtils(context);
                     if (isExciting[0]) {
                         Log.d("debug", "isExciting = " + isExciting[0]);
-                        urlPost.post(URLPost.URL_CANCEL_EXCITING, queryExciting, URLPost.TYPE_CANCEL_EXCITING);
+                        urlPostUtils.post(URLPostUtils.URL_CANCEL_EXCITING, queryExciting, URLPostUtils.TYPE_CANCEL_EXCITING);
                         answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
                         String s = answerViewHolder.answerItemExcitingCount.getText().toString();
                         answerViewHolder.answerItemExcitingCount.setText(Integer.parseInt(s) - 1 + "");
                         isExciting[0] = false;
                     } else {
-                        urlPost.post(URLPost.URL_EXCITING, queryExciting, URLPost.TYPE_EXCITING);
+                        urlPostUtils.post(URLPostUtils.URL_EXCITING, queryExciting, URLPostUtils.TYPE_EXCITING);
                         answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
                         String s = answerViewHolder.answerItemExcitingCount.getText().toString();
                         answerViewHolder.answerItemExcitingCount.setText((Integer.parseInt(s) + 1) + "");
@@ -146,15 +157,15 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     queryNaive.put("id", aid + "");
                     queryNaive.put("type", MainActivity.TYPE_ANSWER + "");
                     queryNaive.put("token", MainActivity.person.getToken());
-                    URLPost urlPost1 = new URLPost(context);
+                    URLPostUtils urlPostUtils1 = new URLPostUtils(context);
                     if (isNaive[0]) {
-                        urlPost1.post(URLPost.URL_CANCEL_NAIVE, queryNaive, URLPost.TYPE_CANCEL_NAIVE);
+                        urlPostUtils1.post(URLPostUtils.URL_CANCEL_NAIVE, queryNaive, URLPostUtils.TYPE_CANCEL_NAIVE);
                         answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
                         String s = answerViewHolder.answerItemNaiveCount.getText().toString();
                         answerViewHolder.answerItemNaiveCount.setText(Integer.parseInt(s) - 1 + "");
                         isNaive[0] = false;
                     } else {
-                        urlPost1.post(URLPost.URL_NAIVE, queryNaive, URLPost.TYPE_NAIVE);
+                        urlPostUtils1.post(URLPostUtils.URL_NAIVE, queryNaive, URLPostUtils.TYPE_NAIVE);
                         answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
                         String s = answerViewHolder.answerItemNaiveCount.getText().toString();
                         answerViewHolder.answerItemNaiveCount.setText((Integer.parseInt(s) + 1) + "");
@@ -166,17 +177,24 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             final QuestionViewHolder questionViewHolder = (QuestionViewHolder) holder;
             MyHelper.searchQuestion(context, qid, realQuestion);
             //加载作者头像
-//        if (realQuestion.getAuthorAvatar() != null && realQuestion.getAuthorAvatar() != "") {
-//            Glide.with(this)
-//                    .load(realQuestion.getAuthorAvatar())
-//                    .into(realQuestionUserImg);
-//        }
+            if (realQuestion.getAuthorAvatar().length() >= 10) {
+                Glide.with(context)
+                        .load(realQuestion.getAuthorAvatar())
+                        .into(questionViewHolder.realQuestionUserImg);
+            }
             questionViewHolder.realQuestionAuthorName.setText(realQuestion.getAuthorName());
             questionViewHolder.realQuestionRecent.setText(realQuestion.getRecent());
             questionViewHolder.realQuestionTitle.setText(realQuestion.getTitle());
             questionViewHolder.realQuestionContent.setText(realQuestion.getContent());
             //加载问题图片
-            //
+            if (realQuestion.getImages().length() >= 10) {
+                Glide.with(context)
+                        .load(realQuestion.getImages())
+                        .fitCenter()
+                        .into(questionViewHolder.realQuestionContentImg);
+            } else {
+                questionViewHolder.realQuestionContentImg.setVisibility(View.GONE);
+            }
             questionViewHolder.realQuestionExcitingCount.setText(realQuestion.getExciting() + "");
             questionViewHolder.realQuestionAnswerCount.setText(realQuestion.getAnswerCount() + "");
             //
@@ -207,15 +225,15 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     queryExciting.put("id", qid + "");
                     queryExciting.put("type", MainActivity.TYPE_QUESTION + "");
                     queryExciting.put("token", MainActivity.person.getToken());
-                    URLPost urlPost = new URLPost(context);
+                    URLPostUtils urlPostUtils = new URLPostUtils(context);
                     if (questionViewHolder.isExciting) {
-                        urlPost.post(URLPost.URL_CANCEL_EXCITING, queryExciting, URLPost.TYPE_CANCEL_EXCITING);
+                        urlPostUtils.post(URLPostUtils.URL_CANCEL_EXCITING, queryExciting, URLPostUtils.TYPE_CANCEL_EXCITING);
                         questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup);
                         String s = questionViewHolder.realQuestionExcitingCount.getText().toString();
                         questionViewHolder.realQuestionExcitingCount.setText(Integer.parseInt(s) - 1 + "");
                         questionViewHolder.isExciting = false;
                     } else {
-                        urlPost.post(URLPost.URL_EXCITING, queryExciting, URLPost.TYPE_EXCITING);
+                        urlPostUtils.post(URLPostUtils.URL_EXCITING, queryExciting, URLPostUtils.TYPE_EXCITING);
                         questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
                         String s = questionViewHolder.realQuestionExcitingCount.getText().toString();
                         questionViewHolder.realQuestionExcitingCount.setText((Integer.parseInt(s) + 1) + "");
@@ -230,15 +248,15 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     queryNaive.put("id", qid + "");
                     queryNaive.put("type", MainActivity.TYPE_QUESTION + "");
                     queryNaive.put("token", MainActivity.person.getToken());
-                    URLPost urlPost1 = new URLPost(context);
+                    URLPostUtils urlPostUtils1 = new URLPostUtils(context);
                     if (questionViewHolder.isNaive) {
-                        urlPost1.post(URLPost.URL_CANCEL_NAIVE, queryNaive, URLPost.TYPE_CANCEL_NAIVE);
+                        urlPostUtils1.post(URLPostUtils.URL_CANCEL_NAIVE, queryNaive, URLPostUtils.TYPE_CANCEL_NAIVE);
                         questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
                         String s = questionViewHolder.realQuestionNaiveCount.getText().toString();
                         questionViewHolder.realQuestionNaiveCount.setText(Integer.parseInt(s) - 1 + "");
                         questionViewHolder.isNaive = false;
                     } else {
-                        urlPost1.post(URLPost.URL_NAIVE, queryNaive, URLPost.TYPE_NAIVE);
+                        urlPostUtils1.post(URLPostUtils.URL_NAIVE, queryNaive, URLPostUtils.TYPE_NAIVE);
                         questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
                         String s = questionViewHolder.realQuestionNaiveCount.getText().toString();
                         questionViewHolder.realQuestionNaiveCount.setText((Integer.parseInt(s) + 1) + "");
@@ -252,13 +270,13 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Map<String, String> queryFavorite = new HashMap<>();
                     queryFavorite.put("id", qid + "");
                     queryFavorite.put("token", MainActivity.person.getToken());
-                    URLPost urlPost2 = new URLPost(context);
+                    URLPostUtils urlPostUtils2 = new URLPostUtils(context);
                     if (questionViewHolder.isFavorite) {
-                        urlPost2.post(URLPost.URL_CANCEL_FAVORITE, queryFavorite, URLPost.TYPE_CANCEL_FAVORITE);
+                        urlPostUtils2.post(URLPostUtils.URL_CANCEL_FAVORITE, queryFavorite, URLPostUtils.TYPE_CANCEL_FAVORITE);
                         questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star);
                         questionViewHolder.isFavorite = false;
                     } else {
-                        urlPost2.post(URLPost.URL_FAVORITE, queryFavorite, URLPost.TYPE_FAVORITE);
+                        urlPostUtils2.post(URLPostUtils.URL_FAVORITE, queryFavorite, URLPostUtils.TYPE_FAVORITE);
                         questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star_fill);
                         questionViewHolder.isFavorite = true;
                     }
@@ -303,6 +321,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private LinearLayout answerItemNaive;
         private ImageView answerItemNaiveImg;
         private TextView answerItemNaiveCount;
+        private ImageView answerItemContentImg;
 
         public AnswerViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -317,6 +336,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             answerItemNaive = itemView.findViewById(R.id.answer_item_naive);
             answerItemNaiveImg = itemView.findViewById(R.id.answer_item_naive_img);
             answerItemNaiveCount = itemView.findViewById(R.id.answer_item_naive_count);
+            answerItemContentImg = itemView.findViewById(R.id.answer_item_img);
         }
     }
 
@@ -348,7 +368,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             realQuestionRecent = itemView.findViewById(R.id.real_question_recent);
             realQuestionTitle = itemView.findViewById(R.id.real_question_title);
             realQuestionContent = itemView.findViewById(R.id.real_question_content);
-//        realQuestionContentImg= itemView.findViewById(R.id.real_question_???);
+            realQuestionContentImg = itemView.findViewById(R.id.rv_item_content_img);
             realQuestionExcitingImg = itemView.findViewById(R.id.real_question_exciting_img);
             realQuestionExcitingCount = itemView.findViewById(R.id.real_question_exciting_count);
             realQuestionAnswerCount = itemView.findViewById(R.id.real_question_answer_count);

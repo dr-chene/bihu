@@ -1,18 +1,42 @@
 package com.example.bihu;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
+import com.bumptech.glide.Glide;
 import com.example.bihu.tool.MyHelper;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
@@ -27,6 +51,54 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     private ImageView settingBack;
     private ImageView settingAvatar;
     private TextView settingUsername;
+    private PopupWindow popupWindow;
+    private Uri imageUri;
+    private File outputImage;
+
+    public static File getFileByUri(Context context, Uri uri) {
+        String path = null;
+        if ("file".equals(uri.getScheme())) {
+            path = uri.getEncodedPath();
+            if (path != null) {
+                path = Uri.decode(path);
+                ContentResolver cr = context.getContentResolver();
+                StringBuffer buff = new StringBuffer();
+                buff.append("(").append(MediaStore.Images.ImageColumns.DATA).append("=").append("'" + path + "'").append(")");
+                Cursor cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.Images.ImageColumns._ID, MediaStore.Images.ImageColumns.DATA}, buff.toString(), null, null);
+                int index = 0;
+                int dataIdx = 0;
+                for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+                    index = cur.getColumnIndex(MediaStore.Images.ImageColumns._ID);
+                    index = cur.getInt(index);
+                    dataIdx = cur.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                    path = cur.getString(dataIdx);
+                }
+                cur.close();
+                if (index == 0) {
+                } else {
+                    Uri u = Uri.parse("content://media/external/images/media/" + index);
+                    System.out.println("temp uri is :" + u);
+                }
+            }
+            if (path != null) {
+                return new File(path);
+            }
+        } else if ("content".equals(uri.getScheme())) {
+            // 4.2.2以后
+            String[] proj = {MediaStore.Images.Media.DATA};
+            Cursor cursor = context.getContentResolver().query(uri, proj, null, null, null);
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                path = cursor.getString(columnIndex);
+            }
+            cursor.close();
+
+            return new File(path);
+        } else {
+            Log.i("debug", "Uri Scheme:" + uri.getScheme());
+        }
+        return null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +128,29 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         settingAvatar = findViewById(R.id.setting_avatar);
         settingUsername = findViewById(R.id.setting_username);
         if (MainActivity.person.getId() != -1) {
-            //设置头像settingAvatar
+            //加载头像settingAvatar
+            if (MainActivity.person.getAvatar().length() >= 10) {
+                Glide.with(this)
+                        .load(MainActivity.person.getAvatar())
+                        .into(settingAvatar);
+            }
             settingUsername.setText(MainActivity.person.getUsername());
 
         }
+    }
+
+    private void modifyAvatar() {
+        View contentView = LayoutInflater.from(SettingActivity.this).inflate(R.layout.pop_up_window, null);
+        popupWindow = new PopupWindow(contentView, ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT, true);
+        popupWindow.setContentView(contentView);
+        TextView cameraPop = contentView.findViewById(R.id.pop_camera);
+        TextView photoPop = contentView.findViewById(R.id.pop_photo);
+        TextView backPop = contentView.findViewById(R.id.pop_back);
+        cameraPop.setOnClickListener(this);
+        photoPop.setOnClickListener(this);
+        backPop.setOnClickListener(this);
+        View rootView = LayoutInflater.from(SettingActivity.this).inflate(R.layout.activity_setting, null);
+        popupWindow.showAtLocation(rootView, Gravity.BOTTOM, 0, 0);
     }
 
     @Override
@@ -73,6 +164,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.setting_modify_avatar:
                 //更改头像的逻辑
+                modifyAvatar();
                 break;
             case R.id.setting_change_password:
                 Intent intent = new Intent(SettingActivity.this, ChangePasswordActivity.class);
@@ -90,6 +182,17 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 Intent intent1 = new Intent(SettingActivity.this, MainActivity.class);
                 startActivity(intent1);
                 break;
+            case R.id.pop_camera:
+                camera();
+                popupWindow.dismiss();
+                break;
+            case R.id.pop_photo:
+                photo();
+                popupWindow.dismiss();
+                break;
+            case R.id.pop_back:
+                popupWindow.dismiss();
+                break;
         }
     }
 
@@ -102,7 +205,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MyHelper.deletePerson(SettingActivity.this);
-                Intent intent = new Intent(SettingActivity.this,MainActivity.class);
+                Intent intent = new Intent(SettingActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
@@ -113,5 +216,79 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
         builder.show();
+    }
+
+    private void camera() {
+        outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+        try {
+            if (outputImage.exists()) {
+                outputImage.delete();
+            }
+            outputImage.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (Build.VERSION.SDK_INT >= 24) {
+            imageUri = FileProvider.getUriForFile(SettingActivity.this, "com.example.bihu.fileprovider", outputImage);
+        } else {
+            imageUri = Uri.fromFile(outputImage);
+        }
+        //隐式启动相机程序
+        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        startActivityForResult(intent, MainActivity.TYPE_TAKE_PHOTO);
+    }
+
+    public void photo() {
+        if (ContextCompat.checkSelfPermission(SettingActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(SettingActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } else {
+            openAlum();
+        }
+    }
+
+    private void openAlum() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, MainActivity.TYPE_CHOOSE_PHOTO);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openAlum();
+                } else {
+                    Toast.makeText(this, "获取权限失败", LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case MainActivity.TYPE_TAKE_PHOTO:
+                if (resultCode == RESULT_OK) {
+                    try {
+                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                        settingAvatar.setImageBitmap(bitmap);
+                        new QiNiuUtils(this).upload(outputImage, MainActivity.TYPE_MODIFY_AVATAR);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            case MainActivity.TYPE_CHOOSE_PHOTO:
+                Uri uri = data.getData();
+                settingAvatar.setImageURI(uri);
+                File file = getFileByUri(this, uri);
+                new QiNiuUtils(this).upload(file, MainActivity.TYPE_MODIFY_AVATAR);
+                break;
+        }
     }
 }

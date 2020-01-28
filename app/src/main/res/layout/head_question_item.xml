@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
     <LinearLayout
         android:id="@+id/question_back"
         android:layout_width="match_parent"
@@ -24,23 +25,26 @@
             android:textColor="#1E90FF"
             android:textSize="17dp" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp">
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp">
 
             <com.example.bihu.tool.CircleImageView
-                android:layout_gravity="center_vertical"
                 android:id="@+id/real_question_user_img"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
+                android:layout_gravity="center_vertical"
                 android:layout_marginRight="2dp"
                 android:src="@drawable/no_avatar" />
 
@@ -71,6 +75,8 @@
             android:id="@+id/real_question_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             android:text="这是标题"
             android:textColor="#000000"
             android:textSize="17dp" />
@@ -81,25 +87,15 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="2"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             android:text="这是正文\nsjnsjsovdiosvoidjsiovjsovjsoivhsiubvisjbvksjbvksdjvbskjvbisjvbsvs" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/rv_item_content_img"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/sora" />
-
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/sora" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/rv_item_content_img"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp"
+            android:padding="10dp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

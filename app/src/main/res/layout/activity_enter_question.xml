@@ -31,18 +31,19 @@
             android:textColor="#1E90FF"
             android:textSize="17dp" />
     </LinearLayout>
+
     <EditText
         android:id="@+id/title_ed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:hint="一个好的的标题往往更容易引人注目"
+        android:lines="1"
+        android:maxLength="20"
         android:textColorHint="#1E90FF"
         android:textSize="15dp"
         android:theme="@style/MyEditText"
-        android:maxLength="20"
-        android:lines="1"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -66,12 +67,12 @@
         android:id="@+id/content_ed"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:gravity="top"
-        android:hint="撒，尽情发挥你的才能吧，不过，还请尽量清晰，令人信服"
-        android:textSize="17dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:gravity="top"
+        android:hint="撒，尽情发挥你的才能吧，不过，还请尽量清晰，令人信服"
         android:textColorHint="#1E90FF"
+        android:textSize="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -105,16 +106,28 @@
 
     <Button
         android:id="@+id/enter_question_btn"
-        android:text="发布"
-        android:textSize="22dp"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/enter_question_btn_bg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/enter_question_btn_bg"
+        android:text="发布"
+        android:textColor="#FFFFFF"
+        android:textSize="22dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.85"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view"
         app:layout_constraintVertical_bias="0.85" />
+
+    <ImageView
+        android:id="@+id/enter_question_img"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/jia_question"
+        app:layout_constraintBottom_toTopOf="@+id/enter_question_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view"
+        app:layout_constraintVertical_bias="0.1" />
 </androidx.constraintlayout.widget.ConstraintLayout>

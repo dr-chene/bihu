@@ -56,8 +56,8 @@ public class ChangePasswordActivity extends AppCompatActivity implements View.On
                             Map<String, String> query = new HashMap<>();
                             query.put("password", changePasswordNew.getText().toString());
                             query.put("token", MainActivity.person.getToken());
-                            URLPost urlPost = new URLPost(ChangePasswordActivity.this);
-                            urlPost.post(URLPost.URL_CHANGE_PASSWORD, query, URLPost.TYPE_CHANGE_PASSWORD);
+                            URLPostUtils urlPostUtils = new URLPostUtils(ChangePasswordActivity.this);
+                            urlPostUtils.post(URLPostUtils.URL_CHANGE_PASSWORD, query, URLPostUtils.TYPE_CHANGE_PASSWORD);
                             MainActivity.person.setId(-1);
                             Toast.makeText(ChangePasswordActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
                             Intent intent1 = new Intent(ChangePasswordActivity.this, MainActivity.class);

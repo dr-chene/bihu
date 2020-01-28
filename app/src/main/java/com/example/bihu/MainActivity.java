@@ -2,6 +2,7 @@ package com.example.bihu;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,9 +22,6 @@ import com.example.bihu.tool.MyHelper;
 import com.example.bihu.tool.Person;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class MainActivity extends AppCompatActivity {
 
     public static final int TYPE_QUESTION = 1;
@@ -32,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int TYPE_EXCITING = 4;
     public static final int TYPE_NAIVE = 5;
     public static final int TYPE_FAVORITE = 6;
+    public static final int TYPE_MODIFY_AVATAR = 7;
+    public static final int TYPE_TAKE_PHOTO = 8;
+    public static final int TYPE_CHOOSE_PHOTO = 9;
     public static int vision = 1;
     public static Person person = new Person();
     private int page = 0;
@@ -97,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         fab = findViewById(R.id.fab);
         noLogin = findViewById(R.id.no_login);
-
         swipeRefreshLayout = findViewById(R.id.srl);
         recyclerView = findViewById(R.id.main_rv);
         loadData();
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Data.refreshQuestion(MainActivity.this,page,count);
+                Data.refreshQuestion(MainActivity.this, page, count);
                 questionAdapter.refresh(MainActivity.TYPE_QUESTION);
                 questionAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
@@ -147,6 +147,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void personLoad() {
         MyHelper.readPerson(this, person);
+        Log.d("test", "avatar == null is " + (person.getAvatar() == null));
     }
-
 }

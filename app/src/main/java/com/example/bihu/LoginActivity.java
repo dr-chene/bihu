@@ -46,8 +46,8 @@ public class LoginActivity extends AppCompatActivity {
                 Map<String, String> query = new HashMap<>();
                 query.put("username", username);
                 query.put("password", password);
-                URLPost urlPost = new URLPost(LoginActivity.this);
-                urlPost.post(URLPost.URL_LOGIN, query, URLPost.TYPE_LOGIN);
+                URLPostUtils urlPostUtils = new URLPostUtils(LoginActivity.this);
+                urlPostUtils.post(URLPostUtils.URL_LOGIN, query, URLPostUtils.TYPE_LOGIN);
             }
         });
     }
