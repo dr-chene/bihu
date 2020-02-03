@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
-import com.example.bihu.utils.HttpCallbackListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,17 +58,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     Map<String, String> query = new HashMap<>();
                     query.put("username", registerUsername.getText().toString());
                     query.put("password", registerPassword.getText().toString());
-                    Http http = new Http(this, new HttpCallbackListener() {
-                        @Override
-                        public void postSuccess() {
-
-                        }
-
-                        @Override
-                        public void postFailed(String response) {
-                            Toast.makeText(RegisterActivity.this,response,Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    Http http = new Http(this);
                     http.post(Http.URL_REGISTER, query, Http.TYPE_REGISTER);
                 } else Toast.makeText(RegisterActivity.this, "密码不一致，请重新输入", Toast.LENGTH_SHORT);
         }

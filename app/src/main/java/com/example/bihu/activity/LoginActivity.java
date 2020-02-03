@@ -6,13 +6,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
-import com.example.bihu.utils.HttpCallbackListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,17 +49,7 @@ public class LoginActivity extends AppCompatActivity {
                 Map<String, String> query = new HashMap<>();
                 query.put("username", username);
                 query.put("password", password);
-                Http http = new Http(LoginActivity.this, new HttpCallbackListener() {
-                    @Override
-                    public void postSuccess() {
-
-                    }
-
-                    @Override
-                    public void postFailed(String response) {
-                        Toast.makeText(LoginActivity.this,response,Toast.LENGTH_SHORT).show();
-                    }
-                });
+                Http http = new Http(LoginActivity.this);
                 http.post(Http.URL_LOGIN, query, Http.TYPE_LOGIN);
             }
         });

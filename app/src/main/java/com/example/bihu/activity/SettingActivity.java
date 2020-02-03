@@ -29,7 +29,7 @@ import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.bihu.R;
-import com.example.bihu.utils.MySQLiteOpenHelper;
+import com.example.bihu.utils.MyHelper;
 import com.example.bihu.utils.QiNiu;
 
 import java.io.File;
@@ -156,7 +156,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MySQLiteOpenHelper.deletePerson(SettingActivity.this);
+                MyHelper.deletePerson(SettingActivity.this);
                 Intent intent = new Intent(SettingActivity.this, MainActivity.class);
                 startActivity(intent);
             }

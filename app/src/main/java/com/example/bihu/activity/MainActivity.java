@@ -2,7 +2,6 @@ package com.example.bihu.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,17 +23,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.example.bihu.R;
 import com.example.bihu.adapter.QuestionAdapter;
-import com.example.bihu.utils.Http;
-import com.example.bihu.utils.HttpCallbackListener;
-import com.example.bihu.utils.MySQLiteOpenHelper;
+import com.example.bihu.utils.Data;
+import com.example.bihu.utils.MyHelper;
 import com.example.bihu.utils.Person;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.example.bihu.utils.Methods.getQuestionPage;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,11 +40,13 @@ public class MainActivity extends AppCompatActivity {
     public static final int TYPE_MODIFY_AVATAR = 7;
     public static final int TYPE_TAKE_PHOTO = 8;
     public static final int TYPE_CHOOSE_PHOTO = 9;
-    public static final int count = 20;
+    public static int questionCount = 20;
+    public static int questionLeft;
     public static int vision = 1;
-    public static int answerPage = 0;
     public static Person person = new Person();
-    public static int totalQuestionPage=0;
+    public static int totalQuestionPage;
+    public static int totalQuestionCount;
+    public static int curQuestionPage;
     public static int questionPage = 0;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -180,44 +175,17 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (totalQuestionPage == 0 || questionPage < totalQuestionPage - 1) {
-                    Map<String, String> query = new HashMap<>();
-                    query.put("page", "" + questionPage);
-                    query.put("count", "" + count);
-                    query.put("token", MainActivity.person.getToken());
-                    Http http = new Http(MainActivity.this, new HttpCallbackListener() {
-                        @Override
-                        public void postSuccess() {
-                            Log.d("first","refresh success");
-                            questionPage = getQuestionPage(MainActivity.this);
-                            if (questionPage < totalQuestionPage - 1) {
-                                questionPage++;
-                                Log.d("first","questionPage++");
-                            }
-                            questionAdapter.refresh(MainActivity.TYPE_QUESTION);
-                            Log.d("first","questionAdapter.notifyDataSetChanged()");
-                            questionAdapter.notifyDataSetChanged();
-                        }
-
-                        @Override
-                        public void postFailed(String response) {
-                            Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
-                    http.post(Http.URL_GET_QUESTION_LIST, query, Http.TYPE_GET_QUESTION_LIST);
-                    swipeRefreshLayout.setRefreshing(false);
-                } else {
-                    Toast.makeText(MainActivity.this, "暂无最新问题", Toast.LENGTH_SHORT).show();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
+                Data.refreshQuestion(MainActivity.this);
+                questionAdapter.refresh(MainActivity.TYPE_QUESTION);
+                questionAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
 
     private void loadPerson() {
-        MySQLiteOpenHelper.readPerson(this, person);
+        MyHelper.readPerson(this, person);
         if (person.getId() == -1) {
             swipeRefreshLayout.setVisibility(View.GONE);
             noLogin.setVisibility(View.VISIBLE);

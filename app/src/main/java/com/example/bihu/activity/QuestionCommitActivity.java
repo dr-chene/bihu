@@ -18,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
-import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.QiNiu;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -138,20 +137,11 @@ public class QuestionCommitActivity extends AppCompatActivity {
                     Log.d("debug", "title = " + title);
                     Log.d("debug", "content = " + content);
                     Log.d("debug", "token = " + MainActivity.person.getToken());
-                    Http http = new Http(QuestionCommitActivity.this, new HttpCallbackListener() {
-                        @Override
-                        public void postSuccess() {
-                            titleEd.setText("");
-                            contentEd.setText("");
-                            images = "";
-                        }
-
-                        @Override
-                        public void postFailed(String response) {
-                            Toast.makeText(QuestionCommitActivity.this,response,Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    Http http = new Http(QuestionCommitActivity.this);
                     http.post(Http.URL_QUESTION, query, Http.TYPE_QUESTION);
+                    titleEd.setText("");
+                    contentEd.setText("");
+                    images = "";
                 }
             }
         });

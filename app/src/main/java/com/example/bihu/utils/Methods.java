@@ -9,8 +9,6 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.example.bihu.activity.MainActivity;
-
 import java.io.File;
 
 public class Methods {
@@ -73,10 +71,5 @@ public class Methods {
 
         return networkinfo != null && networkinfo.isAvailable();
     }
-public static int getQuestionPage(Context context){
-        return MySQLiteOpenHelper.getQuestionCount(context)/ MainActivity.count;
-}
-public static int getAnswerPage(Context context,int qid){
-        return MySQLiteOpenHelper.getAnswerCount(context,qid)/ MainActivity.count;
-    }
+
 }

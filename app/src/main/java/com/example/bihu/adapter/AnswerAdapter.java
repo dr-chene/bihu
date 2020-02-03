@@ -22,8 +22,7 @@ import com.example.bihu.R;
 import com.example.bihu.activity.MainActivity;
 import com.example.bihu.utils.Answer;
 import com.example.bihu.utils.Http;
-import com.example.bihu.utils.HttpCallbackListener;
-import com.example.bihu.utils.MySQLiteOpenHelper;
+import com.example.bihu.utils.MyHelper;
 import com.example.bihu.utils.Question;
 
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private Context context;
     private List<Answer> answerList = new ArrayList<>();
+    private Question realQuestion = new Question();
     private int qid;
     private int aid;
     private Question question;
@@ -44,8 +44,8 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.qid = qid;
         this.context = context;
         question = new Question();
-        MySQLiteOpenHelper.searchQuestion(context, qid, question);
-        MySQLiteOpenHelper.readAnswer(context, answerList, qid);
+        MyHelper.searchQuestion(context, qid, question);
+        MyHelper.readAnswer(context, answerList, qid);
     }
 
     @NonNull
@@ -89,12 +89,12 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             answerViewHolder.answerItemNaiveCount.setText(answer.getNaive() + "");
             aid = answer.getId();
             final Boolean[] isExciting = {answer.getIsExciting()};
+            final Boolean[] isNaive = {answer.getIsNaive()};
             if (isExciting[0]) {
                 answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
             } else {
                 answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
             }
-            final Boolean[] isNaive = {answer.getIsNaive()};
             if (isNaive[0]) {
                 answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
             } else {
@@ -118,23 +118,12 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         queryBest.put("qid", qid + "");
                         queryBest.put("aid", aid + "");
                         queryBest.put("token", MainActivity.person.getToken());
-                        Http http5 = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.answerAccept(context,qid);
-                                answerViewHolder.answerItemBestBtn.setText("已采纳");
-                                answerViewHolder.answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
-                                Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg, null);
-                                answerViewHolder.answerItemBestBtn.setBackground(drawable);
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        Http http5 = new Http(context);
                         http5.post(Http.URL_ACCEPT, queryBest, Http.TYPE_ACCEPT);
-
+                        answerViewHolder.answerItemBestBtn.setText("已采纳");
+                        answerViewHolder.answerItemBestBtn.setTextColor(Color.parseColor("#FFFF00"));
+                        Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg, null);
+                        answerViewHolder.answerItemBestBtn.setBackground(drawable);
                     } else {
                         Toast.makeText(context, "best只能有一位", Toast.LENGTH_SHORT).show();
                     }
@@ -147,43 +136,20 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     queryExciting.put("id", aid + "");
                     queryExciting.put("type", MainActivity.TYPE_ANSWER + "");
                     queryExciting.put("token", MainActivity.person.getToken());
+                    Http http = new Http(context);
                     if (isExciting[0]) {
                         Log.d("debug", "isExciting = " + isExciting[0]);
-                        Http http = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.answerChange(context,aid,"isExciting",0);
-                                answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
-                                String s = answerViewHolder.answerItemExcitingCount.getText().toString();
-                                answerViewHolder.answerItemExcitingCount.setText(Integer.parseInt(s) - 1 + "");
-                                isExciting[0] = false;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
                         http.post(Http.URL_CANCEL_EXCITING, queryExciting, Http.TYPE_CANCEL_EXCITING);
-
+                        answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+                        String s = answerViewHolder.answerItemExcitingCount.getText().toString();
+                        answerViewHolder.answerItemExcitingCount.setText(Integer.parseInt(s) - 1 + "");
+                        isExciting[0] = false;
                     } else {
-                        Http http = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.answerChange(context,aid,"isExciting",1);
-                                answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-                                String s = answerViewHolder.answerItemExcitingCount.getText().toString();
-                                answerViewHolder.answerItemExcitingCount.setText((Integer.parseInt(s) + 1) + "");
-                                isExciting[0] = true;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
                         http.post(Http.URL_EXCITING, queryExciting, Http.TYPE_EXCITING);
-
+                        answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+                        String s = answerViewHolder.answerItemExcitingCount.getText().toString();
+                        answerViewHolder.answerItemExcitingCount.setText((Integer.parseInt(s) + 1) + "");
+                        isExciting[0] = true;
                     }
                 }
             });
@@ -194,86 +160,63 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     queryNaive.put("id", aid + "");
                     queryNaive.put("type", MainActivity.TYPE_ANSWER + "");
                     queryNaive.put("token", MainActivity.person.getToken());
-
+                    Http http1 = new Http(context);
                     if (isNaive[0]) {
-                        Http http1 = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.answerChange(context,aid,"isNaive",0);
-                                answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
-                                String s = answerViewHolder.answerItemNaiveCount.getText().toString();
-                                answerViewHolder.answerItemNaiveCount.setText(Integer.parseInt(s) - 1 + "");
-                                isNaive[0] = false;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
                         http1.post(Http.URL_CANCEL_NAIVE, queryNaive, Http.TYPE_CANCEL_NAIVE);
-
+                        answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
+                        String s = answerViewHolder.answerItemNaiveCount.getText().toString();
+                        answerViewHolder.answerItemNaiveCount.setText(Integer.parseInt(s) - 1 + "");
+                        isNaive[0] = false;
                     } else {
-                        Http http1 = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.answerChange(context,aid,"isNaive",1);
-                                answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
-                                String s = answerViewHolder.answerItemNaiveCount.getText().toString();
-                                answerViewHolder.answerItemNaiveCount.setText((Integer.parseInt(s) + 1) + "");
-                                isNaive[0] = true;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
                         http1.post(Http.URL_NAIVE, queryNaive, Http.TYPE_NAIVE);
-
+                        answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
+                        String s = answerViewHolder.answerItemNaiveCount.getText().toString();
+                        answerViewHolder.answerItemNaiveCount.setText((Integer.parseInt(s) + 1) + "");
+                        isNaive[0] = true;
                     }
                 }
             });
         } else {
             final QuestionViewHolder questionViewHolder = (QuestionViewHolder) holder;
+            MyHelper.searchQuestion(context, qid, realQuestion);
             //加载作者头像
-            if (question.getAuthorAvatar().length() >= 10) {
+            if (realQuestion.getAuthorAvatar().length() >= 10) {
                 Glide.with(context)
-                        .load(question.getAuthorAvatar())
+                        .load(realQuestion.getAuthorAvatar())
                         .into(questionViewHolder.realQuestionUserImg);
             }
-            questionViewHolder.realQuestionAuthorName.setText(question.getAuthorName());
-            questionViewHolder.realQuestionRecent.setText(question.getRecent());
-            questionViewHolder.realQuestionTitle.setText(question.getTitle());
-            questionViewHolder.realQuestionContent.setText(question.getContent());
+            questionViewHolder.realQuestionAuthorName.setText(realQuestion.getAuthorName());
+            questionViewHolder.realQuestionRecent.setText(realQuestion.getRecent());
+            questionViewHolder.realQuestionTitle.setText(realQuestion.getTitle());
+            questionViewHolder.realQuestionContent.setText(realQuestion.getContent());
             //加载问题图片
-            if (question.getImages().length() >= 10) {
+            if (realQuestion.getImages().length() >= 10) {
                 Glide.with(context)
-                        .load(question.getImages())
+                        .load(realQuestion.getImages())
                         .fitCenter()
                         .into(questionViewHolder.realQuestionContentImg);
             } else {
                 questionViewHolder.realQuestionContentImg.setVisibility(View.GONE);
             }
-            questionViewHolder.realQuestionExcitingCount.setText(question.getExciting() + "");
-            questionViewHolder.realQuestionAnswerCount.setText(question.getAnswerCount() + "");
+            questionViewHolder.realQuestionExcitingCount.setText(realQuestion.getExciting() + "");
+            questionViewHolder.realQuestionAnswerCount.setText(realQuestion.getAnswerCount() + "");
             //
-            questionViewHolder.realQuestionNaiveCount.setText(question.getNaive() + "");
+            questionViewHolder.realQuestionNaiveCount.setText(realQuestion.getNaive() + "");
             //
-            final Boolean[] isExciting = {question.getIsExciting()};
-            if(isExciting[0]) {
+            questionViewHolder.isExciting = realQuestion.getIsExciting();
+            if (questionViewHolder.isExciting) {
                 questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
             } else {
                 questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsup);
             }
-            final Boolean[] isNaive = {question.getIsNaive()};
-            if (isNaive[0]) {
+            questionViewHolder.isNaive = realQuestion.getIsNaive();
+            if (questionViewHolder.isNaive) {
                 questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
             } else {
                 questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
             }
-            final Boolean[] isFavorite = {question.getFavorite()};
-            if (isFavorite[0]) {
+            questionViewHolder.isFavorite = realQuestion.getFavorite();
+            if (questionViewHolder.isFavorite) {
                 questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star_fill);
             } else {
                 questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star);
@@ -285,41 +228,19 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     queryExciting.put("id", qid + "");
                     queryExciting.put("type", MainActivity.TYPE_QUESTION + "");
                     queryExciting.put("token", MainActivity.person.getToken());
-                    if (isExciting[0]) {
-                        Http http = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.questionChange(context,qid,"isExciting",0);
-                                questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup);
-                                String s = questionViewHolder.realQuestionExcitingCount.getText().toString();
-                                questionViewHolder.realQuestionExcitingCount.setText(Integer.parseInt(s) - 1 + "");
-                                isExciting[0] = false;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                    Http http = new Http(context);
+                    if (questionViewHolder.isExciting) {
                         http.post(Http.URL_CANCEL_EXCITING, queryExciting, Http.TYPE_CANCEL_EXCITING);
+                        questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+                        String s = questionViewHolder.realQuestionExcitingCount.getText().toString();
+                        questionViewHolder.realQuestionExcitingCount.setText(Integer.parseInt(s) - 1 + "");
+                        questionViewHolder.isExciting = false;
                     } else {
-                        Http http = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.questionChange(context,qid,"isExciting",1);
-                                questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-                                String s = questionViewHolder.realQuestionExcitingCount.getText().toString();
-                                questionViewHolder.realQuestionExcitingCount.setText((Integer.parseInt(s) + 1) + "");
-                                isExciting[0] = true;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
                         http.post(Http.URL_EXCITING, queryExciting, Http.TYPE_EXCITING);
-
+                        questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+                        String s = questionViewHolder.realQuestionExcitingCount.getText().toString();
+                        questionViewHolder.realQuestionExcitingCount.setText((Integer.parseInt(s) + 1) + "");
+                        questionViewHolder.isExciting = true;
                     }
                 }
             });
@@ -330,43 +251,19 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     queryNaive.put("id", qid + "");
                     queryNaive.put("type", MainActivity.TYPE_QUESTION + "");
                     queryNaive.put("token", MainActivity.person.getToken());
-
-                    if (isNaive[0]) {
-                        Http http1 = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.questionChange(context,qid,"isNaive",0);
-                                questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
-                                String s = questionViewHolder.realQuestionNaiveCount.getText().toString();
-                                questionViewHolder.realQuestionNaiveCount.setText(Integer.parseInt(s) - 1 + "");
-                                isNaive[0] = false;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                    Http http1 = new Http(context);
+                    if (questionViewHolder.isNaive) {
                         http1.post(Http.URL_CANCEL_NAIVE, queryNaive, Http.TYPE_CANCEL_NAIVE);
-
+                        questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
+                        String s = questionViewHolder.realQuestionNaiveCount.getText().toString();
+                        questionViewHolder.realQuestionNaiveCount.setText(Integer.parseInt(s) - 1 + "");
+                        questionViewHolder.isNaive = false;
                     } else {
-                        Http http1 = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.questionChange(context,qid,"isNaive",1);
-                                questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
-                                String s = questionViewHolder.realQuestionNaiveCount.getText().toString();
-                                questionViewHolder.realQuestionNaiveCount.setText((Integer.parseInt(s) + 1) + "");
-                                isNaive[0] = true;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
                         http1.post(Http.URL_NAIVE, queryNaive, Http.TYPE_NAIVE);
-
+                        questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
+                        String s = questionViewHolder.realQuestionNaiveCount.getText().toString();
+                        questionViewHolder.realQuestionNaiveCount.setText((Integer.parseInt(s) + 1) + "");
+                        questionViewHolder.isNaive = true;
                     }
                 }
             });
@@ -376,39 +273,15 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Map<String, String> queryFavorite = new HashMap<>();
                     queryFavorite.put("id", qid + "");
                     queryFavorite.put("token", MainActivity.person.getToken());
-
-                    if (isFavorite[0]) {
-                        Http http2 = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.questionChange(context,qid,"isFavorite",0);
-                                questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star);
-                                isFavorite[0] = false;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                    Http http2 = new Http(context);
+                    if (questionViewHolder.isFavorite) {
                         http2.post(Http.URL_CANCEL_FAVORITE, queryFavorite, Http.TYPE_CANCEL_FAVORITE);
-
+                        questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star);
+                        questionViewHolder.isFavorite = false;
                     } else {
-                        Http http2 = new Http(context, new HttpCallbackListener() {
-                            @Override
-                            public void postSuccess() {
-                                MySQLiteOpenHelper.questionChange(context,qid,"isFavorite",1);
-                                questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star_fill);
-                                isFavorite[0] = true;
-                            }
-
-                            @Override
-                            public void postFailed(String response) {
-                                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                            }
-                        });
                         http2.post(Http.URL_FAVORITE, queryFavorite, Http.TYPE_FAVORITE);
-
+                        questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star_fill);
+                        questionViewHolder.isFavorite = true;
                     }
                 }
             });
@@ -435,6 +308,9 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return answerList.size() + 1;
     }
 
+    public void dataChange(List<Answer> answerList) {
+        this.answerList = answerList;
+    }
 
     public class AnswerViewHolder extends RecyclerView.ViewHolder {
         private ImageView answerItemAuthorImg;
@@ -483,6 +359,9 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private LinearLayout realQuestionExciting;
         private LinearLayout realQuestionNaive;
         private LinearLayout realQuestionFavorite;
+        private Boolean isExciting;
+        private Boolean isNaive;
+        private Boolean isFavorite;
         private LinearLayout questionBack;
 
         public QuestionViewHolder(@NonNull View itemView) {
@@ -505,9 +384,4 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             questionBack = itemView.findViewById(R.id.question_back);
         }
     }
-
-    public void refresh(){
-        MySQLiteOpenHelper.searchQuestion(context,qid,question);
-        MySQLiteOpenHelper.readAnswer(context,answerList,qid);
-    };
 }

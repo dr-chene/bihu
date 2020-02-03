@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.example.bihu.activity.MainActivity;
 
@@ -13,20 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MySQLiteOpenHelper extends SQLiteOpenHelper {
-    public MySQLiteOpenHelper(Context context, int version) {
+public class MyHelper extends SQLiteOpenHelper {
+    public MyHelper(Context context, int version) {
         super(context, "bihu.db", null, version);
     }
 
     public static void deletePerson(Context context) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         sqLiteDatabase.delete("person", null, null);
     }
 
     public static void addPerson(Context context, int uid, String username, String password, String avatar, String token) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         if (searchPerson(context, sqLiteDatabase)) {
             sqLiteDatabase.delete("person", null, null);
         }
@@ -41,8 +40,8 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     public static void modifyAvatar(Context context, String avatar) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         if (searchPerson(context, sqLiteDatabase)) {
             ContentValues contentValues = new ContentValues();
             contentValues.put("avatar", avatar);
@@ -62,8 +61,8 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     public static void addAnswer(Context context, int aid, int qid, String content, String images, String date, int best, int exciting, int naive, int authorId, String authorName, String authorAvatar, int isExciting, int isNaive) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         if (!searchAnswer(context, aid, sqLiteDatabase)) {
             ContentValues contentValues = new ContentValues();
             contentValues.put("aid", aid);
@@ -104,89 +103,9 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    public static void questionChange(final Context context, final int qid, final String column, final int change) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-                SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(column, change);
-
-                String name = null;
-                if (column.equals("isNaive")) {
-                    name = "naive";
-                } else if (column.equals("isExciting")) {
-                    name = "exciting";
-                }
-                Cursor cursor = sqLiteDatabase.rawQuery("select * from question where qid = ?", new String[]{qid + ""});
-                int count = 0;
-                if (cursor.moveToNext()) {
-                    count = cursor.getInt(cursor.getColumnIndex(name));
-                    if (change == 1) {
-                        count++;
-                    } else if (change == 0) {
-                        count--;
-                    }
-                }
-                contentValues.put(name, count);
-
-                sqLiteDatabase.update("question", contentValues, "qid = ?", new String[]{qid + ""});
-                cursor.close();
-                sqLiteDatabase.close();
-            }
-        }).start();
-    }
-public static void answerAccept(final Context context, final int aid){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-                SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put("best", 1);
-                sqLiteDatabase.update("answer", contentValues, "aid = ?", new String[]{aid + ""});
-                sqLiteDatabase.close();
-            }
-        }).start();
-}
-    public static void answerChange(final Context context, final int aid, final String column, final int change) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-                SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(column, change);
-
-                String name = null;
-                if (column.equals("isNaive")) {
-                    name = "naive";
-                } else if (column.equals("isExciting")) {
-                    name = "exciting";
-                }
-                Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where aid = ?", new String[]{aid + ""});
-                int count = 0;
-                if (cursor.moveToNext()) {
-                    count = cursor.getInt(cursor.getColumnIndex(name));
-                    if (change == 1) {
-                        count++;
-                    } else if (change == 0) {
-                        count--;
-                    }
-                }
-                contentValues.put(name, count);
-
-                sqLiteDatabase.update("answer", contentValues, "aid = ?", new String[]{aid + ""});
-                cursor.close();
-                sqLiteDatabase.close();
-            }
-        }).start();
-    }
-
     public static void addQuestion(Context context, int qid, String title, String content, String images, String date, int exciting, int naive, String recent, int answerCount, int authorId, String authorName, String authorAvatar, int isExciting, int isNaive, int isFavorite) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         if (!searchQuestion(context, qid, sqLiteDatabase)) {
             ContentValues contentValues = new ContentValues();
             contentValues.put("qid", qid);
@@ -231,8 +150,8 @@ public static void answerAccept(final Context context, final int aid){
     }
 
     public static void readPerson(Context context, Person person) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from person", null);
         while (cursor.moveToNext()) {
             person.setId(cursor.getInt(cursor.getColumnIndex("uid")));
@@ -246,8 +165,8 @@ public static void answerAccept(final Context context, final int aid){
     }
 
     public static void searchQuestion(Context context, int qid, Question question) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where qid = ?", new String[]{qid + ""});
         while (cursor.moveToNext()) {
             question.setId(cursor.getInt(cursor.getColumnIndex("qid")));
@@ -271,8 +190,8 @@ public static void answerAccept(final Context context, final int aid){
     }
 
     public static int getAnswerCount(Context context, int qid) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where qid = ?", new String[]{qid + ""});
         int count = cursor.getCount();
         cursor.close();
@@ -280,8 +199,8 @@ public static void answerAccept(final Context context, final int aid){
     }
 
     public static void readAnswer(Context context, List<Answer> answerList, int qid) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where qid = ?", new String[]{qid + ""});
         answerList.clear();
         while (cursor.moveToNext()) {
@@ -305,38 +224,46 @@ public static void answerAccept(final Context context, final int aid){
     }
 
     public static int getQuestionCount(Context context) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question", null);
         int count = cursor.getCount();
-        sqLiteDatabase.close();
         cursor.close();
         return count;
     }
 
-    public static void readQuestion(Context context, List<Question> questionList, int size, int type) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+    public static int readQuestion(Context context, List<Question> questionList, int size, int type) {
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question", null);
-        cursor.moveToFirst();
         int preQuestionLiseSize = questionList.size();
         questionList.clear();
-        if (type == MainActivity.TYPE_LOAD_MORE) {
-            question(questionList, size, cursor);
+        List<Question> questions = new ArrayList<>();
+        for (int i = 0; i < preQuestionLiseSize; i++) {
+            if (cursor.moveToNext()) {
+                Question question = new Question();
+                question.setId(cursor.getInt(cursor.getColumnIndex("qid")));
+                question.setTitle(cursor.getString(cursor.getColumnIndex("title")));
+                question.setContent(cursor.getString(cursor.getColumnIndex("content")));
+                question.setImages(cursor.getString(cursor.getColumnIndex("images")));
+                question.setDate(cursor.getString(cursor.getColumnIndex("date")));
+                question.setExciting(cursor.getInt(cursor.getColumnIndex("exciting")));
+                question.setNaive(cursor.getInt(cursor.getColumnIndex("naive")));
+                question.setRecent(cursor.getString(cursor.getColumnIndex("recent")));
+                question.setAnswerCount(cursor.getInt(cursor.getColumnIndex("answerCount")));
+                question.setAuthorId(cursor.getInt(cursor.getColumnIndex("authorId")));
+                question.setAuthorName(cursor.getString(cursor.getColumnIndex("authorName")));
+                question.setAuthorAvatar(cursor.getString(cursor.getColumnIndex("authorAvatar")));
+                question.setExciting(cursor.getInt(cursor.getColumnIndex("isExciting")) == 1);
+                question.setNaive(cursor.getInt(cursor.getColumnIndex("isNaive")) == 1);
+                question.setFavorite(cursor.getInt(cursor.getColumnIndex("isFavorite")) == 1);
+                if (type == MainActivity.TYPE_LOAD_MORE) {
+                    questionList.add(question);
+                } else if (type == MainActivity.TYPE_REFRESH) {
+                    questions.add(question);
+                }
+            }
         }
-        if (type == MainActivity.TYPE_REFRESH) {
-            Log.d("first","type == MainActivity.TYPE_REFRESH");
-            List<Question> questions = new ArrayList<>();
-            question(questions, preQuestionLiseSize, cursor);
-            question(questionList, MainActivity.count, cursor);
-            questionList.addAll(questions);
-        }
-        Log.d("first","  success ");
-        sqLiteDatabase.close();
-        cursor.close();
-    }
-
-    private static void question(List<Question> questionList, int size, Cursor cursor) {
         for (int i = 0; i < size; i++) {
             if (cursor.moveToNext()) {
                 Question question = new Question();
@@ -355,45 +282,79 @@ public static void answerAccept(final Context context, final int aid){
                 question.setExciting(cursor.getInt(cursor.getColumnIndex("isExciting")) == 1);
                 question.setNaive(cursor.getInt(cursor.getColumnIndex("isNaive")) == 1);
                 question.setFavorite(cursor.getInt(cursor.getColumnIndex("isFavorite")) == 1);
-                questionList.add(question);
+                if (type == MainActivity.TYPE_LOAD_MORE) {
+                    questions.add(question);
+                } else if (type == MainActivity.TYPE_REFRESH) {
+                    questionList.add(question);
+                }
             }
         }
+        questionList.addAll(questions);
+        sqLiteDatabase.close();
+        cursor.close();
+        return questions.size();
     }
 
     public static int getFavoriteCount(Context context) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where isFavorite = ?", new String[]{"1"});
         int count = cursor.getCount();
         cursor.close();
         return count;
     }
 
-    public static void readFavorite(Context context, List<Question> favoriteList, int size) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+    public static int readFavorite(Context context, List<Question> favoriteList, int size) {
+        MyHelper myHelper = new MyHelper(context, MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = myHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where isFavorite = ?", new String[]{"1"});
+        int preFavoriteLiseSize = favoriteList.size();
         favoriteList.clear();
-        while (cursor.moveToNext()) {
-            Question question = new Question();
-            question.setId(cursor.getInt(cursor.getColumnIndex("qid")));
-            question.setTitle(cursor.getString(cursor.getColumnIndex("title")));
-            question.setContent(cursor.getString(cursor.getColumnIndex("content")));
-            question.setImages(cursor.getString(cursor.getColumnIndex("images")));
-            question.setDate(cursor.getString(cursor.getColumnIndex("date")));
-            question.setExciting(cursor.getInt(cursor.getColumnIndex("exciting")));
-            question.setNaive(cursor.getInt(cursor.getColumnIndex("naive")));
-            question.setRecent(cursor.getString(cursor.getColumnIndex("recent")));
-            question.setAnswerCount(cursor.getInt(cursor.getColumnIndex("answerCount")));
-            question.setAuthorId(cursor.getInt(cursor.getColumnIndex("authorId")));
-            question.setAuthorName(cursor.getString(cursor.getColumnIndex("authorName")));
-            question.setAuthorAvatar(cursor.getString(cursor.getColumnIndex("authorAvatar")));
-            question.setExciting(cursor.getInt(cursor.getColumnIndex("isExciting")) == 1);
-            question.setNaive(cursor.getInt(cursor.getColumnIndex("isNaive")) == 1);
-            favoriteList.add(question);
+        List<Question> favorites = new ArrayList<>();
+        for (int i = 0; i < preFavoriteLiseSize; i++) {
+            while (cursor.moveToNext()) {
+                Question question = new Question();
+                question.setId(cursor.getInt(cursor.getColumnIndex("qid")));
+                question.setTitle(cursor.getString(cursor.getColumnIndex("title")));
+                question.setContent(cursor.getString(cursor.getColumnIndex("content")));
+                question.setImages(cursor.getString(cursor.getColumnIndex("images")));
+                question.setDate(cursor.getString(cursor.getColumnIndex("date")));
+                question.setExciting(cursor.getInt(cursor.getColumnIndex("exciting")));
+                question.setNaive(cursor.getInt(cursor.getColumnIndex("naive")));
+                question.setRecent(cursor.getString(cursor.getColumnIndex("recent")));
+                question.setAnswerCount(cursor.getInt(cursor.getColumnIndex("answerCount")));
+                question.setAuthorId(cursor.getInt(cursor.getColumnIndex("authorId")));
+                question.setAuthorName(cursor.getString(cursor.getColumnIndex("authorName")));
+                question.setAuthorAvatar(cursor.getString(cursor.getColumnIndex("authorAvatar")));
+                question.setExciting(cursor.getInt(cursor.getColumnIndex("isExciting")) == 1);
+                question.setNaive(cursor.getInt(cursor.getColumnIndex("isNaive")) == 1);
+                favorites.add(question);
+            }
         }
+        for (int i = 0; i < size; i++) {
+            while (cursor.moveToNext()) {
+                Question question = new Question();
+                question.setId(cursor.getInt(cursor.getColumnIndex("qid")));
+                question.setTitle(cursor.getString(cursor.getColumnIndex("title")));
+                question.setContent(cursor.getString(cursor.getColumnIndex("content")));
+                question.setImages(cursor.getString(cursor.getColumnIndex("images")));
+                question.setDate(cursor.getString(cursor.getColumnIndex("date")));
+                question.setExciting(cursor.getInt(cursor.getColumnIndex("exciting")));
+                question.setNaive(cursor.getInt(cursor.getColumnIndex("naive")));
+                question.setRecent(cursor.getString(cursor.getColumnIndex("recent")));
+                question.setAnswerCount(cursor.getInt(cursor.getColumnIndex("answerCount")));
+                question.setAuthorId(cursor.getInt(cursor.getColumnIndex("authorId")));
+                question.setAuthorName(cursor.getString(cursor.getColumnIndex("authorName")));
+                question.setAuthorAvatar(cursor.getString(cursor.getColumnIndex("authorAvatar")));
+                question.setExciting(cursor.getInt(cursor.getColumnIndex("isExciting")) == 1);
+                question.setNaive(cursor.getInt(cursor.getColumnIndex("isNaive")) == 1);
+                favoriteList.add(question);
+            }
+        }
+        favoriteList.addAll(favorites);
         sqLiteDatabase.close();
         cursor.close();
+        return favorites.size();
     }
 
     @Override
@@ -406,5 +367,4 @@ public static void answerAccept(final Context context, final int aid){
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
-
 }
