@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,15 +21,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bihu.R;
 import com.example.bihu.adapter.AnswerAdapter;
-import com.example.bihu.utils.Answer;
-import com.example.bihu.utils.Data;
 import com.example.bihu.utils.Http;
-import com.example.bihu.utils.MyHelper;
+import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.QiNiu;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.example.bihu.utils.Methods.getFileByUri;
@@ -85,18 +82,45 @@ public class QuestionContentActivity extends AppCompatActivity {
                     queryAnswer.put("content", content);
                     queryAnswer.put("images", image);
                     queryAnswer.put("token", MainActivity.person.getToken());
-                    Http http3 = new Http(QuestionContentActivity.this);
+                    Http http3 = new Http(QuestionContentActivity.this, new HttpCallbackListener() {
+                        @Override
+                        public void postSuccess() {
+                            enterAnswerED.setText("");
+                            popupWindow.dismiss();
+                            image = "";
+                        }
+
+                        @Override
+                        public void postFailed(String response) {
+                            Toast.makeText(QuestionContentActivity.this,response,Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     http3.post(Http.URL_ANSWER, queryAnswer, Http.TYPE_ANSWER);
-                    enterAnswerED.setText("");
-                    popupWindow.dismiss();
-                    image = "";
+
                 }
             }
         });
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh();
+                Map<String, String> query = new HashMap<>();
+                query.put("page", page + "");
+                query.put("count", count + "");
+                query.put("qid", qid + "");
+                query.put("token", MainActivity.person.getToken());
+                Http http = new Http(QuestionContentActivity.this, qid, new HttpCallbackListener() {
+                    @Override
+                    public void postSuccess() {
+                        answerAdapter.refresh();
+                        answerAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void postFailed(String response) {
+                            Toast.makeText(QuestionContentActivity.this,response,Toast.LENGTH_SHORT).show();
+                    }
+                });
+                http.post(Http.URL_GET_ANSWER_LIST, query, Http.TYPE_GET_ANSWER_LIST);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -106,14 +130,6 @@ public class QuestionContentActivity extends AppCompatActivity {
                 openAlum();
             }
         });
-    }
-
-    public void refresh() {
-        Data.refreshAnswer(QuestionContentActivity.this, page, count, qid);
-        List<Answer> answerList = new ArrayList<>();
-        MyHelper.readAnswer(QuestionContentActivity.this, answerList, qid);
-        answerAdapter.dataChange(answerList);
-        answerAdapter.notifyDataSetChanged();
     }
 
     private void openAlum() {

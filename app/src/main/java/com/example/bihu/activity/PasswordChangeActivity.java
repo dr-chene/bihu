@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
+import com.example.bihu.utils.HttpCallbackListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +60,17 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                             Map<String, String> query = new HashMap<>();
                             query.put("password", changePasswordNew.getText().toString());
                             query.put("token", MainActivity.person.getToken());
-                            Http http = new Http(PasswordChangeActivity.this);
+                            Http http = new Http(PasswordChangeActivity.this, new HttpCallbackListener() {
+                                @Override
+                                public void postSuccess() {
+
+                                }
+
+                                @Override
+                                public void postFailed(String response) {
+                                    Toast.makeText(PasswordChangeActivity.this,response,Toast.LENGTH_SHORT).show();
+                                }
+                            });
                             http.post(Http.URL_CHANGE_PASSWORD, query, Http.TYPE_CHANGE_PASSWORD);
                             MainActivity.person.setId(-1);
                             Toast.makeText(PasswordChangeActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
