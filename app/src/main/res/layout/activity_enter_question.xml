@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EnterQuestionActivity">
+    tools:context=".activity.QuestionCommitActivity">
 
     <LinearLayout
         android:id="@+id/enter_question_back"
@@ -52,6 +52,7 @@
         app:layout_constraintVertical_bias="0.05" />
 
     <TextView
+        android:id="@+id/title_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="20"
@@ -81,6 +82,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
+        android:id="@+id/content_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="200"
@@ -104,14 +106,12 @@
         app:layout_constraintTop_toBottomOf="@+id/content_ed"
         app:layout_constraintVertical_bias="0.0" />
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/enter_question_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/enter_question_btn_bg"
-        android:text="发布"
-        android:textColor="#FFFFFF"
-        android:textSize="22dp"
+        android:src="@drawable/commit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.85"
@@ -130,4 +130,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view"
         app:layout_constraintVertical_bias="0.1" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

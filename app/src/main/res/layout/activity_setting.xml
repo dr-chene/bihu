@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".SettingActivity">
+    tools:context=".activity.SettingActivity">
 
     <View
         android:layout_width="match_parent"
@@ -112,11 +112,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.example.bihu.tool.CircleImageView
+        <com.example.bihu.widget.CircleImageView
             android:id="@+id/setting_avatar"
-            android:src="@drawable/no_avatar"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:src="@drawable/no_avatar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageView5"
             app:layout_constraintHorizontal_bias="0.95"
@@ -205,7 +205,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="310dp"
+        android:layout_height="340dp"
         android:background="#F0F8FF" />
 
     <TextView

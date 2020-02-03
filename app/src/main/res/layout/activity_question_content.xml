@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/real_question_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/real_question_answer_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/hf"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#F0F8FF">
+
+        <EditText
+            android:id="@+id/enter_answer_ed"
+            android:layout_width="175dp"
+            android:layout_height="30dp"
+            android:background="@drawable/enter_answer_ed_bg"
+            android:hint="是时候展现真正技术了"
+            android:paddingLeft="3dp"
+            android:textSize="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/enter_pic_btn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/get_img"
+            app:layout_constraintBottom_toBottomOf="@+id/enter_answer_btn"
+            app:layout_constraintEnd_toStartOf="@+id/enter_answer_btn"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/enter_answer_ed"
+            app:layout_constraintTop_toTopOf="@+id/enter_answer_btn"
+            app:layout_constraintVertical_bias="0.5" />
+
+        <Button
+            android:id="@+id/enter_answer_btn"
+            android:layout_width="50dp"
+            android:layout_height="25dp"
+            android:background="@drawable/enter_answer_btn_bg"
+            android:text="发表"
+            android:textColor="#1E90FF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.8"
+            app:layout_constraintStart_toEndOf="@+id/enter_answer_ed"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
