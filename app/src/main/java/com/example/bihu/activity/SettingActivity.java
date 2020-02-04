@@ -29,7 +29,7 @@ import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.bihu.R;
-import com.example.bihu.utils.MyHelper;
+import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.QiNiu;
 
 import java.io.File;
@@ -84,6 +84,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             if (MainActivity.person.getAvatar().length() >= 10) {
                 Glide.with(this)
                         .load(MainActivity.person.getAvatar())
+                        .error(R.drawable.error_avatar)
                         .into(settingAvatar);
             }
             settingUsername.setText(MainActivity.person.getUsername());
@@ -156,7 +157,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MyHelper.deletePerson(SettingActivity.this);
+                MySQLiteOpenHelper.deletePerson(SettingActivity.this);
                 Intent intent = new Intent(SettingActivity.this, MainActivity.class);
                 startActivity(intent);
             }

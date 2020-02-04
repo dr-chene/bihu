@@ -2,6 +2,7 @@ package com.example.bihu.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
+import com.example.bihu.utils.HttpCallbackListener;
+import com.example.bihu.utils.MySQLiteOpenHelper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,8 +65,32 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                             Map<String, String> query = new HashMap<>();
                             query.put("password", changePasswordNew.getText().toString());
                             query.put("token", MainActivity.person.getToken());
-                            Http http = new Http(PasswordChangeActivity.this);
-                            http.post(Http.URL_CHANGE_PASSWORD, query, Http.TYPE_CHANGE_PASSWORD);
+                            Http.sendHttpRequest(Http.URL_CHANGE_PASSWORD, query, new HttpCallbackListener() {
+                                @Override
+                                public void onFinish(String response) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response);
+                                        if (jsonObject.getInt("status") != 200) {
+                                            Looper.prepare();
+                                            Toast.makeText(PasswordChangeActivity.this,jsonObject.getString("info"),Toast.LENGTH_SHORT).show();
+                                        Looper.loop();
+                                        }
+                                        if (jsonObject.getString("info").equals("success")) {
+                                            JSONObject object = jsonObject.getJSONObject("data");
+                                            MySQLiteOpenHelper.changePassword(PasswordChangeActivity.this,object.getString("password"),object.getString("token"));
+                                           MainActivity.person.setPassword(object.getString("password"));
+                                            MainActivity.person.setToken(object.getString("token"));
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+
+                                }
+                            });
                             MainActivity.person.setId(-1);
                             Toast.makeText(PasswordChangeActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
                             Intent intent1 = new Intent(PasswordChangeActivity.this, MainActivity.class);

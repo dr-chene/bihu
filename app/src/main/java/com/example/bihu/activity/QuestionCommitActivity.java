@@ -1,8 +1,10 @@
 package com.example.bihu.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -18,8 +20,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
+import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.QiNiu;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -134,14 +140,31 @@ public class QuestionCommitActivity extends AppCompatActivity {
                     query.put("content", content);
                     query.put("images", images);
                     query.put("token", MainActivity.person.getToken());
-                    Log.d("debug", "title = " + title);
-                    Log.d("debug", "content = " + content);
-                    Log.d("debug", "token = " + MainActivity.person.getToken());
-                    Http http = new Http(QuestionCommitActivity.this);
-                    http.post(Http.URL_QUESTION, query, Http.TYPE_QUESTION);
-                    titleEd.setText("");
-                    contentEd.setText("");
-                    images = "";
+                   Http.sendHttpRequest(Http.URL_QUESTION, query, new HttpCallbackListener() {
+                       @Override
+                       public void onFinish(String response) {
+                           try {
+                               JSONObject jsonObject = new JSONObject(response);
+                               if (jsonObject.getInt("status") != 200) {
+                                   Looper.prepare();
+                                   Toast.makeText(QuestionCommitActivity.this,jsonObject.getString("info"),Toast.LENGTH_SHORT).show();
+                                   Looper.loop();
+                               } else {
+                                   titleEd.setText("");
+                                   contentEd.setText("");
+                                   enterQuestionImg.setImageResource(R.drawable.jia_question);
+                                   images = "";
+                               }
+                           } catch (JSONException e) {
+                               e.printStackTrace();
+                           }
+                       }
+
+                       @Override
+                       public void onError(Exception e) {
+
+                       }
+                   });
                 }
             }
         });

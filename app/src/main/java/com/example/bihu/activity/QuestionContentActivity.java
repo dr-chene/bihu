@@ -3,13 +3,19 @@ package com.example.bihu.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -20,15 +26,16 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bihu.R;
 import com.example.bihu.adapter.AnswerAdapter;
-import com.example.bihu.utils.Answer;
-import com.example.bihu.utils.Data;
 import com.example.bihu.utils.Http;
-import com.example.bihu.utils.MyHelper;
+import com.example.bihu.utils.HttpCallbackListener;
+import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.QiNiu;
 
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.example.bihu.utils.Methods.getFileByUri;
@@ -47,6 +54,20 @@ public class QuestionContentActivity extends AppCompatActivity {
     private ImageView enterPic;
     private PopupWindow popupWindow;
     private ConstraintLayout hf;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what) {
+                case MainActivity.TYPE_REFRESH:
+                    Log.d("three", "notify start");
+//                    answerAdapter.notifyItemInserted(answerAdapter.getItemCount());
+                    answerAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                    Log.d("three", "notify end");
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,19 +106,87 @@ public class QuestionContentActivity extends AppCompatActivity {
                     queryAnswer.put("content", content);
                     queryAnswer.put("images", image);
                     queryAnswer.put("token", MainActivity.person.getToken());
-                    Http http3 = new Http(QuestionContentActivity.this);
-                    http3.post(Http.URL_ANSWER, queryAnswer, Http.TYPE_ANSWER);
-                    enterAnswerED.setText("");
-                    popupWindow.dismiss();
-                    image = "";
+                    Http.sendHttpRequest(Http.URL_ANSWER, queryAnswer, new HttpCallbackListener() {
+                        @Override
+                        public void onFinish(String response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                if (jsonObject.getInt("status") != 200) {
+                                    Looper.prepare();
+                                    Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                    Looper.loop();
+                                } else {
+                                    enterAnswerED.setText("");
+                                    popupWindow.dismiss();
+                                    image = "";
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    });
                 }
             }
         });
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh();
-                swipeRefreshLayout.setRefreshing(false);
+                Map<String, String> query = new HashMap<>();
+                query.put("page", page + "");
+                query.put("count", count + "");
+                query.put("qid", qid + "");
+                query.put("token", MainActivity.person.getToken());
+                Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
+                    @Override
+                    public void onFinish(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            Log.d("first",jsonObject+"");
+                            switch (jsonObject.getInt("status")) {
+                                case 401:
+                                    Looper.prepare();
+                                    Toast.makeText(QuestionContentActivity.this, "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
+                                    Looper.loop();
+                                    break;
+                                case 400:
+                                case 500:
+                                    Looper.prepare();
+                                    Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                    Looper.loop();
+                                    break;
+                                case 200:
+                                        JSONObject object = jsonObject.getJSONObject("data");
+                                        int totalCount = object.getInt("totalCount");
+                                        JSONArray jsonArray = object.getJSONArray("answers");
+                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                        Log.d("first", ""+i);
+                                        JSONObject answerData = jsonArray.getJSONObject(i);
+                                        MySQLiteOpenHelper.addAnswer(QuestionContentActivity.this, answerData.getInt("id"), qid, answerData.getString("content"), answerData.getString("images"), answerData.getString("date"), answerData.getInt("best"), answerData.getInt("exciting")
+                                                , answerData.getInt("naive"), answerData.getInt("authorId"), answerData.getString("authorName"), answerData.getString("authorAvatar"),
+                                                answerData.getBoolean("is_exciting") == true ? 1 : 0, answerData.getBoolean("is_naive") == true ? 1 : 0);
+
+                                    }
+                                    Log.d("three","refresh");
+                                    answerAdapter.refresh();
+                                    Message msg = new Message();
+                                    msg.what = MainActivity.TYPE_REFRESH;
+                                    handler.sendMessage(msg);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+                });
             }
         });
         enterPic.setOnClickListener(new View.OnClickListener() {
@@ -106,14 +195,6 @@ public class QuestionContentActivity extends AppCompatActivity {
                 openAlum();
             }
         });
-    }
-
-    public void refresh() {
-        Data.refreshAnswer(QuestionContentActivity.this, page, count, qid);
-        List<Answer> answerList = new ArrayList<>();
-        MyHelper.readAnswer(QuestionContentActivity.this, answerList, qid);
-        answerAdapter.dataChange(answerList);
-        answerAdapter.notifyDataSetChanged();
     }
 
     private void openAlum() {
@@ -139,5 +220,11 @@ public class QuestionContentActivity extends AppCompatActivity {
                     popupWindow.showAsDropDown(hf, 750, -20);
                 }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
     }
 }

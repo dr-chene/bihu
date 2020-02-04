@@ -2,7 +2,9 @@ package com.example.bihu.utils;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -17,6 +19,9 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -35,14 +40,34 @@ public class QiNiu {
     private Context context;
     private Handler handler = new Handler() {
         @Override
-        public void handleMessage(@NonNull Message msg) {
+        public void handleMessage(@NonNull final Message msg) {
             switch (msg.what) {
                 case MainActivity.TYPE_MODIFY_AVATAR:
                     Map<String, String> query = new HashMap<>();
                     query.put("token", MainActivity.person.getToken());
                     query.put("avatar", msg.obj.toString());
-                    Http http = new Http(context, msg.obj.toString());
-                    http.post(Http.URL_MODIFY_AVATAR, query, Http.TYPE_MODIFY_AVATAR);
+                   Http.sendHttpRequest(Http.URL_MODIFY_AVATAR, query, new HttpCallbackListener() {
+                       @Override
+                       public void onFinish(String response) {
+                           try {
+                               JSONObject jsonObject = new JSONObject(response);
+                               if (jsonObject.getInt("status") != 200) {
+                                   Looper.prepare();
+                                   Toast.makeText(context,jsonObject.getString("info"),Toast.LENGTH_SHORT).show();
+                                   Looper.loop();
+                               } else {
+                                   MySQLiteOpenHelper.modifyAvatar(context, msg.obj.toString());
+                               }
+                           } catch (JSONException e) {
+                               e.printStackTrace();
+                           }
+                       }
+
+                       @Override
+                       public void onError(Exception e) {
+
+                       }
+                   });
                     break;
                 case MainActivity.TYPE_ANSWER:
                     QuestionContentActivity.image = msg.obj.toString();
