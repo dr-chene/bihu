@@ -1,20 +1,5 @@
 package com.example.bihu.utils;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-
-import com.example.bihu.activity.MainActivity;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,10 +10,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Map;
-
-import static com.example.bihu.utils.Methods.getAnswerPage;
-import static com.example.bihu.utils.Methods.getQuestionPage;
-import static com.example.bihu.utils.Methods.isNetworkAvailable;
 
 public class Http {
     public static final String OLD_BASE_URL = "http://bihu.blogofyb.com/";
@@ -82,7 +63,7 @@ public class Http {
                     while ((line = reader.readLine()) != null) {
                         response.append(line);
                     }
-                    if (listener!= null){
+                    if (listener != null) {
                         //回调onFinish()方法
                         listener.onFinish(response.toString());
                     }
@@ -92,7 +73,7 @@ public class Http {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    if (listener!=null){
+                    if (listener != null) {
                         //回调onError()方法
                         listener.onError(e);
                     }

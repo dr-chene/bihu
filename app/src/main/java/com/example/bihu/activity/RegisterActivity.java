@@ -74,7 +74,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                     case 500:
                                     case 400:
                                         Looper.prepare();
-                                        Toast.makeText(RegisterActivity.this,jsonObject.getString("info"),Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(RegisterActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                         Looper.loop();
                                         break;
                                     case 200:

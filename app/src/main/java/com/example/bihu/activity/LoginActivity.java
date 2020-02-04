@@ -60,29 +60,29 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onFinish(String response) {
                         try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        switch (jsonObject.getInt("status")) {
-                            case 401:
-                            case 500:
-                            case 400:
-                                Looper.prepare();
-                                Toast.makeText(LoginActivity.this,jsonObject.getString("info"),Toast.LENGTH_SHORT).show();
-                                Looper.loop();
-                                break;
-                            case 200:
-                                JSONObject object = jsonObject.getJSONObject("data");
-                                MainActivity.person.setId(object.getInt("id"));
-                                MainActivity.person.setUsername(object.getString("username"));
-                                MainActivity.person.setToken(object.getString("token"));
-                                MainActivity.person.setAvatar(object.getString("avatar"));
-                                MySQLiteOpenHelper.addPerson(LoginActivity.this, object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
-                                Looper.prepare();
-                                Toast.makeText(LoginActivity.this, "登录成功，即将跳转", Toast.LENGTH_SHORT).show();
-                                Looper.loop();
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-                        }
-                    } catch (JSONException e) {
+                            JSONObject jsonObject = new JSONObject(response);
+                            switch (jsonObject.getInt("status")) {
+                                case 401:
+                                case 500:
+                                case 400:
+                                    Looper.prepare();
+                                    Toast.makeText(LoginActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                    Looper.loop();
+                                    break;
+                                case 200:
+                                    JSONObject object = jsonObject.getJSONObject("data");
+                                    MainActivity.person.setId(object.getInt("id"));
+                                    MainActivity.person.setUsername(object.getString("username"));
+                                    MainActivity.person.setToken(object.getString("token"));
+                                    MainActivity.person.setAvatar(object.getString("avatar"));
+                                    MySQLiteOpenHelper.addPerson(LoginActivity.this, object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
+                                    Looper.prepare();
+                                    Toast.makeText(LoginActivity.this, "登录成功，即将跳转", Toast.LENGTH_SHORT).show();
+                                    Looper.loop();
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                            }
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }

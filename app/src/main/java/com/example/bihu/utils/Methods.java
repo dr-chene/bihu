@@ -73,10 +73,12 @@ public class Methods {
 
         return networkinfo != null && networkinfo.isAvailable();
     }
-public static int getQuestionPage(Context context){
-        return MySQLiteOpenHelper.getQuestionCount(context)/ MainActivity.count;
-}
-public static int getAnswerPage(Context context,int qid){
-        return MySQLiteOpenHelper.getAnswerCount(context,qid)/ MainActivity.count;
+
+    public static int getQuestionPage(Context context) {
+        return MySQLiteOpenHelper.getQuestionCount(context) / MainActivity.count;
+    }
+
+    public static int getAnswerPage(Context context, int qid) {
+        return MySQLiteOpenHelper.getAnswerCount(context, qid) / MainActivity.count;
     }
 }

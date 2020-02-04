@@ -46,28 +46,29 @@ public class QiNiu {
                     Map<String, String> query = new HashMap<>();
                     query.put("token", MainActivity.person.getToken());
                     query.put("avatar", msg.obj.toString());
-                   Http.sendHttpRequest(Http.URL_MODIFY_AVATAR, query, new HttpCallbackListener() {
-                       @Override
-                       public void onFinish(String response) {
-                           try {
-                               JSONObject jsonObject = new JSONObject(response);
-                               if (jsonObject.getInt("status") != 200) {
-                                   Looper.prepare();
-                                   Toast.makeText(context,jsonObject.getString("info"),Toast.LENGTH_SHORT).show();
-                                   Looper.loop();
-                               } else {
-                                   MySQLiteOpenHelper.modifyAvatar(context, msg.obj.toString());
-                               }
-                           } catch (JSONException e) {
-                               e.printStackTrace();
-                           }
-                       }
+                    final String name = msg.obj.toString();
+                    Http.sendHttpRequest(Http.URL_MODIFY_AVATAR, query, new HttpCallbackListener() {
+                        @Override
+                        public void onFinish(String response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                if (jsonObject.getInt("status") != 200) {
+                                    Looper.prepare();
+                                    Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                    Looper.loop();
+                                } else {
+                                    MySQLiteOpenHelper.modifyAvatar(context,name);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
 
-                       @Override
-                       public void onError(Exception e) {
+                        @Override
+                        public void onError(Exception e) {
 
-                       }
-                   });
+                        }
+                    });
                     break;
                 case MainActivity.TYPE_ANSWER:
                     QuestionContentActivity.image = msg.obj.toString();
@@ -94,6 +95,12 @@ public class QiNiu {
                     Response response = uploadManager.put(img, key, upToken);
                     //解析上传成功的结果
                     DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
+//                    Message msg = new Message();
+//                    msg.what = type;
+//                    Log.d("avatar", "run: "+key);
+//                    String name  = "http://q4pta80dw.bkt.clouddn.com/" + key;
+//                    msg.obj = name;
+//                    handler.sendMessage(msg);
                     Message msg = new Message();
                     msg.what = type;
                     msg.obj = "http://q4pta80dw.bkt.clouddn.com/" + key;

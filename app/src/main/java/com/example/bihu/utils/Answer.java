@@ -13,15 +13,6 @@ public class Answer {
     private String authorAvatar;
     private Boolean isExciting;
     private Boolean isNaive;
-    private int totalCount;
-
-    public int getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
-    }
 
     public int getId() {
         return id;

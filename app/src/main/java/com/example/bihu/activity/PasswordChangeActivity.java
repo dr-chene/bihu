@@ -72,13 +72,13 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                                         JSONObject jsonObject = new JSONObject(response);
                                         if (jsonObject.getInt("status") != 200) {
                                             Looper.prepare();
-                                            Toast.makeText(PasswordChangeActivity.this,jsonObject.getString("info"),Toast.LENGTH_SHORT).show();
-                                        Looper.loop();
+                                            Toast.makeText(PasswordChangeActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                            Looper.loop();
                                         }
                                         if (jsonObject.getString("info").equals("success")) {
                                             JSONObject object = jsonObject.getJSONObject("data");
-                                            MySQLiteOpenHelper.changePassword(PasswordChangeActivity.this,object.getString("password"),object.getString("token"));
-                                           MainActivity.person.setPassword(object.getString("password"));
+                                            MySQLiteOpenHelper.changePassword(PasswordChangeActivity.this, object.getString("password"), object.getString("token"));
+                                            MainActivity.person.setPassword(object.getString("password"));
                                             MainActivity.person.setToken(object.getString("token"));
                                         }
                                     } catch (JSONException e) {

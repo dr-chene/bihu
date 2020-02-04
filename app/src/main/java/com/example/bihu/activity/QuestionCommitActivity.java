@@ -1,13 +1,11 @@
 package com.example.bihu.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -140,31 +138,31 @@ public class QuestionCommitActivity extends AppCompatActivity {
                     query.put("content", content);
                     query.put("images", images);
                     query.put("token", MainActivity.person.getToken());
-                   Http.sendHttpRequest(Http.URL_QUESTION, query, new HttpCallbackListener() {
-                       @Override
-                       public void onFinish(String response) {
-                           try {
-                               JSONObject jsonObject = new JSONObject(response);
-                               if (jsonObject.getInt("status") != 200) {
-                                   Looper.prepare();
-                                   Toast.makeText(QuestionCommitActivity.this,jsonObject.getString("info"),Toast.LENGTH_SHORT).show();
-                                   Looper.loop();
-                               } else {
-                                   titleEd.setText("");
-                                   contentEd.setText("");
-                                   enterQuestionImg.setImageResource(R.drawable.jia_question);
-                                   images = "";
-                               }
-                           } catch (JSONException e) {
-                               e.printStackTrace();
-                           }
-                       }
+                    Http.sendHttpRequest(Http.URL_QUESTION, query, new HttpCallbackListener() {
+                        @Override
+                        public void onFinish(String response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                if (jsonObject.getInt("status") != 200) {
+                                    Looper.prepare();
+                                    Toast.makeText(QuestionCommitActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                    Looper.loop();
+                                } else {
+                                    titleEd.setText("");
+                                    contentEd.setText("");
+                                    enterQuestionImg.setImageResource(R.drawable.jia_question);
+                                    images = "";
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
 
-                       @Override
-                       public void onError(Exception e) {
+                        @Override
+                        public void onError(Exception e) {
 
-                       }
-                   });
+                        }
+                    });
                 }
             }
         });

@@ -37,7 +37,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.context = context;
         this.type = type;
         if (type == MainActivity.TYPE_QUESTION) {
-            MySQLiteOpenHelper.readQuestion(context, questionList, curSize,MainActivity.TYPE_LOAD_MORE);
+            MySQLiteOpenHelper.readQuestion(context, questionList, curSize, MainActivity.TYPE_LOAD_MORE);
         } else if (type == MainActivity.TYPE_FAVORITE) {
             MySQLiteOpenHelper.readFavorite(context, favoriteList, curSize);
         }
@@ -107,8 +107,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void refresh(int type) {
         switch (type) {
             case MainActivity.TYPE_QUESTION:
-                Log.d("first","readQuestion");
-                MySQLiteOpenHelper.readQuestion(context, questionList, getItemCount(),MainActivity.TYPE_REFRESH);
+                Log.d("first", "readQuestion");
+                MySQLiteOpenHelper.readQuestion(context, questionList, getItemCount(), MainActivity.TYPE_REFRESH);
                 break;
             case MainActivity.TYPE_FAVORITE:
                 MySQLiteOpenHelper.readFavorite(context, favoriteList, getItemCount());
@@ -120,7 +120,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void loadMoreData() {
         curSize += 20;
         if (type == MainActivity.TYPE_QUESTION) {
-            MySQLiteOpenHelper.readQuestion(context, questionList, curSize,MainActivity.TYPE_LOAD_MORE);
+            MySQLiteOpenHelper.readQuestion(context, questionList, curSize, MainActivity.TYPE_LOAD_MORE);
         } else if (type == MainActivity.TYPE_FAVORITE) {
             MySQLiteOpenHelper.readFavorite(context, favoriteList, curSize);
         }

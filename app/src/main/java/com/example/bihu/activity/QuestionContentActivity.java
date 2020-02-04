@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -30,6 +29,7 @@ import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.QiNiu;
+import com.example.bihu.utils.RecyclerViewNoBugLinearLayoutManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,8 +60,9 @@ public class QuestionContentActivity extends AppCompatActivity {
             switch (msg.what) {
                 case MainActivity.TYPE_REFRESH:
                     Log.d("three", "notify start");
-//                    answerAdapter.notifyItemInserted(answerAdapter.getItemCount());
-                    answerAdapter.notifyDataSetChanged();
+                    Log.d("first", "" + answerAdapter.getItemCount());
+                    Log.d("Adapter", "handleMessage: refresh");
+                    answerAdapter.notifyItemInserted(answerAdapter.getItemCount() - 1);
                     swipeRefreshLayout.setRefreshing(false);
                     Log.d("three", "notify end");
                     break;
@@ -90,7 +91,8 @@ public class QuestionContentActivity extends AppCompatActivity {
         realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
         answerAdapter = new AnswerAdapter(QuestionContentActivity.this, qid);
         realQuestionRecyclerView.setAdapter(answerAdapter);
-        realQuestionRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerViewNoBugLinearLayoutManager manager = new RecyclerViewNoBugLinearLayoutManager(this);
+        realQuestionRecyclerView.setLayoutManager(manager);
         realQuestionRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
@@ -146,7 +148,7 @@ public class QuestionContentActivity extends AppCompatActivity {
                     public void onFinish(String response) {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            Log.d("first",jsonObject+"");
+                            Log.d("first", jsonObject + "");
                             switch (jsonObject.getInt("status")) {
                                 case 401:
                                     Looper.prepare();
@@ -160,18 +162,18 @@ public class QuestionContentActivity extends AppCompatActivity {
                                     Looper.loop();
                                     break;
                                 case 200:
-                                        JSONObject object = jsonObject.getJSONObject("data");
-                                        int totalCount = object.getInt("totalCount");
-                                        JSONArray jsonArray = object.getJSONArray("answers");
+                                    JSONObject object = jsonObject.getJSONObject("data");
+                                    int totalCount = object.getInt("totalCount");
+                                    JSONArray jsonArray = object.getJSONArray("answers");
                                     for (int i = 0; i < jsonArray.length(); i++) {
-                                        Log.d("first", ""+i);
+                                        Log.d("first", "" + i);
                                         JSONObject answerData = jsonArray.getJSONObject(i);
                                         MySQLiteOpenHelper.addAnswer(QuestionContentActivity.this, answerData.getInt("id"), qid, answerData.getString("content"), answerData.getString("images"), answerData.getString("date"), answerData.getInt("best"), answerData.getInt("exciting")
                                                 , answerData.getInt("naive"), answerData.getInt("authorId"), answerData.getString("authorName"), answerData.getString("authorAvatar"),
                                                 answerData.getBoolean("is_exciting") == true ? 1 : 0, answerData.getBoolean("is_naive") == true ? 1 : 0);
 
                                     }
-                                    Log.d("three","refresh");
+                                    Log.d("three", "refresh");
                                     answerAdapter.refresh();
                                     Message msg = new Message();
                                     msg.what = MainActivity.TYPE_REFRESH;
@@ -221,10 +223,10 @@ public class QuestionContentActivity extends AppCompatActivity {
                 }
         }
     }
-
+    
     @Override
     protected void onDestroy() {
-
+        answerAdapter.post();
         super.onDestroy();
     }
 }
