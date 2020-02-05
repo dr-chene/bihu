@@ -29,18 +29,18 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private List<Question> questionList = new ArrayList<>();
     private List<Question> favoriteList = new ArrayList<>();
-    private Context context;
     private Question question;
     private int curSize = 20;
     private int type;
+    private Context context;
 
     public QuestionAdapter(Context context, int type) {
-        this.context = context;
         this.type = type;
+        this.context = context;
         if (type == MainActivity.TYPE_QUESTION) {
-            MySQLiteOpenHelper.readQuestion(context, questionList, curSize, MainActivity.TYPE_LOAD_MORE);
+            MySQLiteOpenHelper.readQuestion(questionList, curSize, MainActivity.TYPE_LOAD_MORE);
         } else if (type == MainActivity.TYPE_FAVORITE) {
-            MySQLiteOpenHelper.readFavorite(context, favoriteList, curSize);
+            MySQLiteOpenHelper.readFavorite(favoriteList, curSize);
         }
     }
 
@@ -113,16 +113,17 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     /**
      * 刷新问题
+     *
      * @param type
      */
     public void refresh(int type) {
         switch (type) {
             case MainActivity.TYPE_QUESTION:
                 Log.d("first", "readQuestion");
-                MySQLiteOpenHelper.readQuestion(context, questionList, getItemCount(), MainActivity.TYPE_REFRESH);
+                MySQLiteOpenHelper.readQuestion(questionList, getItemCount(), MainActivity.TYPE_REFRESH);
                 break;
             case MainActivity.TYPE_FAVORITE:
-                MySQLiteOpenHelper.readFavorite(context, favoriteList, getItemCount());
+                MySQLiteOpenHelper.readFavorite(favoriteList, getItemCount());
                 break;
         }
     }
@@ -133,9 +134,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void loadMoreData() {
         curSize += 20;
         if (type == MainActivity.TYPE_QUESTION) {
-            MySQLiteOpenHelper.readQuestion(context, questionList, curSize, MainActivity.TYPE_LOAD_MORE);
+            MySQLiteOpenHelper.readQuestion(questionList, curSize, MainActivity.TYPE_LOAD_MORE);
         } else if (type == MainActivity.TYPE_FAVORITE) {
-            MySQLiteOpenHelper.readFavorite(context, favoriteList, curSize);
+            MySQLiteOpenHelper.readFavorite(favoriteList, curSize);
         }
     }
 

@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText loginPasswordET;
     private String username;
     private String password;
-     //处理登录结果
+    //处理登录结果
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -96,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
                                     MainActivity.person.setUsername(object.getString("username"));
                                     MainActivity.person.setToken(object.getString("token"));
                                     MainActivity.person.setAvatar(object.getString("avatar"));
-                                    MySQLiteOpenHelper.addPerson(LoginActivity.this, object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
+                                    MySQLiteOpenHelper.addPerson(object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
                                     Message msg = new Message();
                                     msg.what = 1;
                                     handler.sendMessage(msg);

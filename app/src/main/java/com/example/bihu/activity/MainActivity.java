@@ -50,9 +50,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int TYPE_ANSWER = 2;
     public static final int TYPE_LOAD_MORE = 3;
     public static final int TYPE_REFRESH = 4;
-    public static final int TYPE_NAIVE = 5;
+
     public static final int TYPE_FAVORITE = 6;
-    public static final int TYPE_MODIFY_AVATAR = 7;
+
     public static final int TYPE_TAKE_PHOTO = 8;
     public static final int TYPE_CHOOSE_PHOTO = 9;
     public static final int count = 20;
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView avatar;
     private TextView name;
     private FloatingActionButton fabUp;
-      //处理刷新事件结果
+    //处理刷新事件结果
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 设置menu点击事件
+     *
      * @param item
      * @return
      */
@@ -168,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 //读取用户数据
         loadPerson();
 
-        questionAdapter = new QuestionAdapter(this, MainActivity.TYPE_QUESTION);
+        questionAdapter = new QuestionAdapter(MainActivity.this, MainActivity.TYPE_QUESTION);
         recyclerView.setAdapter(questionAdapter);
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -282,81 +283,82 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 刷新
      */
-    private void refresh(){
-    if (totalQuestionPage == 0 || questionPage < totalQuestionPage - 1) {
-        Map<String, String> query = new HashMap<>();
-        query.put("page", "" + questionPage);
-        query.put("count", "" + count);
-        query.put("token", MainActivity.person.getToken());
-        Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
-            @Override
-            public void onFinish(String response) {
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    switch (jsonObject.getInt("status")) {
-                        case 401:
-                            Looper.prepare();
-                            Toast.makeText(MainActivity.this, "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
-                            break;
-                        case 400:
-                        case 500:
-                            Looper.prepare();
-                            Toast.makeText(MainActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
-                            Looper.loop();
-                            break;
-                        case 200:
-                            Log.d("first", "Http");
-                            JSONObject object = jsonObject.getJSONObject("data");
-                            MainActivity.totalQuestionPage = object.getInt("totalPage");
-                            JSONArray jsonArray = object.getJSONArray("questions");
-                            JSONObject questionData;
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                questionData = jsonArray.getJSONObject(i);
-                                MySQLiteOpenHelper.addQuestion(MainActivity.this, questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
-                                        , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
-                                        questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
-                                        questionData.getBoolean("is_favorite") == true ? 1 : 0);
-                            }
-                            Log.d("first", "refresh success");
-                            questionPage = getQuestionPage(MainActivity.this);
-                            if (questionPage < totalQuestionPage - 1) {
-                                questionPage++;
-                                Log.d("first", "questionPage++");
-                            }
-                            questionAdapter.refresh(MainActivity.TYPE_QUESTION);
-                            Log.d("first", "questionAdapter.notifyDataSetChanged()");
-                            Message msg = new Message();
-                            msg.what = TYPE_REFRESH;
-                            handler.sendMessage(msg);
+    private void refresh() {
+        if (totalQuestionPage == 0 || questionPage < totalQuestionPage - 1) {
+            Map<String, String> query = new HashMap<>();
+            query.put("page", "" + questionPage);
+            query.put("count", "" + count);
+            query.put("token", MainActivity.person.getToken());
+            Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
+                @Override
+                public void onFinish(String response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        switch (jsonObject.getInt("status")) {
+                            case 401:
+                                Looper.prepare();
+                                Toast.makeText(MainActivity.this, "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
+                                Looper.loop();
+                                break;
+                            case 400:
+                            case 500:
+                                Looper.prepare();
+                                Toast.makeText(MainActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                Looper.loop();
+                                break;
+                            case 200:
+                                Log.d("first", "Http");
+                                JSONObject object = jsonObject.getJSONObject("data");
+                                MainActivity.totalQuestionPage = object.getInt("totalPage");
+                                JSONArray jsonArray = object.getJSONArray("questions");
+                                JSONObject questionData;
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    questionData = jsonArray.getJSONObject(i);
+                                    MySQLiteOpenHelper.addQuestion(questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
+                                            , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
+                                            questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
+                                            questionData.getBoolean("is_favorite") == true ? 1 : 0);
+                                }
+                                questionPage = getQuestionPage();
+                                if (questionPage < totalQuestionPage - 1) {
+                                    questionPage++;
+                                }
+                                questionAdapter.refresh(MainActivity.TYPE_QUESTION);
+                                Message msg = new Message();
+                                msg.what = TYPE_REFRESH;
+                                handler.sendMessage(msg);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
 
-            @Override
-            public void onError(Exception e) {
+                @Override
+                public void onError(Exception e) {
 
-            }
-        });
-    } else {
-        Toast.makeText(MainActivity.this, "暂无最新问题", Toast.LENGTH_SHORT).show();
-        swipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        } else {
+            Toast.makeText(MainActivity.this, "暂无最新问题", Toast.LENGTH_SHORT).show();
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
-}
 
     /**
      * 根据是否登录加载主页面
      */
     private void loadPerson() {
-        MySQLiteOpenHelper.readPerson(this, person);
+        MySQLiteOpenHelper.readPerson(person);
         if (person.getId() == -1) {
             swipeRefreshLayout.setVisibility(View.GONE);
             noLogin.setVisibility(View.VISIBLE);
+            fabUp.setVisibility(View.GONE);
+            fab.setVisibility(View.GONE);
         } else {
             noLogin.setVisibility(View.GONE);
             swipeRefreshLayout.setVisibility(View.VISIBLE);
+            fabUp.setVisibility(View.VISIBLE);
+            fab.setVisibility(View.VISIBLE);
         }
     }
 

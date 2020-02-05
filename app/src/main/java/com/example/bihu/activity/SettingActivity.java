@@ -108,9 +108,10 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
         }
     }
-/**
- * 弹出修改头像选择窗口
- */
+
+    /**
+     * 弹出修改头像选择窗口
+     */
     private void modifyAvatar() {
         View contentView = LayoutInflater.from(SettingActivity.this).inflate(R.layout.pop_up_window, null);
         popupWindow = new PopupWindow(contentView, ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT, true);
@@ -138,12 +139,12 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.setting_modify_avatar:
                 modifyAvatar();
                 break;
-                //修改密码
+            //修改密码
             case R.id.setting_change_password:
                 Intent intent = new Intent(SettingActivity.this, PasswordChangeActivity.class);
                 startActivity(intent);
                 break;
-                //退出登录
+            //退出登录
             case R.id.login_out:
                 dialog(v);
                 if (MainActivity.person.getId() == -1) {
@@ -152,22 +153,22 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                     startActivity(intent1);
                 }
                 break;
-                //返回按钮
+            //返回按钮
             case R.id.setting_back:
                 Intent intent1 = new Intent(SettingActivity.this, MainActivity.class);
                 startActivity(intent1);
                 break;
-                //拍照
+            //拍照
             case R.id.pop_camera:
                 camera();
                 popupWindow.dismiss();
                 break;
-                //选择图片
+            //选择图片
             case R.id.pop_photo:
                 photo();
                 popupWindow.dismiss();
                 break;
-                //取消修改头像
+            //取消修改头像
             case R.id.pop_back:
                 popupWindow.dismiss();
                 break;
@@ -176,6 +177,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
     /**
      * 退出登录
+     *
      * @param v
      */
     public void dialog(View v) {
@@ -186,7 +188,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MySQLiteOpenHelper.deletePerson(SettingActivity.this);
+                MySQLiteOpenHelper.deletePerson();
                 MainActivity.person.setId(-1);
                 Intent intent = new Intent(SettingActivity.this, MainActivity.class);
                 startActivity(intent);
@@ -281,7 +283,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             case MainActivity.TYPE_CHOOSE_PHOTO:
                 Uri uri = data.getData();
                 settingAvatar.setImageURI(uri);
-                File file = getFileByUri(this, uri);
+                File file = getFileByUri(uri);
                 new QiNiu().upload(file, new QiNiuCallbackListener() {
                     @Override
                     public void onSuccess(String image) {
@@ -294,6 +296,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
     /**
      * 图片成功上传到七牛云后，请求修改头像
+     *
      * @param image
      */
     private void postSuccess(final String image) {
@@ -310,7 +313,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                         Toast.makeText(SettingActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                         Looper.loop();
                     } else {
-                        MySQLiteOpenHelper.modifyAvatar(SettingActivity.this, image);
+                        MySQLiteOpenHelper.modifyAvatar(image);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

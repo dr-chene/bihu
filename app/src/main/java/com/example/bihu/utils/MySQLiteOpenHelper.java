@@ -1,7 +1,6 @@
 package com.example.bihu.utils;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -14,18 +13,27 @@ import java.util.List;
 
 
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
-    public MySQLiteOpenHelper(Context context, int version) {
-        super(context, "bihu.db", null, version);
+    public MySQLiteOpenHelper(int version) {
+        super(MyApplication.getContext(), "bihu.db", null, version);
     }
 
-    public static void deletePerson(Context context) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 删除用户数据
+     */
+    public static void deletePerson() {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         sqLiteDatabase.delete("person", null, null);
     }
 
-    public static void changePassword(Context context, String password, String token) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 更改用户密码
+     *
+     * @param password
+     * @param token
+     */
+    public static void changePassword(String password, String token) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("password", password);
@@ -34,10 +42,19 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.close();
     }
 
-    public static void addPerson(Context context, int uid, String username, String password, String avatar, String token) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 添加用户数据
+     *
+     * @param uid
+     * @param username
+     * @param password
+     * @param avatar
+     * @param token
+     */
+    public static void addPerson(int uid, String username, String password, String avatar, String token) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-        if (searchPerson(context, sqLiteDatabase)) {
+        if (searchPerson(sqLiteDatabase)) {
             sqLiteDatabase.delete("person", null, null);
         }
         ContentValues contentValues = new ContentValues();
@@ -50,10 +67,15 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.close();
     }
 
-    public static void modifyAvatar(Context context, String avatar) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 更改用户头像数据
+     *
+     * @param avatar
+     */
+    public static void modifyAvatar(String avatar) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-        if (searchPerson(context, sqLiteDatabase)) {
+        if (searchPerson(sqLiteDatabase)) {
             ContentValues contentValues = new ContentValues();
             contentValues.put("avatar", avatar);
             sqLiteDatabase.update("person", contentValues, null, null);
@@ -61,7 +83,13 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static Boolean searchPerson(Context context, SQLiteDatabase sqLiteDatabase) {
+    /**
+     * 判断数据库是否存在数据
+     *
+     * @param sqLiteDatabase
+     * @return
+     */
+    public static Boolean searchPerson(SQLiteDatabase sqLiteDatabase) {
         Cursor cursor = sqLiteDatabase.rawQuery("select * from person", null);
         while (cursor.moveToNext()) {
             cursor.close();
@@ -71,8 +99,25 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    public static void addAnswer(Context context, int aid, int qid, String content, String images, String date, int best, int exciting, int naive, int authorId, String authorName, String authorAvatar, int isExciting, int isNaive) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 添加answer数据
+     *
+     * @param aid
+     * @param qid
+     * @param content
+     * @param images
+     * @param date
+     * @param best
+     * @param exciting
+     * @param naive
+     * @param authorId
+     * @param authorName
+     * @param authorAvatar
+     * @param isExciting
+     * @param isNaive
+     */
+    public static void addAnswer(int aid, int qid, String content, String images, String date, int best, int exciting, int naive, int authorId, String authorName, String authorAvatar, int isExciting, int isNaive) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         if (!searchAnswer(aid, sqLiteDatabase)) {
             ContentValues contentValues = new ContentValues();
@@ -104,6 +149,13 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * 判断answer是否存在
+     *
+     * @param aid
+     * @param sqLiteDatabase
+     * @return
+     */
     public static Boolean searchAnswer(int aid, SQLiteDatabase sqLiteDatabase) {
         Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where aid = ?", new String[]{aid + ""});
         while (cursor.moveToNext()) {
@@ -114,11 +166,18 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    public static void questionChange(final Context context, final int qid, final String column, final int change) {
+    /**
+     * 更改问题的exciting，naive数据
+     *
+     * @param qid
+     * @param column
+     * @param change
+     */
+    public static void questionChange(final int qid, final String column, final int change) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
                 SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(column, change);
@@ -148,11 +207,16 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }).start();
     }
 
-    public static void answerAccept(final Context context, final int aid) {
+    /**
+     * answer accept数据更改
+     *
+     * @param aid
+     */
+    public static void answerAccept(final int aid) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
                 SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
                 ContentValues contentValues = new ContentValues();
                 contentValues.put("best", 1);
@@ -162,11 +226,18 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }).start();
     }
 
-    public static void answerChange(final Context context, final int aid, final String column, final int change) {
+    /**
+     * 更改answer exciting，naive数据
+     *
+     * @param aid
+     * @param column
+     * @param change
+     */
+    public static void answerChange(final int aid, final String column, final int change) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
                 SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(column, change);
@@ -196,10 +267,29 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }).start();
     }
 
-    public static void addQuestion(Context context, int qid, String title, String content, String images, String date, int exciting, int naive, String recent, int answerCount, int authorId, String authorName, String authorAvatar, int isExciting, int isNaive, int isFavorite) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 添加question数据
+     *
+     * @param qid
+     * @param title
+     * @param content
+     * @param images
+     * @param date
+     * @param exciting
+     * @param naive
+     * @param recent
+     * @param answerCount
+     * @param authorId
+     * @param authorName
+     * @param authorAvatar
+     * @param isExciting
+     * @param isNaive
+     * @param isFavorite
+     */
+    public static void addQuestion(int qid, String title, String content, String images, String date, int exciting, int naive, String recent, int answerCount, int authorId, String authorName, String authorAvatar, int isExciting, int isNaive, int isFavorite) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-        if (!searchQuestion(context, qid, sqLiteDatabase)) {
+        if (!searchQuestion(qid, sqLiteDatabase)) {
             ContentValues contentValues = new ContentValues();
             contentValues.put("qid", qid);
             contentValues.put("title", title);
@@ -232,7 +322,14 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static Boolean searchQuestion(Context context, int qid, SQLiteDatabase sqLiteDatabase) {
+    /**
+     * 判断问题是否存在
+     *
+     * @param qid
+     * @param sqLiteDatabase
+     * @return
+     */
+    public static Boolean searchQuestion(int qid, SQLiteDatabase sqLiteDatabase) {
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where qid = ?", new String[]{qid + ""});
         while (cursor.moveToNext()) {
             cursor.close();
@@ -242,8 +339,13 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    public static void readPerson(Context context, Person person) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 读取用户数据
+     *
+     * @param person
+     */
+    public static void readPerson(Person person) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from person", null);
         while (cursor.moveToNext()) {
@@ -257,8 +359,14 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         cursor.close();
     }
 
-    public static void searchQuestion(Context context, int qid, Question question) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 读取question
+     *
+     * @param qid
+     * @param question
+     */
+    public static void searchQuestion(int qid, Question question) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where qid = ?", new String[]{qid + ""});
         while (cursor.moveToNext()) {
@@ -280,20 +388,17 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }
         sqLiteDatabase.close();
         cursor.close();
-        Log.d("first", "question refresh");
     }
 
-    public static int getAnswerCount(Context context, int qid) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
-        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where qid = ?", new String[]{qid + ""});
-        int count = cursor.getCount();
-        cursor.close();
-        return count;
-    }
 
-    public static void readAnswer(Context context, List<Answer> answerList, int qid) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 根据qid读取answerList
+     *
+     * @param answerList
+     * @param qid
+     */
+    public static void readAnswer(List<Answer> answerList, int qid) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where qid = ?", new String[]{qid + ""});
         for (int i = 0; i < answerList.size(); i++) {
@@ -321,8 +426,13 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         Log.d("first", "answer fresh");
     }
 
-    public static int getQuestionCount(Context context) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 得到问题总数
+     *
+     * @return
+     */
+    public static int getQuestionCount() {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question", null);
         int count = cursor.getCount();
@@ -331,8 +441,15 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public static void readQuestion(Context context, List<Question> questionList, int size, int type) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 读取questionList
+     *
+     * @param questionList
+     * @param size
+     * @param type
+     */
+    public static void readQuestion(List<Question> questionList, int size, int type) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question", null);
         cursor.moveToFirst();
@@ -353,6 +470,13 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         cursor.close();
     }
 
+    /**
+     * 向questionList添加question
+     *
+     * @param questionList
+     * @param size
+     * @param cursor
+     */
     private static void question(List<Question> questionList, int size, Cursor cursor) {
         for (int i = 0; i < size; i++) {
             if (cursor.moveToNext()) {
@@ -377,8 +501,14 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static void readFavorite(Context context, List<Question> favoriteList, int size) {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context, MainActivity.vision);
+    /**
+     * 读取favorite
+     *
+     * @param favoriteList
+     * @param size
+     */
+    public static void readFavorite(List<Question> favoriteList, int size) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where isFavorite = ?", new String[]{"1"});
         favoriteList.clear();

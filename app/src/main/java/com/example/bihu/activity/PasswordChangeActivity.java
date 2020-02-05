@@ -65,7 +65,7 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                 Intent intent = new Intent(PasswordChangeActivity.this, SettingActivity.class);
                 startActivity(intent);
                 break;
-                //请求修改密码
+            //请求修改密码
             case R.id.change_password_btn:
                 if (MainActivity.person != null) {
                     if (MainActivity.person.getPassword() == changePasswordOld.getText().toString()) {
@@ -85,7 +85,7 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                                         }
                                         if (jsonObject.getString("info").equals("success")) {
                                             JSONObject object = jsonObject.getJSONObject("data");
-                                            MySQLiteOpenHelper.changePassword(PasswordChangeActivity.this, object.getString("password"), object.getString("token"));
+                                            MySQLiteOpenHelper.changePassword(object.getString("password"), object.getString("token"));
                                             MainActivity.person.setPassword(object.getString("password"));
                                             MainActivity.person.setToken(object.getString("token"));
                                         }

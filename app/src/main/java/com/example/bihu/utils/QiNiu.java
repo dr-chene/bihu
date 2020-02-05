@@ -24,6 +24,12 @@ public class QiNiu {
     private static Configuration configuration = new Configuration(Region.autoRegion());
     private static UploadManager uploadManager = new UploadManager(configuration);
 
+    /**
+     * 上传图片到七牛云
+     *
+     * @param img
+     * @param qiNiuCallbackListener
+     */
     public void upload(final File img, final QiNiuCallbackListener qiNiuCallbackListener) {
         Log.d("test", "upLoad");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -38,10 +44,8 @@ public class QiNiu {
                     Log.d("test", response.toString());
                     //解析上传成功的结果
                     DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-                    Log.d("test", "http://q4pta80dw.bkt.clouddn.com/" + key);
                     qiNiuCallbackListener.onSuccess("http://q4pta80dw.bkt.clouddn.com/" + key);
                 } catch (QiniuException e) {
-//                    Toast.makeText()
                     e.printStackTrace();
                 }
             }

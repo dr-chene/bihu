@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -171,7 +170,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                         Looper.prepare();
                                     } else {
-                                        MySQLiteOpenHelper.answerAccept(context, qid);
+                                        MySQLiteOpenHelper.answerAccept(qid);
                                         Message msg = new Message();
                                         msg.what = ACCEPT;
                                         msg.obj = answerViewHolder;
@@ -324,7 +323,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                         Looper.loop();
                                     } else {
-                                        MySQLiteOpenHelper.questionChange(context, qid, "isFavorite", 0);
+                                        MySQLiteOpenHelper.questionChange(qid, "isFavorite", 0);
                                         Message msg = new Message();
                                         msg.what = CANCEL_FAVORITE;
                                         msg.arg1 = 0;
@@ -352,7 +351,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                         Looper.loop();
                                     } else {
-                                        MySQLiteOpenHelper.questionChange(context, qid, "isFavorite", 1);
+                                        MySQLiteOpenHelper.questionChange(qid, "isFavorite", 1);
                                         Message msg = new Message();
                                         msg.what = FAVORITE;
                                         msg.arg1 = 1;
@@ -392,8 +391,8 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
      * 刷新回答
      */
     public void refresh() {
-        MySQLiteOpenHelper.searchQuestion(context, qid, question);
-        MySQLiteOpenHelper.readAnswer(context, answerList, qid);
+        MySQLiteOpenHelper.searchQuestion(qid, question);
+        MySQLiteOpenHelper.readAnswer(answerList, qid);
         isExciting = new Boolean[answerList.size() + 1];
         isNaive = new Boolean[answerList.size() + 1];
         for (int i = 0; i < isExciting.length; i++) {
@@ -423,19 +422,19 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         if (!isExciting[i].equals(question.getIsExciting())) {
                             if (isExciting[i]) {
                                 Http.sendHttpRequest(Http.URL_EXCITING, query, null);
-                                MySQLiteOpenHelper.answerChange(context, aid, "isExciting", 1);
+                                MySQLiteOpenHelper.answerChange(aid, "isExciting", 1);
                             } else {
                                 Http.sendHttpRequest(Http.URL_CANCEL_EXCITING, query, null);
-                                MySQLiteOpenHelper.answerChange(context, aid, "isExciting", 0);
+                                MySQLiteOpenHelper.answerChange(aid, "isExciting", 0);
                             }
                         }
                         if (!isNaive[i].equals(question.getIsNaive())) {
                             if (isNaive[i]) {
                                 Http.sendHttpRequest(Http.URL_NAIVE, query, null);
-                                MySQLiteOpenHelper.answerChange(context, aid, "isNaive", 1);
+                                MySQLiteOpenHelper.answerChange(aid, "isNaive", 1);
                             } else {
                                 Http.sendHttpRequest(Http.URL_CANCEL_NAIVE, query, null);
-                                MySQLiteOpenHelper.answerChange(context, aid, "isNaive", 0);
+                                MySQLiteOpenHelper.answerChange(aid, "isNaive", 0);
                             }
                         }
                     } else {
@@ -446,19 +445,19 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         if (!isExciting[i].equals(answerList.get(i - 1).getIsExciting())) {
                             if (isExciting[i]) {
                                 Http.sendHttpRequest(Http.URL_EXCITING, query, null);
-                                MySQLiteOpenHelper.questionChange(context, qid, "isExciting", 1);
+                                MySQLiteOpenHelper.questionChange(qid, "isExciting", 1);
                             } else {
                                 Http.sendHttpRequest(Http.URL_CANCEL_EXCITING, query, null);
-                                MySQLiteOpenHelper.questionChange(context, qid, "isExciting", 0);
+                                MySQLiteOpenHelper.questionChange(qid, "isExciting", 0);
                             }
                         }
                         if (!isNaive[i].equals(answerList.get(i - 1).getIsNaive())) {
                             if (isNaive[i]) {
                                 Http.sendHttpRequest(Http.URL_NAIVE, query, null);
-                                MySQLiteOpenHelper.questionChange(context, qid, "isNaive", 1);
+                                MySQLiteOpenHelper.questionChange(qid, "isNaive", 1);
                             } else {
                                 Http.sendHttpRequest(Http.URL_CANCEL_NAIVE, query, null);
-                                MySQLiteOpenHelper.questionChange(context, qid, "isNaive", 0);
+                                MySQLiteOpenHelper.questionChange(qid, "isNaive", 0);
                             }
                         }
                     }

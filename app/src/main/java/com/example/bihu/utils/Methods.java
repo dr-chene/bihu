@@ -16,11 +16,12 @@ import java.io.File;
 public class Methods {
     /**
      * 根据uri得到file
-     * @param context
+     *
      * @param uri
      * @return
      */
-    public static File getFileByUri(Context context, Uri uri) {
+    public static File getFileByUri(Uri uri) {
+        Context context = MyApplication.getContext();
         String path = null;
         if ("file".equals(uri.getScheme())) {
             path = uri.getEncodedPath();
@@ -67,11 +68,11 @@ public class Methods {
 
     /**
      * 判断网络是否可用
-     * @param context
+     *
      * @return
      */
-    public static boolean isNetworkAvailable(Context context) {
-
+    public static boolean isNetworkAvailable() {
+        Context context = MyApplication.getContext();
         ConnectivityManager manager = (ConnectivityManager) context
                 .getApplicationContext().getSystemService(
                         Context.CONNECTIVITY_SERVICE);
@@ -85,11 +86,8 @@ public class Methods {
         return networkinfo != null && networkinfo.isAvailable();
     }
 
-    public static int getQuestionPage(Context context) {
-        return MySQLiteOpenHelper.getQuestionCount(context) / MainActivity.count;
+    public static int getQuestionPage() {
+        return MySQLiteOpenHelper.getQuestionCount() / MainActivity.count;
     }
 
-    public static int getAnswerPage(Context context, int qid) {
-        return MySQLiteOpenHelper.getAnswerCount(context, qid) / MainActivity.count;
-    }
 }

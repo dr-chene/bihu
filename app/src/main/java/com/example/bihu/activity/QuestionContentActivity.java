@@ -77,8 +77,10 @@ public class QuestionContentActivity extends AppCompatActivity {
                     break;
                 case MainActivity.TYPE_ANSWER:
                     enterAnswerED.setText("");
-                    Log.d("test","回答成功");
-                    if (popupWindow!=null){popupWindow.dismiss();}
+                    Log.d("test", "回答成功");
+                    if (popupWindow != null) {
+                        popupWindow.dismiss();
+                    }
                     images = "";
                     isAnswering = false;
                     Toast.makeText(QuestionContentActivity.this, "回答成功", Toast.LENGTH_SHORT).show();
@@ -97,14 +99,15 @@ public class QuestionContentActivity extends AppCompatActivity {
 
     /**
      * 处理返回按钮
+     *
      * @param item
      * @return
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(QuestionContentActivity.this,MainActivity.class);
+                Intent intent = new Intent(QuestionContentActivity.this, MainActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -118,7 +121,7 @@ public class QuestionContentActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar_answer);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar!=null){
+        if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         hf = findViewById(R.id.hf);
@@ -140,6 +143,7 @@ public class QuestionContentActivity extends AppCompatActivity {
 
     /**
      * 获取权限事件回调
+     *
      * @param requestCode
      * @param permissions
      * @param grantResults
@@ -167,26 +171,28 @@ public class QuestionContentActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!isAnswering) {
                     isAnswering = true;
-                    if (popupWindow!=null){
-                        Log.d("test","popupWindow!=null");
-                    new QiNiu().upload(getFileByUri(QuestionContentActivity.this, uri), new QiNiuCallbackListener() {
-                        @Override
-                        public void onSuccess(String image) {
-                            Log.d("test",image);
-                            if (image == ""){
-                                isAnswering = false;
-                                Toast.makeText(QuestionContentActivity.this,"图片上传失败",Toast.LENGTH_SHORT).show();
-                            }else {
-                            images = image;
-                            Log.d("test",1+images);
-                            postAnswer();}
-                        }
-                    });}else {
-                        Log.d("test",2+images);
+                    if (popupWindow != null) {
+                        Log.d("test", "popupWindow!=null");
+                        new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
+                            @Override
+                            public void onSuccess(String image) {
+                                Log.d("test", image);
+                                if (image == "") {
+                                    isAnswering = false;
+                                    Toast.makeText(QuestionContentActivity.this, "图片上传失败", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    images = image;
+                                    Log.d("test", 1 + images);
+                                    postAnswer();
+                                }
+                            }
+                        });
+                    } else {
+                        Log.d("test", 2 + images);
                         postAnswer();
                     }
-                }else {
-                    Toast.makeText(QuestionContentActivity.this,"正在发布回答",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(QuestionContentActivity.this, "正在发布回答", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -224,7 +230,7 @@ public class QuestionContentActivity extends AppCompatActivity {
                                     for (int i = 0; i < jsonArray.length(); i++) {
                                         Log.d("first", "" + i);
                                         JSONObject answerData = jsonArray.getJSONObject(i);
-                                        MySQLiteOpenHelper.addAnswer(QuestionContentActivity.this, answerData.getInt("id"), qid, answerData.getString("content"), answerData.getString("images"), answerData.getString("date"), answerData.getInt("best"), answerData.getInt("exciting")
+                                        MySQLiteOpenHelper.addAnswer(answerData.getInt("id"), qid, answerData.getString("content"), answerData.getString("images"), answerData.getString("date"), answerData.getInt("best"), answerData.getInt("exciting")
                                                 , answerData.getInt("naive"), answerData.getInt("authorId"), answerData.getString("authorName"), answerData.getString("authorAvatar"),
                                                 answerData.getBoolean("is_exciting") == true ? 1 : 0, answerData.getBoolean("is_naive") == true ? 1 : 0);
 
@@ -271,6 +277,7 @@ public class QuestionContentActivity extends AppCompatActivity {
 
     /**
      * 处理相册返回事件
+     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -305,7 +312,7 @@ public class QuestionContentActivity extends AppCompatActivity {
     /**
      * 请求发布回答
      */
-    private void postAnswer(){
+    private void postAnswer() {
         String content = enterAnswerED.getText().toString();
         if ((!content.equals("")) || (!images.equals(""))) {
             Map<String, String> queryAnswer = new HashMap<>();
@@ -320,7 +327,8 @@ public class QuestionContentActivity extends AppCompatActivity {
                         JSONObject jsonObject = new JSONObject(response);
                         if (jsonObject.getInt("status") != 200) {
                             Looper.prepare();
-                            Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show(); isAnswering=false;
+                            Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                            isAnswering = false;
                             Looper.loop();
                         } else {
                             Message msg = new Message();
@@ -337,7 +345,7 @@ public class QuestionContentActivity extends AppCompatActivity {
 
                 }
             });
-        }else {
+        } else {
             isAnswering = false;
         }
     }

@@ -66,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 startActivity(intent);
                 break;
-                //注册按钮
+            //注册按钮
             case R.id.register_btn:
                 if (registerPassword.getText().toString().equals(registerPasswordConfirm.getText().toString())) {
                     Map<String, String> query = new HashMap<>();
@@ -91,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                         MainActivity.person.setUsername(object.getString("username"));
                                         MainActivity.person.setToken(object.getString("token"));
                                         MainActivity.person.setAvatar(object.getString("avatar"));
-                                        MySQLiteOpenHelper.addPerson(RegisterActivity.this, object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
+                                        MySQLiteOpenHelper.addPerson(object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
                                         Toast.makeText(RegisterActivity.this, "登录成功，即将跳转", Toast.LENGTH_SHORT).show();
                                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                                         startActivity(intent);

@@ -1,5 +1,7 @@
 package com.example.bihu.utils;
 
+import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -33,72 +35,74 @@ public class Http {
 
     /**
      * 网络请求工具
+     *
      * @param urlParam
      * @param params
      * @param listener
      */
     public static void sendHttpRequest(final String urlParam, Map<String, String> params, final HttpCallbackListener listener) {
-        if (Methods.isNetworkAvailable()){
-        final StringBuffer sbParams = new StringBuffer();
-        if (params != null && params.size() > 0) {
-            for (Map.Entry<String, String> e : params.entrySet()) {
-                sbParams.append(e.getKey());
-                sbParams.append("=");
-                sbParams.append(e.getValue());
-                sbParams.append("&");
-            }
-        }
-        sbParams.deleteCharAt(sbParams.length() - 1);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpURLConnection connection = null;
-                BufferedReader reader = null;
-                URL url = null;
-                try {
-                    url = new URL(urlParam);
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                    out.writeBytes(sbParams.toString());
-                    connection.setReadTimeout(8000);
-                    connection.setConnectTimeout(8000);
-                    InputStream in = connection.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-                    if (listener != null) {
-                        //回调onFinish()方法
-                        listener.onFinish(response.toString());
-                    }
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (ProtocolException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    if (listener != null) {
-                        //回调onError()方法
-                        listener.onError(e);
-                    }
-                } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
+        if (Methods.isNetworkAvailable()) {
+            final StringBuffer sbParams = new StringBuffer();
+            if (params != null && params.size() > 0) {
+                for (Map.Entry<String, String> e : params.entrySet()) {
+                    sbParams.append(e.getKey());
+                    sbParams.append("=");
+                    sbParams.append(e.getValue());
+                    sbParams.append("&");
                 }
             }
-        }).start();
-    }else {
-
-        }}
+            sbParams.deleteCharAt(sbParams.length() - 1);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    HttpURLConnection connection = null;
+                    BufferedReader reader = null;
+                    URL url = null;
+                    try {
+                        url = new URL(urlParam);
+                        connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("POST");
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        out.writeBytes(sbParams.toString());
+                        connection.setReadTimeout(8000);
+                        connection.setConnectTimeout(8000);
+                        InputStream in = connection.getInputStream();
+                        reader = new BufferedReader(new InputStreamReader(in));
+                        StringBuilder response = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        if (listener != null) {
+                            //回调onFinish()方法
+                            listener.onFinish(response.toString());
+                        }
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (ProtocolException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        if (listener != null) {
+                            //回调onError()方法
+                            listener.onError(e);
+                        }
+                    } finally {
+                        if (reader != null) {
+                            try {
+                                reader.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (connection != null) {
+                            connection.disconnect();
+                        }
+                    }
+                }
+            }).start();
+        } else {
+            Toast.makeText(MyApplication.getContext(), "当前网络不可用", Toast.LENGTH_SHORT).show();
+        }
+    }
 }

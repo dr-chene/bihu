@@ -16,15 +16,6 @@ public class Question {
     private Boolean isExciting;
     private Boolean isNaive;
     private Boolean isFavorite;
-    private int totalCount;
-
-    public int getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
-    }
 
     public int getId() {
         return id;

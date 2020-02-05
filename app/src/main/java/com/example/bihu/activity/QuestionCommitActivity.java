@@ -169,7 +169,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
                 if (!isCommitting) {
                     isCommitting = true;
                     if (imgChanged) {
-                        new QiNiu().upload(getFileByUri(QuestionCommitActivity.this, uri), new QiNiuCallbackListener() {
+                        new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
                             @Override
                             public void onSuccess(String image) {
                                 images = image;
@@ -248,6 +248,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
 
     /**
      * 获取访问sd卡权限回调
+     *
      * @param requestCode
      * @param permissions
      * @param grantResults
@@ -267,6 +268,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
 
     /**
      * 处理相册返回的事件
+     *
      * @param requestCode
      * @param resultCode
      * @param data
