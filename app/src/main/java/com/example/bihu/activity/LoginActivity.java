@@ -2,13 +2,16 @@ package com.example.bihu.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
@@ -30,6 +33,18 @@ public class LoginActivity extends AppCompatActivity {
     private EditText loginPasswordET;
     private String username;
     private String password;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what) {
+                case 1:
+                    Toast.makeText(LoginActivity.this, "登录成功，即将跳转", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +91,9 @@ public class LoginActivity extends AppCompatActivity {
                                     MainActivity.person.setToken(object.getString("token"));
                                     MainActivity.person.setAvatar(object.getString("avatar"));
                                     MySQLiteOpenHelper.addPerson(LoginActivity.this, object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
-                                    Looper.prepare();
-                                    Toast.makeText(LoginActivity.this, "登录成功，即将跳转", Toast.LENGTH_SHORT).show();
-                                    Looper.loop();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intent);
+                                    Message msg = new Message();
+                                    msg.what = 1;
+                                    handler.sendMessage(msg);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

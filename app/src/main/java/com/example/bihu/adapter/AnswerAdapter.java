@@ -132,13 +132,11 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             answerViewHolder.answerItemExcitingCount.setText(answer.getExciting() + "");
             answerViewHolder.answerItemNaiveCount.setText(answer.getNaive() + "");
             aid = answer.getId();
-            isExciting[curPosition] = answer.getIsExciting();
             if (isExciting[curPosition]) {
                 answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
             } else {
                 answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
             }
-            isNaive[curPosition] = answer.getIsNaive();
             if (isNaive[curPosition]) {
                 answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
             } else {
@@ -196,7 +194,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             answerViewHolder.answerItemExcitingImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClick: isExciting");
                     if (isExciting[curPosition]) {
                         answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
                         String s = answerViewHolder.answerItemExcitingCount.getText().toString();
@@ -254,7 +251,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             //
             questionViewHolder.realQuestionNaiveCount.setText(question.getNaive() + "");
             //
-            isExciting[curPosition] = question.getIsExciting();
             if (isExciting[curPosition]) {
                 questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
             } else {
@@ -266,7 +262,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             } else {
                 questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
             }
-            isFavorite = question.getFavorite();
             if (isFavorite) {
                 questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star_fill);
             } else {
@@ -311,7 +306,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Map<String, String> queryFavorite = new HashMap<>();
                     queryFavorite.put("id", qid + "");
                     queryFavorite.put("token", MainActivity.person.getToken());
-
                     if (isFavorite) {
                         Http.sendHttpRequest(Http.URL_CANCEL_FAVORITE, queryFavorite, new HttpCallbackListener() {
                             @Override
@@ -400,6 +394,15 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         MySQLiteOpenHelper.readAnswer(context, answerList, qid);
         isExciting = new Boolean[answerList.size() + 1];
         isNaive = new Boolean[answerList.size() + 1];
+        for (int i = 0; i < isExciting.length; i++) {
+            if (i == 0) {
+                isExciting[i] = question.getIsExciting();
+                isNaive[i] = question.getIsNaive();
+            } else {
+                isExciting[i] = answerList.get(i - 1).getIsExciting();
+                isNaive[i] = answerList.get(i - 1).getIsNaive();
+            }
+        }
     }
 
     public void post() {

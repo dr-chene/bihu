@@ -56,8 +56,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int TYPE_CHOOSE_PHOTO = 9;
     public static final int count = 20;
     public static int vision = 1;
-    public static int answerPage = 0;
-    public static Person person = new Person();
+    public static Person person;
     public static int totalQuestionPage = 0;
     public static int questionPage = 0;
     private RecyclerView recyclerView;
@@ -74,10 +73,8 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case MainActivity.TYPE_REFRESH:
-                    Log.d("first", "notify start");
                     questionAdapter.notifyDataSetChanged();
                     swipeRefreshLayout.setRefreshing(false);
-                    Log.d("first", "notify end");
                     break;
             }
         }
@@ -104,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 if (person.getId() != -1) {
-                    Intent intent2 = new Intent(MainActivity.this, SettingActivity.class);
-                    startActivity(intent2);
+                    Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                    startActivity(intent);
                 } else {
                     Toast.makeText(MainActivity.this, "请先登录或注册", Toast.LENGTH_SHORT).show();
                 }
@@ -118,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        person = new Person();
         person.setId(-1);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

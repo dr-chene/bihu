@@ -3,7 +3,9 @@ package com.example.bihu.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -38,10 +41,26 @@ public class QuestionCommitActivity extends AppCompatActivity {
     private FloatingActionButton questionEnterBtn;
     private LinearLayout enterQuestionBack;
     private ImageView enterQuestionImg;
-    private String title;
-    private String content;
     private TextView titleCount;
     private TextView contentCount;
+    private Boolean isCommitting = false;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what) {
+                case 1:
+                    images = "";
+                    titleEd.setText("");
+                    contentEd.setText("");
+                    enterQuestionImg.setImageResource(R.drawable.jia_question);
+                    isCommitting = false;
+                    Toast.makeText(QuestionCommitActivity.this, "发布成功", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+            }
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,39 +149,41 @@ public class QuestionCommitActivity extends AppCompatActivity {
         questionEnterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                title = titleEd.getText().toString();
-                content = contentEd.getText().toString();
-                if ((!title.equals("")) && (!content.equals(""))) {
-                    Map<String, String> query = new HashMap<>();
-                    query.put("title", title);
-                    query.put("content", content);
-                    query.put("images", images);
-                    query.put("token", MainActivity.person.getToken());
-                    Http.sendHttpRequest(Http.URL_QUESTION, query, new HttpCallbackListener() {
-                        @Override
-                        public void onFinish(String response) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                if (jsonObject.getInt("status") != 200) {
-                                    Looper.prepare();
-                                    Toast.makeText(QuestionCommitActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
-                                    Looper.loop();
-                                } else {
-                                    titleEd.setText("");
-                                    contentEd.setText("");
-                                    enterQuestionImg.setImageResource(R.drawable.jia_question);
-                                    images = "";
+                if (!isCommitting) {
+                    isCommitting = true;
+                    String title = titleEd.getText().toString();
+                    String content = contentEd.getText().toString();
+                    if ((!title.equals("")) && (!content.equals(""))) {
+                        Map<String, String> query = new HashMap<>();
+                        query.put("title", title);
+                        query.put("content", content);
+                        query.put("images", images);
+                        query.put("token", MainActivity.person.getToken());
+                        Http.sendHttpRequest(Http.URL_QUESTION, query, new HttpCallbackListener() {
+                            @Override
+                            public void onFinish(String response) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    if (jsonObject.getInt("status") != 200) {
+                                        Looper.prepare();
+                                        Toast.makeText(QuestionCommitActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                        Looper.loop();
+                                    } else {
+                                        Message msg = new Message();
+                                        msg.what = 1;
+                                        handler.sendMessage(msg);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
 
-                        @Override
-                        public void onError(Exception e) {
+                            @Override
+                            public void onError(Exception e) {
 
-                        }
-                    });
+                            }
+                        });
+                    }
                 }
             }
         });

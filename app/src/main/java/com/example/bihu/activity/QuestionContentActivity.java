@@ -54,17 +54,21 @@ public class QuestionContentActivity extends AppCompatActivity {
     private ImageView enterPic;
     private PopupWindow popupWindow;
     private ConstraintLayout hf;
+    private Boolean isAnswering = false;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case MainActivity.TYPE_REFRESH:
-                    Log.d("three", "notify start");
-                    Log.d("first", "" + answerAdapter.getItemCount());
-                    Log.d("Adapter", "handleMessage: refresh");
                     answerAdapter.notifyItemInserted(answerAdapter.getItemCount() - 1);
                     swipeRefreshLayout.setRefreshing(false);
-                    Log.d("three", "notify end");
+                    break;
+                case MainActivity.TYPE_ANSWER:
+                    enterAnswerED.setText("");
+                    popupWindow.dismiss();
+                    image = "";
+                    isAnswering = false;
+                    Toast.makeText(QuestionContentActivity.this, "回答成功", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -101,37 +105,40 @@ public class QuestionContentActivity extends AppCompatActivity {
         enterAnswerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String content = enterAnswerED.getText().toString();
-                if ((!content.equals("")) || image != "") {
-                    Map<String, String> queryAnswer = new HashMap<>();
-                    queryAnswer.put("qid", qid + "");
-                    queryAnswer.put("content", content);
-                    queryAnswer.put("images", image);
-                    queryAnswer.put("token", MainActivity.person.getToken());
-                    Http.sendHttpRequest(Http.URL_ANSWER, queryAnswer, new HttpCallbackListener() {
-                        @Override
-                        public void onFinish(String response) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                if (jsonObject.getInt("status") != 200) {
-                                    Looper.prepare();
-                                    Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
-                                    Looper.loop();
-                                } else {
-                                    enterAnswerED.setText("");
-                                    popupWindow.dismiss();
-                                    image = "";
+                if (!isAnswering) {
+                    isAnswering = true;
+                    String content = enterAnswerED.getText().toString();
+                    if ((!content.equals("")) || image != "") {
+                        Map<String, String> queryAnswer = new HashMap<>();
+                        queryAnswer.put("qid", qid + "");
+                        queryAnswer.put("content", content);
+                        queryAnswer.put("images", image);
+                        queryAnswer.put("token", MainActivity.person.getToken());
+                        Http.sendHttpRequest(Http.URL_ANSWER, queryAnswer, new HttpCallbackListener() {
+                            @Override
+                            public void onFinish(String response) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    if (jsonObject.getInt("status") != 200) {
+                                        Looper.prepare();
+                                        Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                        Looper.loop();
+                                    } else {
+                                        Message msg = new Message();
+                                        msg.what = MainActivity.TYPE_ANSWER;
+                                        handler.sendMessage(msg);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
 
-                        @Override
-                        public void onError(Exception e) {
+                            @Override
+                            public void onError(Exception e) {
 
-                        }
-                    });
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -223,7 +230,7 @@ public class QuestionContentActivity extends AppCompatActivity {
                 }
         }
     }
-    
+
     @Override
     protected void onDestroy() {
         answerAdapter.post();
