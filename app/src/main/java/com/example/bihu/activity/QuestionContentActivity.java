@@ -1,6 +1,8 @@
 package com.example.bihu.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,6 +10,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,8 +20,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -29,6 +36,7 @@ import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.QiNiu;
+import com.example.bihu.utils.QiNiuCallbackListener;
 import com.example.bihu.utils.RecyclerViewNoBugLinearLayoutManager;
 
 import org.json.JSONArray;
@@ -38,11 +46,12 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.widget.Toast.LENGTH_SHORT;
 import static com.example.bihu.utils.Methods.getFileByUri;
 
 public class QuestionContentActivity extends AppCompatActivity {
 
-    public static String image = "";
+    private String images = "";
     private RecyclerView realQuestionRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private AnswerAdapter answerAdapter;
@@ -55,6 +64,9 @@ public class QuestionContentActivity extends AppCompatActivity {
     private PopupWindow popupWindow;
     private ConstraintLayout hf;
     private Boolean isAnswering = false;
+    private Toolbar toolbar;
+    private Uri uri;
+    //处理刷新和发布回答成功的事件
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -65,8 +77,9 @@ public class QuestionContentActivity extends AppCompatActivity {
                     break;
                 case MainActivity.TYPE_ANSWER:
                     enterAnswerED.setText("");
-                    popupWindow.dismiss();
-                    image = "";
+                    Log.d("test","回答成功");
+                    if (popupWindow!=null){popupWindow.dismiss();}
+                    images = "";
                     isAnswering = false;
                     Toast.makeText(QuestionContentActivity.this, "回答成功", Toast.LENGTH_SHORT).show();
                     break;
@@ -82,7 +95,32 @@ public class QuestionContentActivity extends AppCompatActivity {
         setOnclickListener();
     }
 
+    /**
+     * 处理返回按钮
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                Intent intent = new Intent(QuestionContentActivity.this,MainActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * 加载视图，得到intent传输数据
+     */
     private void initView() {
+        toolbar = findViewById(R.id.toolbar_answer);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar!=null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         hf = findViewById(R.id.hf);
         enterPic = findViewById(R.id.enter_pic_btn);
         realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
@@ -100,48 +138,59 @@ public class QuestionContentActivity extends AppCompatActivity {
         realQuestionRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
+    /**
+     * 获取权限事件回调
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openAlum();
+                } else {
+                    Toast.makeText(this, "获取权限失败", LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
 
+    /**
+     * 设置点击事件
+     */
     private void setOnclickListener() {
+        //发布回答按钮
         enterAnswerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!isAnswering) {
                     isAnswering = true;
-                    String content = enterAnswerED.getText().toString();
-                    if ((!content.equals("")) || image != "") {
-                        Map<String, String> queryAnswer = new HashMap<>();
-                        queryAnswer.put("qid", qid + "");
-                        queryAnswer.put("content", content);
-                        queryAnswer.put("images", image);
-                        queryAnswer.put("token", MainActivity.person.getToken());
-                        Http.sendHttpRequest(Http.URL_ANSWER, queryAnswer, new HttpCallbackListener() {
-                            @Override
-                            public void onFinish(String response) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-                                    if (jsonObject.getInt("status") != 200) {
-                                        Looper.prepare();
-                                        Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
-                                        Looper.loop();
-                                    } else {
-                                        Message msg = new Message();
-                                        msg.what = MainActivity.TYPE_ANSWER;
-                                        handler.sendMessage(msg);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-
-                            }
-                        });
+                    if (popupWindow!=null){
+                        Log.d("test","popupWindow!=null");
+                    new QiNiu().upload(getFileByUri(QuestionContentActivity.this, uri), new QiNiuCallbackListener() {
+                        @Override
+                        public void onSuccess(String image) {
+                            Log.d("test",image);
+                            if (image == ""){
+                                isAnswering = false;
+                                Toast.makeText(QuestionContentActivity.this,"图片上传失败",Toast.LENGTH_SHORT).show();
+                            }else {
+                            images = image;
+                            Log.d("test",1+images);
+                            postAnswer();}
+                        }
+                    });}else {
+                        Log.d("test",2+images);
+                        postAnswer();
                     }
+                }else {
+                    Toast.makeText(QuestionContentActivity.this,"正在发布回答",Toast.LENGTH_SHORT).show();
                 }
             }
         });
+        //下拉刷新
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -198,28 +247,41 @@ public class QuestionContentActivity extends AppCompatActivity {
                 });
             }
         });
+        //回答图片（仅一张）
         enterPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openAlum();
+                if (ContextCompat.checkSelfPermission(QuestionContentActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(QuestionContentActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                } else {
+                    openAlum();
+                }
             }
         });
     }
 
+    /**
+     * 打开相册
+     */
     private void openAlum() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, MainActivity.TYPE_CHOOSE_PHOTO);
     }
 
+    /**
+     * 处理相册返回事件
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case MainActivity.TYPE_CHOOSE_PHOTO:
                 if (resultCode == RESULT_OK) {
-                    Uri uri = data.getData();
-                    new QiNiu(this).upload(getFileByUri(this, uri), MainActivity.TYPE_ANSWER);
+                    uri = data.getData();
                     View contentView = LayoutInflater.from(QuestionContentActivity.this).inflate(R.layout.pop_img, null);
                     popupWindow = new PopupWindow(contentView, 300, 300, true);
                     popupWindow.setContentView(contentView);
@@ -231,9 +293,52 @@ public class QuestionContentActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 请求exciting，naive事件
+     */
     @Override
     protected void onDestroy() {
         answerAdapter.post();
         super.onDestroy();
+    }
+
+    /**
+     * 请求发布回答
+     */
+    private void postAnswer(){
+        String content = enterAnswerED.getText().toString();
+        if ((!content.equals("")) || (!images.equals(""))) {
+            Map<String, String> queryAnswer = new HashMap<>();
+            queryAnswer.put("qid", qid + "");
+            queryAnswer.put("content", content);
+            queryAnswer.put("images", images);
+            queryAnswer.put("token", MainActivity.person.getToken());
+            Http.sendHttpRequest(Http.URL_ANSWER, queryAnswer, new HttpCallbackListener() {
+                @Override
+                public void onFinish(String response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.getInt("status") != 200) {
+                            Looper.prepare();
+                            Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show(); isAnswering=false;
+                            Looper.loop();
+                        } else {
+                            Message msg = new Message();
+                            msg.what = MainActivity.TYPE_ANSWER;
+                            handler.sendMessage(msg);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+        }else {
+            isAnswering = false;
+        }
     }
 }

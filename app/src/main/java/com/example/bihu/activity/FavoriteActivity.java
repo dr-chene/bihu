@@ -26,7 +26,9 @@ public class FavoriteActivity extends AppCompatActivity {
         initView();
 
     }
-
+/*
+加载视图，绑定数据，设置点击事件
+ */
     private void initView() {
         favoriteBack = findViewById(R.id.favorite_back);
         recyclerView = findViewById(R.id.favorite_rv);

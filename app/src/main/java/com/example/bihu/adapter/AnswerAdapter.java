@@ -1,7 +1,6 @@
 package com.example.bihu.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -21,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
 import com.example.bihu.activity.MainActivity;
 import com.example.bihu.utils.Answer;
@@ -42,7 +42,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final int ACCEPT = 1;
     private final int CANCEL_FAVORITE = 2;
     private final int FAVORITE = 3;
-    private final String TAG = "Adapter";
     private Context context;
     private List<Answer> answerList = new ArrayList<>();
     private int qid;
@@ -52,6 +51,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Boolean[] isExciting;
     private Boolean[] isNaive;
     private Boolean isFavorite = false;
+    //best回答,favorite问题，请求事件成功后的处理
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -82,15 +82,11 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.context = context;
         question = new Question();
         refresh();
-        Log.d("first", "" + getItemCount());
-        Log.d(TAG, "AnswerAdapter: 构造器");
-
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.d(TAG, "onCreateViewHolder: ");
         View itemView;
         if (viewType == MainActivity.TYPE_ANSWER) {
             itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_answer, parent, false);
@@ -103,26 +99,30 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
-        Log.d(TAG, "onBindViewHolder: ");
         final int curPosition = position;
         if (getItemViewType(curPosition) == MainActivity.TYPE_ANSWER) {
             final AnswerViewHolder answerViewHolder = (AnswerViewHolder) holder;
             final Answer answer = answerList.get(curPosition - 1);
+            //加载answer作者头像
             if (answer.getAuthorAvatar().length() >= 10) {
                 Glide.with(context)
                         .load(answer.getAuthorAvatar())
                         .error(R.drawable.error_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(answerViewHolder.answerItemAuthorImg);
             }
+            //加载answer图片
             if (answer.getImages().length() >= 10) {
                 Glide.with(context)
                         .load(answer.getImages())
                         .error(R.drawable.error)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .fitCenter()
                         .into(answerViewHolder.answerItemContentImg);
             } else {
                 answerViewHolder.answerItemContentImg.setVisibility(View.GONE);
             }
+            //加载answer数据
             answerViewHolder.answerItemAuthorName.setText(answer.getAuthorName());
             answerViewHolder.answerItemContent.setText(answer.getContent());
             if (answer.getContent().length() < 1) {
@@ -152,6 +152,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 Drawable drawable = context.getResources().getDrawable(R.drawable.accept_bg, null);
                 answerViewHolder.answerItemBestBtn.setBackground(drawable);
             }
+            //best点击事件
             answerViewHolder.answerItemBestBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -191,6 +192,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     }
                 }
             });
+            //exciting点击事件
             answerViewHolder.answerItemExcitingImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -207,6 +209,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     }
                 }
             });
+            //naive点击事件
             answerViewHolder.answerItemNaiveImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -230,6 +233,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 Glide.with(context)
                         .load(question.getAuthorAvatar())
                         .error(R.drawable.error_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(questionViewHolder.realQuestionUserImg);
             }
             questionViewHolder.realQuestionAuthorName.setText(question.getAuthorName());
@@ -241,16 +245,16 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 Glide.with(context)
                         .load(question.getImages())
                         .error(R.drawable.error)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .fitCenter()
                         .into(questionViewHolder.realQuestionContentImg);
             } else {
                 questionViewHolder.realQuestionContentImg.setVisibility(View.GONE);
             }
+            //加载问题数据
             questionViewHolder.realQuestionExcitingCount.setText(question.getExciting() + "");
             questionViewHolder.realQuestionAnswerCount.setText(question.getAnswerCount() + "");
-            //
             questionViewHolder.realQuestionNaiveCount.setText(question.getNaive() + "");
-            //
             if (isExciting[curPosition]) {
                 questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
             } else {
@@ -267,6 +271,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             } else {
                 questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star);
             }
+            //设置exciting点击事件
             questionViewHolder.realQuestionExciting.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -283,6 +288,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     }
                 }
             });
+            //设置naive点击事件
             questionViewHolder.realQuestionNaive.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -300,6 +306,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     }
                 }
             });
+            //设置favorite点击事件
             questionViewHolder.realQuestionFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -365,13 +372,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     }
                 }
             });
-            questionViewHolder.questionBack.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, MainActivity.class);
-                    context.startActivity(intent);
-                }
-            });
         }
     }
 
@@ -385,10 +385,12 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        Log.d(TAG, "getItemCount: ");
         return answerList.size() + 1;
     }
 
+    /**
+     * 刷新回答
+     */
     public void refresh() {
         MySQLiteOpenHelper.searchQuestion(context, qid, question);
         MySQLiteOpenHelper.readAnswer(context, answerList, qid);
@@ -405,6 +407,9 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
+    /**
+     * answer的exciting，naive请求
+     */
     public void post() {
         new Thread(new Runnable() {
             @Override
@@ -478,7 +483,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public AnswerViewHolder(@NonNull View itemView) {
             super(itemView);
-            Log.d(TAG, "AnswerViewHolder: ");
             answerItemAuthorImg = itemView.findViewById(R.id.answer_item_user_img);
             answerItemAuthorName = itemView.findViewById(R.id.answer_item_username);
             answerItemBestBtn = itemView.findViewById(R.id.answer_item_best);
@@ -510,7 +514,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private LinearLayout realQuestionExciting;
         private LinearLayout realQuestionNaive;
         private LinearLayout realQuestionFavorite;
-        private LinearLayout questionBack;
 
         public QuestionViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -529,7 +532,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             realQuestionExciting = itemView.findViewById(R.id.real_question_exciting);
             realQuestionNaive = itemView.findViewById(R.id.real_question_naive);
             realQuestionFavorite = itemView.findViewById(R.id.real_question_favorite);
-            questionBack = itemView.findViewById(R.id.question_back);
         }
     }
 

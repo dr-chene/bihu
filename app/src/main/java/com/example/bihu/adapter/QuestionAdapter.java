@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
 import com.example.bihu.activity.MainActivity;
 import com.example.bihu.activity.QuestionContentActivity;
@@ -60,6 +61,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 question = favoriteList.get(position);
         }
         MyInnerViewHolder itemHolder = (MyInnerViewHolder) holder;
+        //加载question数据
         itemHolder.questionItemAuthorName.setText(question.getAuthorName());
         itemHolder.questionItemRecent.setText(question.getRecent());
         itemHolder.questionItemTitle.setText(question.getTitle());
@@ -67,22 +69,27 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         itemHolder.questionItemExcitingCount.setText(question.getExciting() + "");
         itemHolder.questionItemAnswerCount.setText(question.getAnswerCount() + "");
         itemHolder.questionItemNaiveCount.setText(question.getNaive() + "");
+        //加载question作者头像
         if (question.getAuthorAvatar().length() >= 10) {
             Glide.with(context)
                     .load(question.getAuthorAvatar())
                     .error(R.drawable.error_avatar)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(itemHolder.questionItemUserImg);
         }
+        //加载question图片
         if (question.getImages().length() >= 10) {
             Glide.with(context)
                     .load(question.getImages())
                     .error(R.drawable.error)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .fitCenter()
                     .into(itemHolder.questionItemContentImg);
         } else {
             itemHolder.questionItemContentImg.setVisibility(View.GONE);
         }
         final int id = question.getId();
+        //设置item点击事件（进入详情页面）
         itemHolder.questionItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,6 +111,10 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return 0;
     }
 
+    /**
+     * 刷新问题
+     * @param type
+     */
     public void refresh(int type) {
         switch (type) {
             case MainActivity.TYPE_QUESTION:
@@ -116,7 +127,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-
+    /**
+     * 加载更多
+     */
     public void loadMoreData() {
         curSize += 20;
         if (type == MainActivity.TYPE_QUESTION) {

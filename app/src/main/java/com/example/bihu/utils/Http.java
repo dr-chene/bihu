@@ -31,7 +31,14 @@ public class Http {
     public static final String URL_NAIVE = NEW_BASE_URL + "naive.php";
     public static final String URL_CANCEL_NAIVE = NEW_BASE_URL + "cancelNaive.php";
 
+    /**
+     * 网络请求工具
+     * @param urlParam
+     * @param params
+     * @param listener
+     */
     public static void sendHttpRequest(final String urlParam, Map<String, String> params, final HttpCallbackListener listener) {
+        if (Methods.isNetworkAvailable()){
         final StringBuffer sbParams = new StringBuffer();
         if (params != null && params.size() > 0) {
             for (Map.Entry<String, String> e : params.entrySet()) {
@@ -91,5 +98,7 @@ public class Http {
                 }
             }
         }).start();
-    }
+    }else {
+
+        }}
 }

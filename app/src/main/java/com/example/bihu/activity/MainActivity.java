@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
 import com.example.bihu.adapter.QuestionAdapter;
 import com.example.bihu.utils.Http;
@@ -65,9 +66,12 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private FloatingActionButton fab;
     private ConstraintLayout noLogin;
-    private Boolean isLoading = false;
     private LinearLayoutManager linearLayoutManager;
     private DrawerLayout drawerLayout;
+    private ImageView avatar;
+    private TextView name;
+    private FloatingActionButton fabUp;
+      //处理刷新事件结果
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -88,6 +92,27 @@ public class MainActivity extends AppCompatActivity {
         setOnClickListener();
     }
 
+    /**
+     * 处理登录成功跳转之后的主界面加载事件
+     */
+    @Override
+    protected void onRestart() {
+        //读取用户数据
+        loadPerson();
+        if (MainActivity.person.getId() != -1) {
+            //加载头像
+            if (MainActivity.person.getAvatar().length() >= 10) {
+                Glide.with(this)
+                        .load(MainActivity.person.getAvatar())
+                        .error(R.drawable.error_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(avatar);
+            }
+            name.setText(MainActivity.person.getUsername());
+        }
+        super.onRestart();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -95,6 +120,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * 设置menu点击事件
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
@@ -114,11 +144,15 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * 加载视图，绑定数据
+     */
     private void initView() {
         person = new Person();
         person.setId(-1);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        fabUp = findViewById(R.id.fab_up);
         fab = findViewById(R.id.fab);
         noLogin = findViewById(R.id.no_login);
         swipeRefreshLayout = findViewById(R.id.srl);
@@ -131,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
-
+//读取用户数据
         loadPerson();
 
         questionAdapter = new QuestionAdapter(this, MainActivity.TYPE_QUESTION);
@@ -139,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         navView.setCheckedItem(R.id.nav_home);
+        //设置nav点击事件
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -169,22 +204,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         View headView = navView.getHeaderView(0);
-        ImageView avatar = headView.findViewById(R.id.avatar);
-        TextView name = headView.findViewById(R.id.nav_header_main_username);
+        avatar = headView.findViewById(R.id.avatar);
+        name = headView.findViewById(R.id.nav_header_main_username);
         if (MainActivity.person.getId() != -1) {
             //加载头像
             if (MainActivity.person.getAvatar().length() >= 10) {
                 Glide.with(this)
                         .load(MainActivity.person.getAvatar())
                         .error(R.drawable.error_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(avatar);
             }
             name.setText(MainActivity.person.getUsername());
         }
     }
 
-
+    /**
+     * 设置点击事件
+     */
     private void setOnClickListener() {
+        //发布问题
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -196,72 +235,25 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        //滑到顶部并刷新
+        fabUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recyclerView.scrollToPosition(0);
+                LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                mLayoutManager.scrollToPositionWithOffset(0, 0);
+                swipeRefreshLayout.setRefreshing(true);
+                refresh();
+            }
+        });
+        //下拉刷新
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (totalQuestionPage == 0 || questionPage < totalQuestionPage - 1) {
-                    Map<String, String> query = new HashMap<>();
-                    query.put("page", "" + questionPage);
-                    query.put("count", "" + count);
-                    query.put("token", MainActivity.person.getToken());
-                    Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
-                        @Override
-                        public void onFinish(String response) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                switch (jsonObject.getInt("status")) {
-                                    case 401:
-                                        Looper.prepare();
-                                        Toast.makeText(MainActivity.this, "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
-                                        Looper.loop();
-                                        break;
-                                    case 400:
-                                    case 500:
-                                        Looper.prepare();
-                                        Toast.makeText(MainActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
-                                        Looper.loop();
-                                        break;
-                                    case 200:
-                                        Log.d("first", "Http");
-                                        JSONObject object = jsonObject.getJSONObject("data");
-                                        MainActivity.totalQuestionPage = object.getInt("totalPage");
-                                        JSONArray jsonArray = object.getJSONArray("questions");
-                                        JSONObject questionData;
-                                        for (int i = 0; i < jsonArray.length(); i++) {
-                                            questionData = jsonArray.getJSONObject(i);
-                                            MySQLiteOpenHelper.addQuestion(MainActivity.this, questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
-                                                    , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
-                                                    questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
-                                                    questionData.getBoolean("is_favorite") == true ? 1 : 0);
-                                        }
-                                        Log.d("first", "refresh success");
-                                        questionPage = getQuestionPage(MainActivity.this);
-                                        if (questionPage < totalQuestionPage - 1) {
-                                            questionPage++;
-                                            Log.d("first", "questionPage++");
-                                        }
-                                        questionAdapter.refresh(MainActivity.TYPE_QUESTION);
-                                        Log.d("first", "questionAdapter.notifyDataSetChanged()");
-                                        Message msg = new Message();
-                                        msg.what = TYPE_REFRESH;
-                                        handler.sendMessage(msg);
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-
-                        }
-                    });
-                } else {
-                    Toast.makeText(MainActivity.this, "暂无最新问题", Toast.LENGTH_SHORT).show();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
+                refresh();
             }
         });
+        //上拉加载
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
 
             //判断是不是往上拖动
@@ -287,7 +279,76 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 刷新
+     */
+    private void refresh(){
+    if (totalQuestionPage == 0 || questionPage < totalQuestionPage - 1) {
+        Map<String, String> query = new HashMap<>();
+        query.put("page", "" + questionPage);
+        query.put("count", "" + count);
+        query.put("token", MainActivity.person.getToken());
+        Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
+            @Override
+            public void onFinish(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    switch (jsonObject.getInt("status")) {
+                        case 401:
+                            Looper.prepare();
+                            Toast.makeText(MainActivity.this, "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
+                            Looper.loop();
+                            break;
+                        case 400:
+                        case 500:
+                            Looper.prepare();
+                            Toast.makeText(MainActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                            Looper.loop();
+                            break;
+                        case 200:
+                            Log.d("first", "Http");
+                            JSONObject object = jsonObject.getJSONObject("data");
+                            MainActivity.totalQuestionPage = object.getInt("totalPage");
+                            JSONArray jsonArray = object.getJSONArray("questions");
+                            JSONObject questionData;
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                questionData = jsonArray.getJSONObject(i);
+                                MySQLiteOpenHelper.addQuestion(MainActivity.this, questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
+                                        , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
+                                        questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
+                                        questionData.getBoolean("is_favorite") == true ? 1 : 0);
+                            }
+                            Log.d("first", "refresh success");
+                            questionPage = getQuestionPage(MainActivity.this);
+                            if (questionPage < totalQuestionPage - 1) {
+                                questionPage++;
+                                Log.d("first", "questionPage++");
+                            }
+                            questionAdapter.refresh(MainActivity.TYPE_QUESTION);
+                            Log.d("first", "questionAdapter.notifyDataSetChanged()");
+                            Message msg = new Message();
+                            msg.what = TYPE_REFRESH;
+                            handler.sendMessage(msg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
 
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
+    } else {
+        Toast.makeText(MainActivity.this, "暂无最新问题", Toast.LENGTH_SHORT).show();
+        swipeRefreshLayout.setRefreshing(false);
+    }
+}
+
+    /**
+     * 根据是否登录加载主页面
+     */
     private void loadPerson() {
         MySQLiteOpenHelper.readPerson(this, person);
         if (person.getId() == -1) {

@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,13 +29,22 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
+import com.example.bihu.utils.Http;
+import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.QiNiu;
+import com.example.bihu.utils.QiNiuCallbackListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static com.example.bihu.utils.Methods.getFileByUri;
@@ -61,6 +71,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         setOnClickListener();
     }
 
+    /**
+     * 设置点击事件
+     */
     private void setOnClickListener() {
         settingAccount.setOnClickListener(this);
         settingPerson.setOnClickListener(this);
@@ -70,6 +83,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         settingBack.setOnClickListener(this);
     }
 
+    /**
+     * 加载视图
+     */
     private void initView() {
         settingAccount = findViewById(R.id.setting_account);
         settingPerson = findViewById(R.id.setting_person);
@@ -85,13 +101,16 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 Glide.with(this)
                         .load(MainActivity.person.getAvatar())
                         .error(R.drawable.error_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(settingAvatar);
             }
             settingUsername.setText(MainActivity.person.getUsername());
 
         }
     }
-
+/**
+ * 弹出修改头像选择窗口
+ */
     private void modifyAvatar() {
         View contentView = LayoutInflater.from(SettingActivity.this).inflate(R.layout.pop_up_window, null);
         popupWindow = new PopupWindow(contentView, ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT, true);
@@ -115,14 +134,16 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.setting_person:
                 Toast.makeText(SettingActivity.this, "相信我，这没什么好看的", LENGTH_SHORT).show();
                 break;
+            //更改头像的逻辑
             case R.id.setting_modify_avatar:
-                //更改头像的逻辑
                 modifyAvatar();
                 break;
+                //修改密码
             case R.id.setting_change_password:
                 Intent intent = new Intent(SettingActivity.this, PasswordChangeActivity.class);
                 startActivity(intent);
                 break;
+                //退出登录
             case R.id.login_out:
                 dialog(v);
                 if (MainActivity.person.getId() == -1) {
@@ -131,24 +152,32 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                     startActivity(intent1);
                 }
                 break;
+                //返回按钮
             case R.id.setting_back:
                 Intent intent1 = new Intent(SettingActivity.this, MainActivity.class);
                 startActivity(intent1);
                 break;
+                //拍照
             case R.id.pop_camera:
                 camera();
                 popupWindow.dismiss();
                 break;
+                //选择图片
             case R.id.pop_photo:
                 photo();
                 popupWindow.dismiss();
                 break;
+                //取消修改头像
             case R.id.pop_back:
                 popupWindow.dismiss();
                 break;
         }
     }
 
+    /**
+     * 退出登录
+     * @param v
+     */
     public void dialog(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("警示");
@@ -158,6 +187,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MySQLiteOpenHelper.deletePerson(SettingActivity.this);
+                MainActivity.person.setId(-1);
                 Intent intent = new Intent(SettingActivity.this, MainActivity.class);
                 startActivity(intent);
             }
@@ -171,6 +201,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         builder.show();
     }
 
+    /**
+     * 拍照
+     */
     private void camera() {
         outputImage = new File(getExternalCacheDir(), "output_image.jpg");
         try {
@@ -192,6 +225,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         startActivityForResult(intent, MainActivity.TYPE_TAKE_PHOTO);
     }
 
+    /**
+     * 选择图片
+     */
     public void photo() {
         if (ContextCompat.checkSelfPermission(SettingActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(SettingActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -200,6 +236,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    /**
+     * 打开图片
+     */
     private void openAlum() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
@@ -228,10 +267,13 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                     try {
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                         settingAvatar.setImageBitmap(bitmap);
-                        new QiNiu(this).upload(outputImage, MainActivity.TYPE_MODIFY_AVATAR);
+                        new QiNiu().upload(outputImage, new QiNiuCallbackListener() {
+                            @Override
+                            public void onSuccess(String image) {
+                                postSuccess(image);
+                            }
+                        });
                     } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -240,8 +282,45 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 Uri uri = data.getData();
                 settingAvatar.setImageURI(uri);
                 File file = getFileByUri(this, uri);
-                new QiNiu(this).upload(file, MainActivity.TYPE_MODIFY_AVATAR);
+                new QiNiu().upload(file, new QiNiuCallbackListener() {
+                    @Override
+                    public void onSuccess(String image) {
+                        postSuccess(image);
+                    }
+                });
                 break;
         }
+    }
+
+    /**
+     * 图片成功上传到七牛云后，请求修改头像
+     * @param image
+     */
+    private void postSuccess(final String image) {
+        Map<String, String> query = new HashMap<>();
+        query.put("token", MainActivity.person.getToken());
+        query.put("avatar", image);
+        Http.sendHttpRequest(Http.URL_MODIFY_AVATAR, query, new HttpCallbackListener() {
+            @Override
+            public void onFinish(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    if (jsonObject.getInt("status") != 200) {
+                        Looper.prepare();
+                        Toast.makeText(SettingActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                        Looper.loop();
+                    } else {
+                        MySQLiteOpenHelper.modifyAvatar(SettingActivity.this, image);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 }

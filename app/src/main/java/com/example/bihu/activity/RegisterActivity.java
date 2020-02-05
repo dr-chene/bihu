@@ -38,11 +38,17 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         setOnClickListener();
     }
 
+    /**
+     * 设置点击事件
+     */
     private void setOnClickListener() {
         registerBack.setOnClickListener(this);
         registerBtn.setOnClickListener(this);
     }
 
+    /**
+     * 加载视图
+     */
     private void initView() {
         registerBack = findViewById(R.id.register_back);
         registerUsername = findViewById(R.id.register_username);
@@ -55,10 +61,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            //返回按钮
             case R.id.register_back:
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 startActivity(intent);
                 break;
+                //注册按钮
             case R.id.register_btn:
                 if (registerPassword.getText().toString().equals(registerPasswordConfirm.getText().toString())) {
                     Map<String, String> query = new HashMap<>();

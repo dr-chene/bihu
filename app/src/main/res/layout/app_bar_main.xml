@@ -35,4 +35,14 @@
         android:src="@drawable/jia"
         app:backgroundTint="#1E90FF" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="85dp"
+        android:src="@drawable/refresh"
+        app:backgroundTint="#FFFFFF" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

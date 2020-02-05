@@ -33,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText loginPasswordET;
     private String username;
     private String password;
+     //处理登录结果
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -54,7 +55,11 @@ public class LoginActivity extends AppCompatActivity {
         setOnClickListener();
     }
 
+    /**
+     * 设置点击事件
+     */
     private void setOnClickListener() {
+        //返回按钮
         loginBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,6 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        //登录按钮，发送登录请求
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,6 +115,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * 加载视图
+     */
     private void initView() {
         loginBack = findViewById(R.id.login_back);
         loginButton = findViewById(R.id.register_btn);

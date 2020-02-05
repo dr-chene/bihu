@@ -38,11 +38,17 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
         setOnClickListener();
     }
 
+    /**
+     * 设置点击事件
+     */
     private void setOnClickListener() {
         changePasswordBack.setOnClickListener(this);
         changePasswordBtn.setOnClickListener(this);
     }
 
+    /**
+     * 加载视图
+     */
     private void initView() {
         changePasswordBack = findViewById(R.id.change_password_back);
         changePasswordOld = findViewById(R.id.change_password_old);
@@ -54,10 +60,12 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            //返回按钮
             case R.id.change_password_back:
                 Intent intent = new Intent(PasswordChangeActivity.this, SettingActivity.class);
                 startActivity(intent);
                 break;
+                //请求修改密码
             case R.id.change_password_btn:
                 if (MainActivity.person != null) {
                     if (MainActivity.person.getPassword() == changePasswordOld.getText().toString()) {

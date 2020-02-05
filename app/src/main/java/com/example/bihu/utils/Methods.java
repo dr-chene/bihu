@@ -14,6 +14,12 @@ import com.example.bihu.activity.MainActivity;
 import java.io.File;
 
 public class Methods {
+    /**
+     * 根据uri得到file
+     * @param context
+     * @param uri
+     * @return
+     */
     public static File getFileByUri(Context context, Uri uri) {
         String path = null;
         if ("file".equals(uri.getScheme())) {
@@ -59,6 +65,11 @@ public class Methods {
         return null;
     }
 
+    /**
+     * 判断网络是否可用
+     * @param context
+     * @return
+     */
     public static boolean isNetworkAvailable(Context context) {
 
         ConnectivityManager manager = (ConnectivityManager) context
