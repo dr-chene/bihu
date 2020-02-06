@@ -119,7 +119,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void refresh(int type) {
         switch (type) {
             case MainActivity.TYPE_QUESTION:
-                Log.d("first", "readQuestion");
                 MySQLiteOpenHelper.readQuestion(questionList, getItemCount(), MainActivity.TYPE_REFRESH);
                 break;
             case MainActivity.TYPE_FAVORITE:

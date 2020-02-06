@@ -80,7 +80,7 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                                         JSONObject jsonObject = new JSONObject(response);
                                         if (jsonObject.getInt("status") != 200) {
                                             Looper.prepare();
-                                            Toast.makeText(PasswordChangeActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(PasswordChangeActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                             Looper.loop();
                                         }
                                         if (jsonObject.getString("info").equals("success")) {

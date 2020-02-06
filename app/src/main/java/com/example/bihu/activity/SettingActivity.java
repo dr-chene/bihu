@@ -310,7 +310,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                     JSONObject jsonObject = new JSONObject(response);
                     if (jsonObject.getInt("status") != 200) {
                         Looper.prepare();
-                        Toast.makeText(SettingActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SettingActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                         Looper.loop();
                     } else {
                         MySQLiteOpenHelper.modifyAvatar(image);

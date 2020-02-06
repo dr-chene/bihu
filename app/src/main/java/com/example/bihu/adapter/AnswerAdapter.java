@@ -167,7 +167,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                     JSONObject jsonObject = new JSONObject(response);
                                     if (jsonObject.getInt("status") != 200) {
                                         Looper.prepare();
-                                        Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                         Looper.prepare();
                                     } else {
                                         MySQLiteOpenHelper.answerAccept(qid);
@@ -320,7 +320,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                     JSONObject jsonObject = new JSONObject(response);
                                     if (jsonObject.getInt("status") != 200) {
                                         Looper.prepare();
-                                        Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                         Looper.loop();
                                     } else {
                                         MySQLiteOpenHelper.questionChange(qid, "isFavorite", 0);
@@ -348,7 +348,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                     JSONObject jsonObject = new JSONObject(response);
                                     if (jsonObject.getInt("status") != 200) {
                                         Looper.prepare();
-                                        Toast.makeText(context, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                         Looper.loop();
                                     } else {
                                         MySQLiteOpenHelper.questionChange(qid, "isFavorite", 1);

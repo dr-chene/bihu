@@ -60,6 +60,7 @@ public class QuestionContentActivity extends AppCompatActivity {
     private int qid = -1;
     private int page = 0;
     private int count = 10;
+    private int totalCount = -1;
     private ImageView enterPic;
     private PopupWindow popupWindow;
     private ConstraintLayout hf;
@@ -77,7 +78,8 @@ public class QuestionContentActivity extends AppCompatActivity {
                     break;
                 case MainActivity.TYPE_ANSWER:
                     enterAnswerED.setText("");
-                    Log.d("test", "回答成功");
+                    swipeRefreshLayout.setRefreshing(true);
+                    refreshAnswer();
                     if (popupWindow != null) {
                         popupWindow.dismiss();
                     }
@@ -176,7 +178,6 @@ public class QuestionContentActivity extends AppCompatActivity {
                         new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
                             @Override
                             public void onSuccess(String image) {
-                                Log.d("test", image);
                                 if (image == "") {
                                     isAnswering = false;
                                     Toast.makeText(QuestionContentActivity.this, "图片上传失败", Toast.LENGTH_SHORT).show();
@@ -200,57 +201,7 @@ public class QuestionContentActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Map<String, String> query = new HashMap<>();
-                query.put("page", page + "");
-                query.put("count", count + "");
-                query.put("qid", qid + "");
-                query.put("token", MainActivity.person.getToken());
-                Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
-                    @Override
-                    public void onFinish(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            Log.d("first", jsonObject + "");
-                            switch (jsonObject.getInt("status")) {
-                                case 401:
-                                    Looper.prepare();
-                                    Toast.makeText(QuestionContentActivity.this, "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
-                                    Looper.loop();
-                                    break;
-                                case 400:
-                                case 500:
-                                    Looper.prepare();
-                                    Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
-                                    Looper.loop();
-                                    break;
-                                case 200:
-                                    JSONObject object = jsonObject.getJSONObject("data");
-                                    int totalCount = object.getInt("totalCount");
-                                    JSONArray jsonArray = object.getJSONArray("answers");
-                                    for (int i = 0; i < jsonArray.length(); i++) {
-                                        Log.d("first", "" + i);
-                                        JSONObject answerData = jsonArray.getJSONObject(i);
-                                        MySQLiteOpenHelper.addAnswer(answerData.getInt("id"), qid, answerData.getString("content"), answerData.getString("images"), answerData.getString("date"), answerData.getInt("best"), answerData.getInt("exciting")
-                                                , answerData.getInt("naive"), answerData.getInt("authorId"), answerData.getString("authorName"), answerData.getString("authorAvatar"),
-                                                answerData.getBoolean("is_exciting") == true ? 1 : 0, answerData.getBoolean("is_naive") == true ? 1 : 0);
-
-                                    }
-                                    Log.d("three", "refresh");
-                                    answerAdapter.refresh();
-                                    Message msg = new Message();
-                                    msg.what = MainActivity.TYPE_REFRESH;
-                                    handler.sendMessage(msg);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-
-                    }
-                });
+               refreshAnswer();
             }
         });
         //回答图片（仅一张）
@@ -327,7 +278,7 @@ public class QuestionContentActivity extends AppCompatActivity {
                         JSONObject jsonObject = new JSONObject(response);
                         if (jsonObject.getInt("status") != 200) {
                             Looper.prepare();
-                            Toast.makeText(QuestionContentActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(QuestionContentActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                             isAnswering = false;
                             Looper.loop();
                         } else {
@@ -348,5 +299,58 @@ public class QuestionContentActivity extends AppCompatActivity {
         } else {
             isAnswering = false;
         }
+    }
+    private void refreshAnswer(){
+        if (totalCount!=-1){
+            count = totalCount;
+        }
+        Map<String, String> query = new HashMap<>();
+        query.put("page", page + "");
+        query.put("count", count + "");
+        query.put("qid", qid + "");
+        query.put("token", MainActivity.person.getToken());
+        Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
+            @Override
+            public void onFinish(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    switch (jsonObject.getInt("status")) {
+                        case 401:
+                            Looper.prepare();
+                            Toast.makeText(QuestionContentActivity.this, jsonObject.getInt("status") + " : " + "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
+                            Looper.loop();
+                            break;
+                        case 400:
+                        case 500:
+                            Looper.prepare();
+                            Toast.makeText(QuestionContentActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                            Looper.loop();
+                            break;
+                        case 200:
+                            JSONObject object = jsonObject.getJSONObject("data");
+                            totalCount = object.getInt("totalCount");
+                            JSONArray jsonArray = object.getJSONArray("answers");
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject answerData = jsonArray.getJSONObject(i);
+                                MySQLiteOpenHelper.addAnswer(answerData.getInt("id"), qid, answerData.getString("content"), answerData.getString("images"), answerData.getString("date"), answerData.getInt("best"), answerData.getInt("exciting")
+                                        , answerData.getInt("naive"), answerData.getInt("authorId"), answerData.getString("authorName"), answerData.getString("authorAvatar"),
+                                        answerData.getBoolean("is_exciting") == true ? 1 : 0, answerData.getBoolean("is_naive") == true ? 1 : 0);
+
+                            }
+                            answerAdapter.refresh();
+                            Message msg = new Message();
+                            msg.what = MainActivity.TYPE_REFRESH;
+                            handler.sendMessage(msg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 }

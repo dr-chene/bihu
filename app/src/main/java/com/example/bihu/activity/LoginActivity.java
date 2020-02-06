@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                                 case 500:
                                 case 400:
                                     Looper.prepare();
-                                    Toast.makeText(LoginActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                     Looper.loop();
                                     break;
                                 case 200:

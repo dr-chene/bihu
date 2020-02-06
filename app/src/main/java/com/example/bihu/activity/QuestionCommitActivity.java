@@ -216,7 +216,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
                         JSONObject jsonObject = new JSONObject(response);
                         if (jsonObject.getInt("status") != 200) {
                             Looper.prepare();
-                            Toast.makeText(QuestionCommitActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(QuestionCommitActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                             isCommitting = false;
                             Looper.loop();
                         } else {

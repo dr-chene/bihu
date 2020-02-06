@@ -297,13 +297,13 @@ public class MainActivity extends AppCompatActivity {
                         switch (jsonObject.getInt("status")) {
                             case 401:
                                 Looper.prepare();
-                                Toast.makeText(MainActivity.this, "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, jsonObject.getInt("status") + " : " + "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
                                 Looper.loop();
                                 break;
                             case 400:
                             case 500:
                                 Looper.prepare();
-                                Toast.makeText(MainActivity.this, jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
                                 Looper.loop();
                                 break;
                             case 200:
@@ -353,12 +353,10 @@ public class MainActivity extends AppCompatActivity {
             swipeRefreshLayout.setVisibility(View.GONE);
             noLogin.setVisibility(View.VISIBLE);
             fabUp.setVisibility(View.GONE);
-            fab.setVisibility(View.GONE);
         } else {
             noLogin.setVisibility(View.GONE);
             swipeRefreshLayout.setVisibility(View.VISIBLE);
             fabUp.setVisibility(View.VISIBLE);
-            fab.setVisibility(View.VISIBLE);
         }
     }
 
