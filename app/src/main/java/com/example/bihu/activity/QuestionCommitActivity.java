@@ -234,6 +234,11 @@ public class QuestionCommitActivity extends AppCompatActivity {
 
                 }
             });
+        }else {
+            Looper.prepare();
+            Toast.makeText(QuestionCommitActivity.this,"请补全问题描述", LENGTH_SHORT).show();
+            isCommitting = false;
+            Looper.loop();
         }
     }
 
