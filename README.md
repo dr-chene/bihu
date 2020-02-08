@@ -6,7 +6,7 @@
 
 ##### 功能：目前实现了api全部接口功能
 
-![](https://github.com/dr-chene/picture/blob/master/bihu_demo.gif)
+![](https://github.com/dr-chene/picture/blob/master/bihu_demo~1.gif)
 
 注册
 
