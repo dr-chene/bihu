@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -37,7 +39,7 @@ import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.QiNiu;
 import com.example.bihu.utils.QiNiuCallbackListener;
-import com.example.bihu.utils.RecyclerViewNoBugLinearLayoutManager;
+import com.example.bihu.utils.WrapContentLinearLayoutManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -138,8 +140,8 @@ public class QuestionContentActivity extends AppCompatActivity {
         realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
         answerAdapter = new AnswerAdapter(QuestionContentActivity.this, qid);
         realQuestionRecyclerView.setAdapter(answerAdapter);
-        RecyclerViewNoBugLinearLayoutManager manager = new RecyclerViewNoBugLinearLayoutManager(this);
-        realQuestionRecyclerView.setLayoutManager(manager);
+        LinearLayoutManager linearLayoutManager=new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        realQuestionRecyclerView.setLayoutManager(linearLayoutManager);
         realQuestionRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 

@@ -2,6 +2,7 @@ package com.example.bihu.utils;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,27 +10,27 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * 为了解决官方recyclerView的bug
  */
-public class RecyclerViewNoBugLinearLayoutManager extends LinearLayoutManager {
-    public RecyclerViewNoBugLinearLayoutManager(Context context) {
+public class WrapContentLinearLayoutManager extends LinearLayoutManager {
+    public WrapContentLinearLayoutManager(Context context) {
         super(context);
     }
 
-    public RecyclerViewNoBugLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
+    public WrapContentLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
         super(context, orientation, reverseLayout);
     }
 
-    public RecyclerViewNoBugLinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public WrapContentLinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         try {
-            //try catch一下
             super.onLayoutChildren(recycler, state);
         } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+            Log.e("problem", "meet a IOOBE in RecyclerView");
         }
-
     }
+
+
 }
