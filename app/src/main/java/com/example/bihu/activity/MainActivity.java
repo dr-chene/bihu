@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView avatar;
     private TextView name;
     private FloatingActionButton fabUp;
+    private NavigationView navView;
     //处理刷新事件结果
     private Handler handler = new Handler() {
         @Override
@@ -99,17 +100,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         //读取用户数据
         loadPerson();
-        if (MainActivity.person.getId() != -1) {
-            //加载头像
-            if (MainActivity.person.getAvatar().length() >= 10) {
-                Glide.with(this)
-                        .load(MainActivity.person.getAvatar())
-                        .error(R.drawable.error_avatar)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(avatar);
-            }
-            name.setText(MainActivity.person.getUsername());
-        }
         super.onRestart();
     }
 
@@ -161,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
         ActionBar actionBar = getSupportActionBar();
-        NavigationView navView = findViewById(R.id.nav_view);
+        navView = findViewById(R.id.nav_view);
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
@@ -204,20 +194,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        View headView = navView.getHeaderView(0);
-        avatar = headView.findViewById(R.id.avatar);
-        name = headView.findViewById(R.id.nav_header_main_username);
-        if (MainActivity.person.getId() != -1) {
-            //加载头像
-            if (MainActivity.person.getAvatar().length() >= 10) {
-                Glide.with(this)
-                        .load(MainActivity.person.getAvatar())
-                        .error(R.drawable.error_avatar)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(avatar);
-            }
-            name.setText(MainActivity.person.getUsername());
-        }
     }
 
     /**
@@ -258,12 +234,12 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
 
             //判断是不是往上拖动
-            public boolean isLastReflash;
+            public boolean isLastRefresh;
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE && isLastReflash) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && isLastRefresh) {
                     if (recyclerView.computeVerticalScrollExtent() + recyclerView.computeVerticalScrollOffset() >= recyclerView.computeVerticalScrollRange()) {
                         questionAdapter.loadMoreData();
                         questionAdapter.notifyDataSetChanged();
@@ -275,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                isLastReflash = dy > 0;
+                isLastRefresh = dy > 0;
             }
         });
     }
@@ -349,14 +325,28 @@ public class MainActivity extends AppCompatActivity {
      */
     private void loadPerson() {
         MySQLiteOpenHelper.readPerson(person);
+        View headView = navView.getHeaderView(0);
+        avatar = headView.findViewById(R.id.avatar);
+        name = headView.findViewById(R.id.nav_header_main_username);
         if (person.getId() == -1) {
             swipeRefreshLayout.setVisibility(View.GONE);
             noLogin.setVisibility(View.VISIBLE);
             fabUp.setVisibility(View.GONE);
+            avatar.setImageResource(R.drawable.no_avatar);
+            name.setText("Android Studio");
         } else {
             noLogin.setVisibility(View.GONE);
             swipeRefreshLayout.setVisibility(View.VISIBLE);
             fabUp.setVisibility(View.VISIBLE);
+            //加载头像
+            if (MainActivity.person.getAvatar().length() >= 10) {
+                Glide.with(this)
+                        .load(MainActivity.person.getAvatar())
+                        .error(R.drawable.error_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(avatar);
+            }
+            name.setText(MainActivity.person.getUsername());
         }
     }
 

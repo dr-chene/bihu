@@ -281,16 +281,18 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 }
                 break;
             case MainActivity.TYPE_CHOOSE_PHOTO:
-                Uri uri = data.getData();
-                settingAvatar.setImageURI(uri);
-                File file = getFileByUri(uri);
-                new QiNiu().upload(file, new QiNiuCallbackListener() {
-                    @Override
-                    public void onSuccess(String image) {
-                        postSuccess(image);
-                    }
-                });
-                break;
+                if (data != null) {
+                    Uri uri = data.getData();
+                    settingAvatar.setImageURI(uri);
+                    File file = getFileByUri(uri);
+                    new QiNiu().upload(file, new QiNiuCallbackListener() {
+                        @Override
+                        public void onSuccess(String image) {
+                            postSuccess(image);
+                        }
+                    });
+                    break;
+                }
         }
     }
 

@@ -22,7 +22,8 @@
         <activity android:name=".activity.QuestionCommitActivity" />
         <activity android:name=".activity.QuestionContentActivity" />
         <activity android:name=".activity.PasswordChangeActivity" />
-        <activity android:name=".activity.SettingActivity" />
+        <activity android:name=".activity.SettingActivity"
+            android:launchMode="singleTask"/>
         <activity android:name=".activity.RegisterActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity
