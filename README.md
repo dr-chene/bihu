@@ -8,7 +8,7 @@
 注册
 
 登录
-
+![](https://github.com/dr-chene/picture/blob/master/bihu_answer.gif)
 修改头像（可拍照或从本地选择相片）
 
 修改密码
