@@ -6,29 +6,29 @@
 
 ##### 功能：目前实现了api全部接口功能
 
-![](https://github.com/dr-chene/picture/blob/master/bihu_demo~2.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_demo.gif)
 
 注册
 
 登录 
 
-![](https://github.com/dr-chene/picture/blob/master/bihu_answer.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_login.gif)
 
 刷新问题
 
-![](https://github.com/dr-chene/picture/blob/master/bihu_recyclerview.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_recyclerview.gif)
 
 修改头像（可拍照或从本地选择相片）修改密码
 
-![](https://github.com/dr-chene/picture/blob/master/bihu_setting.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_setting.gif)
 
 发布问题~~一直500~~
 
-![](https://github.com/dr-chene/picture/blob/master/bihu_question.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_question.gif)
 
 发布回答~~（发布文字回答会500，图片没问题）~~ 刷新回答 收藏~~一直500~~ 取消收藏 采纳 点赞问题，回答 取消点赞 踩问题，回答 取消踩
 
-![](https://github.com/dr-chene/picture/blob/master/bihu_answer.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_answer.gif)
 
 因为个人技术与时间有限，因此发布回答与问题时只可上传一张图片，并且点赞时采用的是在activity销毁后再开启线程请求，~~因为有bug一直无法解决才使用的这种方式~~，所以会出现点赞后返回再点进去发现并没有成功的现象~~i am so vegetable~~。
 
