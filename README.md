@@ -28,7 +28,7 @@
 
 发布回答~~（发布文字回答会500，图片没问题）~~ 刷新回答 收藏~~一直500~~ 取消收藏 采纳 点赞问题，回答 取消点赞 踩问题，回答 取消踩
 
-![](https://github.com/dr-chene/picture/blob/master/bihu_answer.gif)
+![](https://github.com/dr-chene/StudyTest/blob/master/bihu_answer.gif)
 
 因为个人技术与时间有限，因此发布回答与问题时只可上传一张图片，并且点赞时采用的是在activity销毁后再开启线程请求，~~因为有bug一直无法解决才使用的这种方式~~，所以会出现点赞后返回再点进去发现并没有成功的现象~~i am so vegetable~~。
 
