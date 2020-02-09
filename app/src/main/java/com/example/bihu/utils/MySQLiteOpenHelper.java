@@ -174,37 +174,33 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
      * @param change
      */
     public static void questionChange(final int qid, final String column, final int change) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
-                SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(column, change);
 
-                String name = null;
-                if (column.equals("isNaive")) {
-                    name = "naive";
-                } else if (column.equals("isExciting")) {
-                    name = "exciting";
-                }
-                Cursor cursor = sqLiteDatabase.rawQuery("select * from question where qid = ?", new String[]{qid + ""});
-                int count = 0;
-                if (cursor.moveToNext()) {
-                    count = cursor.getInt(cursor.getColumnIndex(name));
-                    if (change == 1) {
-                        count++;
-                    } else if (change == 0) {
-                        count--;
-                    }
-                }
-                contentValues.put(name, count);
-
-                sqLiteDatabase.update("question", contentValues, "qid = ?", new String[]{qid + ""});
-                cursor.close();
-                sqLiteDatabase.close();
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(column, change);
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from question where qid = ?", new String[]{qid + ""});
+        if (!column.equals("isFavorite")) {
+            String name = null;
+            if (column.equals("isNaive")) {
+                name = "naive";
+            } else if (column.equals("isExciting")) {
+                name = "exciting";
             }
-        }).start();
+            int count = 0;
+            if (cursor.moveToNext()) {
+                count = cursor.getInt(cursor.getColumnIndex(name));
+                if (change == 1) {
+                    count++;
+                } else if (change == 0) {
+                    count--;
+                }
+            }
+            contentValues.put(name, count);
+        }
+        sqLiteDatabase.update("question", contentValues, "qid = ?", new String[]{qid + ""});
+        cursor.close();
+        sqLiteDatabase.close();
     }
 
     /**
@@ -213,17 +209,12 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
      * @param aid
      */
     public static void answerAccept(final int aid) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
-                SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put("best", 1);
-                sqLiteDatabase.update("answer", contentValues, "aid = ?", new String[]{aid + ""});
-                sqLiteDatabase.close();
-            }
-        }).start();
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("best", 1);
+        sqLiteDatabase.update("answer", contentValues, "aid = ?", new String[]{aid + ""});
+        sqLiteDatabase.close();
     }
 
     /**
@@ -234,37 +225,34 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
      * @param change
      */
     public static void answerChange(final int aid, final String column, final int change) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
-                SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(column, change);
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(column, change);
 
-                String name = null;
-                if (column.equals("isNaive")) {
-                    name = "naive";
-                } else if (column.equals("isExciting")) {
-                    name = "exciting";
-                }
-                Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where aid = ?", new String[]{aid + ""});
-                int count = 0;
-                if (cursor.moveToNext()) {
-                    count = cursor.getInt(cursor.getColumnIndex(name));
-                    if (change == 1) {
-                        count++;
-                    } else if (change == 0) {
-                        count--;
-                    }
-                }
-                contentValues.put(name, count);
-
-                sqLiteDatabase.update("answer", contentValues, "aid = ?", new String[]{aid + ""});
-                cursor.close();
-                sqLiteDatabase.close();
+        String name = null;
+        if (column.equals("isNaive")) {
+            name = "naive";
+        } else if (column.equals("isExciting")) {
+            name = "exciting";
+        }
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where aid = ?", new String[]{aid + ""});
+        int count = 0;
+        if (cursor.moveToNext()) {
+            count = cursor.getInt(cursor.getColumnIndex(name));
+            Log.d("exciting", "before " + name + " " + count);
+            if (change == 1) {
+                count++;
+            } else if (change == 0) {
+                count--;
             }
-        }).start();
+        }
+        contentValues.put(name, count);
+
+        sqLiteDatabase.update("answer", contentValues, "aid = ?", new String[]{aid + ""});
+        cursor.close();
+        sqLiteDatabase.close();
+
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.example.bihu.utils;
 
-import android.widget.Toast;
+import android.os.Looper;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -41,20 +41,20 @@ public class Http {
      * @param listener
      */
     public static void sendHttpRequest(final String urlParam, Map<String, String> params, final HttpCallbackListener listener) {
-        if (Methods.isNetworkAvailable()) {
-            final StringBuffer sbParams = new StringBuffer();
-            if (params != null && params.size() > 0) {
-                for (Map.Entry<String, String> e : params.entrySet()) {
-                    sbParams.append(e.getKey());
-                    sbParams.append("=");
-                    sbParams.append(e.getValue());
-                    sbParams.append("&");
-                }
+        final StringBuffer sbParams = new StringBuffer();
+        if (params != null && params.size() > 0) {
+            for (Map.Entry<String, String> e : params.entrySet()) {
+                sbParams.append(e.getKey());
+                sbParams.append("=");
+                sbParams.append(e.getValue());
+                sbParams.append("&");
             }
-            sbParams.deleteCharAt(sbParams.length() - 1);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
+        }
+        sbParams.deleteCharAt(sbParams.length() - 1);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (Methods.isNetworkAvailable()) {
                     HttpURLConnection connection = null;
                     BufferedReader reader = null;
                     URL url = null;
@@ -99,10 +99,13 @@ public class Http {
                             connection.disconnect();
                         }
                     }
+                } else {
+                    Looper.prepare();
+                    MyToast.showToast("当前网络不可用");
+                    listener.onNetworkError();
+                    Looper.loop();
                 }
-            }).start();
-        } else {
-            Toast.makeText(MyApplication.getContext(), "当前网络不可用", Toast.LENGTH_SHORT).show();
-        }
+            }
+        }).start();
     }
 }

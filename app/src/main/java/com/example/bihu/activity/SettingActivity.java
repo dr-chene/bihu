@@ -34,6 +34,7 @@ import com.example.bihu.R;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
+import com.example.bihu.utils.MyToast;
 import com.example.bihu.utils.QiNiu;
 import com.example.bihu.utils.QiNiuCallbackListener;
 
@@ -97,7 +98,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         settingUsername = findViewById(R.id.setting_username);
         if (MainActivity.person.getId() != -1) {
             //加载头像settingAvatar
-            if (MainActivity.person.getAvatar().length() >= 10) {
+            if (MainActivity.person.getAvatar().length() >= 5) {
                 Glide.with(this)
                         .load(MainActivity.person.getAvatar())
                         .error(R.drawable.error_avatar)
@@ -130,10 +131,10 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.setting_account:
-                Toast.makeText(SettingActivity.this, "功能暂未开放", LENGTH_SHORT).show();
+                MyToast.showToast("功能暂未开放");
                 break;
             case R.id.setting_person:
-                Toast.makeText(SettingActivity.this, "相信我，这没什么好看的", LENGTH_SHORT).show();
+                MyToast.showToast("相信我，这没什么好看的");
                 break;
             //更改头像的逻辑
             case R.id.setting_modify_avatar:
@@ -148,7 +149,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.login_out:
                 dialog(v);
                 if (MainActivity.person.getId() == -1) {
-                    Toast.makeText(SettingActivity.this, "正在返回主页", LENGTH_SHORT).show();
+                    MyToast.showToast("正在返回主页");
                     Intent intent1 = new Intent(SettingActivity.this, MainActivity.class);
                     startActivity(intent1);
                 }
@@ -254,7 +255,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openAlum();
                 } else {
-                    Toast.makeText(this, "获取权限失败", LENGTH_SHORT).show();
+                    MyToast.showToast("获取权限失败");
                 }
                 break;
         }
@@ -312,7 +313,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                     JSONObject jsonObject = new JSONObject(response);
                     if (jsonObject.getInt("status") != 200) {
                         Looper.prepare();
-                        Toast.makeText(SettingActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                        MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                         Looper.loop();
                     } else {
                         MySQLiteOpenHelper.modifyAvatar(image);
@@ -324,6 +325,11 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
             @Override
             public void onError(Exception e) {
+
+            }
+
+            @Override
+            public void onNetworkError() {
 
             }
         });

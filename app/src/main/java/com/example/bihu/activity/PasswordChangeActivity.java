@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,6 +14,7 @@ import com.example.bihu.R;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
+import com.example.bihu.utils.MyToast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,7 +80,7 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                                         JSONObject jsonObject = new JSONObject(response);
                                         if (jsonObject.getInt("status") != 200) {
                                             Looper.prepare();
-                                            Toast.makeText(PasswordChangeActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                            MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                             Looper.loop();
                                         }
                                         if (jsonObject.getString("info").equals("success")) {
@@ -98,17 +98,22 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                                 public void onError(Exception e) {
 
                                 }
+
+                                @Override
+                                public void onNetworkError() {
+
+                                }
                             });
                             MainActivity.person.setId(-1);
-                            Toast.makeText(PasswordChangeActivity.this, "请重新登录", Toast.LENGTH_SHORT).show();
+                            MyToast.showToast("请重新登录");
                             Intent intent1 = new Intent(PasswordChangeActivity.this, MainActivity.class);
                             startActivity(intent1);
                         } else
-                            Toast.makeText(PasswordChangeActivity.this, "新密码不一致", Toast.LENGTH_SHORT).show();
+                            MyToast.showToast("新密码不一致");
                     } else
-                        Toast.makeText(PasswordChangeActivity.this, "旧密码错误", Toast.LENGTH_SHORT).show();
+                        MyToast.showToast("旧密码错误");
                 } else
-                    Toast.makeText(PasswordChangeActivity.this, "账号未登录", Toast.LENGTH_SHORT).show();
+                    MyToast.showToast("账号未登录");
         }
     }
 }

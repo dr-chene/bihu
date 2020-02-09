@@ -70,7 +70,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         itemHolder.questionItemAnswerCount.setText(question.getAnswerCount() + "");
         itemHolder.questionItemNaiveCount.setText(question.getNaive() + "");
         //加载question作者头像
-        if (question.getAuthorAvatar().length() >= 10) {
+        if (question.getAuthorAvatar().length() >= 5) {
             Glide.with(context)
                     .load(question.getAuthorAvatar())
                     .error(R.drawable.error_avatar)
@@ -78,7 +78,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .into(itemHolder.questionItemUserImg);
         }
         //加载question图片
-        if (question.getImages().length() >= 10) {
+        if (question.getImages().length() >= 5) {
             Glide.with(context)
                     .load(question.getImages())
                     .error(R.drawable.error)
@@ -88,6 +88,24 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         } else {
             itemHolder.questionItemContentImg.setVisibility(View.GONE);
         }
+        //加载是否点赞
+        if (questionList.get(position).getIsExciting()) {
+            itemHolder.questionItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+        } else {
+            itemHolder.questionItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+        }
+        //加载是否点踩
+        if (questionList.get(position).getIsNaive()) {
+            itemHolder.questionItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
+        } else {
+            itemHolder.questionItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
+        }
+        //加载是否收藏
+        if (questionList.get(position).getFavorite()) {
+            itemHolder.questionItemFavoriteImg.setImageResource(R.drawable.star_fill);
+        } else {
+            itemHolder.questionItemFavoriteImg.setImageResource(R.drawable.star);
+        }
         final int id = question.getId();
         //设置item点击事件（进入详情页面）
         itemHolder.questionItem.setOnClickListener(new View.OnClickListener() {
@@ -95,7 +113,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public void onClick(View v) {
                 Intent intent = new Intent(context, QuestionContentActivity.class);
                 intent.putExtra("question_id", id);
-                context.startActivity(intent);
+                intent.putExtra("position", position);
+                Log.d("test", "Adapter " + position);
+                ((MainActivity) context).startActivityForResult(intent, 1);
             }
         });
     }
@@ -139,6 +159,10 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    public Question getQuestion(int position) {
+        return questionList.get(position);
+    }
+
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView questionItemUserImg;
@@ -151,6 +175,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView questionItemAnswerCount;
         private TextView questionItemNaiveCount;
         private LinearLayout questionItem;
+        private ImageView questionItemExcitingImg;
+        private ImageView questionItemNaiveImg;
+        private ImageView questionItemFavoriteImg;
 
         public MyInnerViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -164,7 +191,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             questionItemNaiveCount = itemView.findViewById(R.id.question_item_naive_count);
             questionItem = itemView.findViewById(R.id.question_item);
             questionItemUserImg = itemView.findViewById(R.id.question_item_user_img);
+            questionItemExcitingImg = itemView.findViewById(R.id.question_item_exciting_img);
+            questionItemNaiveImg = itemView.findViewById(R.id.question_item_naive_img);
+            questionItemFavoriteImg = itemView.findViewById(R.id.question_item_favorite_img);
         }
     }
-
 }

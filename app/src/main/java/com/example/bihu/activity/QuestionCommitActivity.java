@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
+import com.example.bihu.utils.MyToast;
 import com.example.bihu.utils.QiNiu;
 import com.example.bihu.utils.QiNiuCallbackListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -36,7 +36,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.widget.Toast.LENGTH_SHORT;
 import static com.example.bihu.utils.Methods.getFileByUri;
 
 public class QuestionCommitActivity extends AppCompatActivity {
@@ -64,7 +63,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
                     enterQuestionImg.setImageResource(R.drawable.jia_question);
                     imgChanged = false;
                     isCommitting = false;
-                    Toast.makeText(QuestionCommitActivity.this, "发布成功", Toast.LENGTH_SHORT).show();
+                    MyToast.showToast("发布成功");
                     break;
                 default:
             }
@@ -120,9 +119,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
                 editEnd = titleEd.getSelectionEnd();
                 titleCount.setText(20 - temp.length() + "");
                 if (temp.length() > 20) {
-                    Toast.makeText(QuestionCommitActivity.this,
-                            "你输入的字数已经超过了限制！", Toast.LENGTH_SHORT)
-                            .show();
+                    MyToast.showToast("你输入的字数已经超过了限制！");
                     s.delete(editStart - 1, editEnd);
                     int tempSelection = editStart;
                     titleEd.setText(s);
@@ -152,9 +149,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
                 editEnd = contentEd.getSelectionEnd();
                 contentCount.setText(200 - temp.length() + "");
                 if (temp.length() > 200) {
-                    Toast.makeText(QuestionCommitActivity.this,
-                            "你输入的字数已经超过了限制！", Toast.LENGTH_SHORT)
-                            .show();
+                    MyToast.showToast("你输入的字数已经超过了限制！");
                     s.delete(editStart - 1, editEnd);
                     int tempSelection = editStart;
                     contentEd.setText(s);
@@ -180,7 +175,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
                         postQuestion();
                     }
                 } else {
-                    Toast.makeText(QuestionCommitActivity.this, "正在发布问题", LENGTH_SHORT).show();
+                    MyToast.showToast("正在发布问题");
                 }
             }
         });
@@ -216,7 +211,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
                         JSONObject jsonObject = new JSONObject(response);
                         if (jsonObject.getInt("status") != 200) {
                             Looper.prepare();
-                            Toast.makeText(QuestionCommitActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                            MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                             isCommitting = false;
                             Looper.loop();
                         } else {
@@ -233,12 +228,15 @@ public class QuestionCommitActivity extends AppCompatActivity {
                 public void onError(Exception e) {
 
                 }
+
+                @Override
+                public void onNetworkError() {
+
+                }
             });
-        }else {
-            Looper.prepare();
-            Toast.makeText(QuestionCommitActivity.this,"请补全问题描述", LENGTH_SHORT).show();
+        } else {
+            MyToast.showToast("请补全问题描述");
             isCommitting = false;
-            Looper.loop();
         }
     }
 
@@ -265,7 +263,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openAlum();
                 } else {
-                    Toast.makeText(this, "获取权限失败", LENGTH_SHORT).show();
+                    MyToast.showToast("获取权限失败");
                 }
                 break;
         }

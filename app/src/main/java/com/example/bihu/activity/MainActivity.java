@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -31,7 +31,9 @@ import com.example.bihu.adapter.QuestionAdapter;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
+import com.example.bihu.utils.MyToast;
 import com.example.bihu.utils.Person;
+import com.example.bihu.utils.Question;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
@@ -50,9 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int TYPE_ANSWER = 2;
     public static final int TYPE_LOAD_MORE = 3;
     public static final int TYPE_REFRESH = 4;
-
     public static final int TYPE_FAVORITE = 6;
-
     public static final int TYPE_TAKE_PHOTO = 8;
     public static final int TYPE_CHOOSE_PHOTO = 9;
     public static final int count = 20;
@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     public static Person person;
     public static int totalQuestionPage = 0;
     public static int questionPage = 0;
+    public int totalCount = 0;
+    private Thread thread;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private QuestionAdapter questionAdapter;
@@ -125,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, SettingActivity.class);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(MainActivity.this, "请先登录或注册", Toast.LENGTH_SHORT).show();
+                    MyToast.showToast("请先登录或注册");
                 }
                 break;
             case android.R.id.home:
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
-//读取用户数据
+        //读取用户数据
         loadPerson();
 
         questionAdapter = new QuestionAdapter(MainActivity.this, MainActivity.TYPE_QUESTION);
@@ -208,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, QuestionCommitActivity.class);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(MainActivity.this, "请先登录或注册", Toast.LENGTH_LONG).show();
+                    MyToast.showToast("请先登录或注册");
                 }
             }
         });
@@ -220,14 +222,14 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 mLayoutManager.scrollToPositionWithOffset(0, 0);
                 swipeRefreshLayout.setRefreshing(true);
-                refresh();
+                refreshSome();
             }
         });
         //下拉刷新
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refresh();
+                refreshSome();
             }
         });
         //上拉加载
@@ -259,12 +261,13 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 刷新
      */
-    private void refresh() {
+    private void refreshSome() {
         if (totalQuestionPage == 0 || questionPage < totalQuestionPage - 1) {
             Map<String, String> query = new HashMap<>();
-            query.put("page", "" + questionPage);
-            query.put("count", "" + count);
+            query.put("page", questionPage + "");
+            query.put("count", count + "");
             query.put("token", MainActivity.person.getToken());
+            final int questionCount = MySQLiteOpenHelper.getQuestionCount();
             Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
                 @Override
                 public void onFinish(String response) {
@@ -273,36 +276,45 @@ public class MainActivity extends AppCompatActivity {
                         switch (jsonObject.getInt("status")) {
                             case 401:
                                 Looper.prepare();
-                                Toast.makeText(MainActivity.this, jsonObject.getInt("status") + " : " + "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
+                                MyToast.showToast(jsonObject.getInt("status") + " : " + "登录失效，请重新登录");
+                                swipeRefreshLayout.setRefreshing(false);
                                 Looper.loop();
                                 break;
                             case 400:
                             case 500:
                                 Looper.prepare();
-                                Toast.makeText(MainActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
+                                swipeRefreshLayout.setRefreshing(false);
                                 Looper.loop();
                                 break;
                             case 200:
-                                Log.d("first", "Http");
                                 JSONObject object = jsonObject.getJSONObject("data");
-                                MainActivity.totalQuestionPage = object.getInt("totalPage");
-                                JSONArray jsonArray = object.getJSONArray("questions");
-                                JSONObject questionData;
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    questionData = jsonArray.getJSONObject(i);
-                                    MySQLiteOpenHelper.addQuestion(questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
-                                            , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
-                                            questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
-                                            questionData.getBoolean("is_favorite") == true ? 1 : 0);
+                                totalCount = object.getInt("totalCount");
+                                if (questionCount != totalCount) {
+                                    totalQuestionPage = object.getInt("totalPage");
+                                    JSONArray jsonArray = object.getJSONArray("questions");
+                                    JSONObject questionData;
+                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                        questionData = jsonArray.getJSONObject(i);
+                                        MySQLiteOpenHelper.addQuestion(questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
+                                                , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
+                                                questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
+                                                questionData.getBoolean("is_favorite") == true ? 1 : 0);
+                                    }
+                                    questionPage = getQuestionPage();
+                                    if (questionPage < totalQuestionPage - 1) {
+                                        questionPage++;
+                                    }
+                                    questionAdapter.refresh(MainActivity.TYPE_QUESTION);
+                                    Message msg = new Message();
+                                    msg.what = TYPE_REFRESH;
+                                    handler.sendMessage(msg);
+                                } else {
+                                    Looper.prepare();
+                                    MyToast.showToast("暂无最新问题");
+                                    swipeRefreshLayout.setRefreshing(false);
+                                    Looper.loop();
                                 }
-                                questionPage = getQuestionPage();
-                                if (questionPage < totalQuestionPage - 1) {
-                                    questionPage++;
-                                }
-                                questionAdapter.refresh(MainActivity.TYPE_QUESTION);
-                                Message msg = new Message();
-                                msg.what = TYPE_REFRESH;
-                                handler.sendMessage(msg);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -313,11 +325,62 @@ public class MainActivity extends AppCompatActivity {
                 public void onError(Exception e) {
 
                 }
+
+                @Override
+                public void onNetworkError() {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             });
-        } else {
-            Toast.makeText(MainActivity.this, "暂无最新问题", Toast.LENGTH_SHORT).show();
-            swipeRefreshLayout.setRefreshing(false);
+            refreshAll();
         }
+    }
+
+    private void refreshAll() {
+        if (thread != null) {
+            thread.interrupt();
+        }
+        thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> query = new HashMap<>();
+                query.put("page", "0");
+                query.put("count", MySQLiteOpenHelper.getQuestionCount() + "");
+                query.put("token", MainActivity.person.getToken());
+                Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
+                    @Override
+                    public void onFinish(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            if (jsonObject.getInt("status") == 200) {
+                                JSONObject object = jsonObject.getJSONObject("data");
+                                JSONArray jsonArray = object.getJSONArray("questions");
+                                JSONObject questionData;
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    questionData = jsonArray.getJSONObject(i);
+                                    MySQLiteOpenHelper.addQuestion(questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
+                                            , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
+                                            questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
+                                            questionData.getBoolean("is_favorite") == true ? 1 : 0);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+
+                    @Override
+                    public void onNetworkError() {
+
+                    }
+                });
+            }
+        });
+        thread.start();
     }
 
     /**
@@ -339,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
             swipeRefreshLayout.setVisibility(View.VISIBLE);
             fabUp.setVisibility(View.VISIBLE);
             //加载头像
-            if (MainActivity.person.getAvatar().length() >= 10) {
+            if (MainActivity.person.getAvatar().length() >= 5) {
                 Glide.with(this)
                         .load(MainActivity.person.getAvatar())
                         .error(R.drawable.error_avatar)
@@ -350,4 +413,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    int position = data.getIntExtra("position", -1);
+                    if (position != -1) {
+                        Question question = questionAdapter.getQuestion(position);
+                        question.setExciting(data.getBooleanExtra("isExciting", false));
+                        question.setNaive(data.getBooleanExtra("isNaive", false));
+                        question.setFavorite(data.getBooleanExtra("isFavorite", false));
+                        question.setAnswerCount(data.getIntExtra("answerCount", 0));
+                        question.setExciting(data.getIntExtra("excitingCount", 0));
+                        question.setNaive(data.getIntExtra("naiveCount", 0));
+                        questionAdapter.notifyItemChanged(position,-1);
+                    }
+                }
+                break;
+            default:
+        }
+    }
 }

@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,6 +14,7 @@ import com.example.bihu.R;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
+import com.example.bihu.utils.MyToast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,7 +82,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                     case 500:
                                     case 400:
                                         Looper.prepare();
-                                        Toast.makeText(RegisterActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                                        MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                         break;
                                     case 200:
@@ -92,7 +92,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                         MainActivity.person.setToken(object.getString("token"));
                                         MainActivity.person.setAvatar(object.getString("avatar"));
                                         MySQLiteOpenHelper.addPerson(object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
-                                        Toast.makeText(RegisterActivity.this, "登录成功，即将跳转", Toast.LENGTH_SHORT).show();
+                                        MyToast.showToast("登录成功，即将跳转");
                                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                                         startActivity(intent);
                                 }
@@ -105,8 +105,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         public void onError(Exception e) {
 
                         }
+
+                        @Override
+                        public void onNetworkError() {
+
+                        }
                     });
-                } else Toast.makeText(RegisterActivity.this, "密码不一致，请重新输入", Toast.LENGTH_SHORT);
+                } else MyToast.showToast("密码不一致，请重新输入");
         }
     }
 

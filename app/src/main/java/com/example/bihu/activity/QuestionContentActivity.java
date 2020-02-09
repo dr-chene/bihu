@@ -9,15 +9,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,6 +36,7 @@ import com.example.bihu.adapter.AnswerAdapter;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
+import com.example.bihu.utils.MyToast;
 import com.example.bihu.utils.QiNiu;
 import com.example.bihu.utils.QiNiuCallbackListener;
 import com.example.bihu.utils.WrapContentLinearLayoutManager;
@@ -48,7 +48,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import static android.widget.Toast.LENGTH_SHORT;
 import static com.example.bihu.utils.Methods.getFileByUri;
 
 public class QuestionContentActivity extends AppCompatActivity {
@@ -61,7 +60,6 @@ public class QuestionContentActivity extends AppCompatActivity {
     private Button enterAnswerBtn;
     private int qid = -1;
     private int page = 0;
-    private int count = 10;
     private int totalCount = -1;
     private ImageView enterPic;
     private PopupWindow popupWindow;
@@ -69,6 +67,7 @@ public class QuestionContentActivity extends AppCompatActivity {
     private Boolean isAnswering = false;
     private Toolbar toolbar;
     private Uri uri;
+    private int position;
     //处理刷新和发布回答成功的事件
     private Handler handler = new Handler() {
         @Override
@@ -87,7 +86,7 @@ public class QuestionContentActivity extends AppCompatActivity {
                     }
                     images = "";
                     isAnswering = false;
-                    Toast.makeText(QuestionContentActivity.this, "回答成功", Toast.LENGTH_SHORT).show();
+                    MyToast.showToast("回答成功");
                     break;
             }
         }
@@ -111,8 +110,16 @@ public class QuestionContentActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent = new Intent(QuestionContentActivity.this, MainActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent();
+                intent.putExtra("isExciting", answerAdapter.question.getIsExciting());
+                intent.putExtra("isNaive", answerAdapter.question.getIsNaive());
+                intent.putExtra("isFavorite", answerAdapter.question.getFavorite());
+                intent.putExtra("answerCount", answerAdapter.getItemCount() - 1);
+                intent.putExtra("position", position);
+                intent.putExtra("excitingCount", answerAdapter.question.getExciting());
+                intent.putExtra("naiveCount", answerAdapter.question.getNaive());
+                setResult(RESULT_OK, intent);
+                finish();
                 break;
         }
         return true;
@@ -136,11 +143,12 @@ public class QuestionContentActivity extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.real_question_refresh);
         Intent intent = getIntent();
         qid = intent.getIntExtra("question_id", 0);
+        position = intent.getIntExtra("position", -1);
 
         realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
         answerAdapter = new AnswerAdapter(QuestionContentActivity.this, qid);
         realQuestionRecyclerView.setAdapter(answerAdapter);
-        LinearLayoutManager linearLayoutManager=new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager linearLayoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         realQuestionRecyclerView.setLayoutManager(linearLayoutManager);
         realQuestionRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
@@ -159,7 +167,7 @@ public class QuestionContentActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openAlum();
                 } else {
-                    Toast.makeText(this, "获取权限失败", LENGTH_SHORT).show();
+                    MyToast.showToast("获取权限失败");
                 }
                 break;
         }
@@ -182,7 +190,7 @@ public class QuestionContentActivity extends AppCompatActivity {
                             public void onSuccess(String image) {
                                 if (image == "") {
                                     isAnswering = false;
-                                    Toast.makeText(QuestionContentActivity.this, "图片上传失败", Toast.LENGTH_SHORT).show();
+                                    MyToast.showToast("图片上传失败");
                                 } else {
                                     images = image;
                                     Log.d("test", 1 + images);
@@ -191,11 +199,10 @@ public class QuestionContentActivity extends AppCompatActivity {
                             }
                         });
                     } else {
-                        Log.d("test", 2 + images);
                         postAnswer();
                     }
                 } else {
-                    Toast.makeText(QuestionContentActivity.this, "正在发布回答", Toast.LENGTH_SHORT).show();
+                    MyToast.showToast("正在发布回答");
                 }
             }
         });
@@ -203,7 +210,7 @@ public class QuestionContentActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-               refreshAnswer();
+                refreshAnswer();
             }
         });
         //回答图片（仅一张）
@@ -254,15 +261,6 @@ public class QuestionContentActivity extends AppCompatActivity {
     }
 
     /**
-     * 请求exciting，naive事件
-     */
-    @Override
-    protected void onDestroy() {
-        answerAdapter.post();
-        super.onDestroy();
-    }
-
-    /**
      * 请求发布回答
      */
     private void postAnswer() {
@@ -280,7 +278,7 @@ public class QuestionContentActivity extends AppCompatActivity {
                         JSONObject jsonObject = new JSONObject(response);
                         if (jsonObject.getInt("status") != 200) {
                             Looper.prepare();
-                            Toast.makeText(QuestionContentActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                            MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                             isAnswering = false;
                             Looper.loop();
                         } else {
@@ -297,18 +295,52 @@ public class QuestionContentActivity extends AppCompatActivity {
                 public void onError(Exception e) {
 
                 }
+
+                @Override
+                public void onNetworkError() {
+
+                }
             });
         } else {
             isAnswering = false;
         }
     }
-    private void refreshAnswer(){
-        if (totalCount!=-1){
-            count = totalCount;
+
+    private void refreshAnswer() {
+        if (totalCount == -1) {
+            Map<String, String> query = new HashMap<>();
+            query.put("page", page + "");
+            query.put("count", 10 + "");
+            query.put("qid", qid + "");
+            query.put("token", MainActivity.person.getToken());
+            Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
+                @Override
+                public void onFinish(String response) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        if (jsonObject.getInt("status") == 200) {
+                            JSONObject object = jsonObject.getJSONObject("data");
+                            totalCount = object.getInt("totalCount");
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+
+                @Override
+                public void onNetworkError() {
+
+                }
+            });
         }
         Map<String, String> query = new HashMap<>();
         query.put("page", page + "");
-        query.put("count", count + "");
+        query.put("count", totalCount + "");
         query.put("qid", qid + "");
         query.put("token", MainActivity.person.getToken());
         Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
@@ -319,13 +351,15 @@ public class QuestionContentActivity extends AppCompatActivity {
                     switch (jsonObject.getInt("status")) {
                         case 401:
                             Looper.prepare();
-                            Toast.makeText(QuestionContentActivity.this, jsonObject.getInt("status") + " : " + "登录失效，请重新登录", Toast.LENGTH_SHORT).show();
+                            MyToast.showToast(jsonObject.getInt("status") + " : " + "登录失效，请重新登录");
+                            swipeRefreshLayout.setRefreshing(false);
                             Looper.loop();
                             break;
                         case 400:
                         case 500:
                             Looper.prepare();
-                            Toast.makeText(QuestionContentActivity.this, jsonObject.getInt("status") + " : " + jsonObject.getString("info"), Toast.LENGTH_SHORT).show();
+                            MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
+                            swipeRefreshLayout.setRefreshing(false);
                             Looper.loop();
                             break;
                         case 200:
@@ -353,6 +387,25 @@ public class QuestionContentActivity extends AppCompatActivity {
             public void onError(Exception e) {
 
             }
+
+            @Override
+            public void onNetworkError() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
         });
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Intent intent = new Intent();
+        intent.putExtra("isExciting", answerAdapter.question.getIsExciting());
+        intent.putExtra("isNaive", answerAdapter.question.getIsNaive());
+        intent.putExtra("isFavorite", answerAdapter.question.getFavorite());
+        intent.putExtra("answerCount", answerAdapter.getItemCount() - 1);
+        intent.putExtra("position", position);
+        intent.putExtra("excitingCount", answerAdapter.question.getExciting());
+        intent.putExtra("naiveCount", answerAdapter.question.getNaive());
+        setResult(RESULT_OK, intent);
+        return super.onKeyDown(keyCode, event);
     }
 }
