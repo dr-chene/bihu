@@ -10,7 +10,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.Explode;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -74,6 +76,8 @@ public class QuestionCommitActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        getWindow().setEnterTransition(new Explode());
         setContentView(R.layout.activity_enter_question);
         initView();
     }
@@ -93,8 +97,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
         enterQuestionBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(QuestionCommitActivity.this, MainActivity.class);
-                startActivity(intent);
+               onBackPressed();
             }
         });
         //实时监听title框字数
@@ -203,7 +206,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
             query.put("title", title);
             query.put("content", content);
             query.put("images", images);
-            query.put("token", MainActivity.person.getToken());
+            query.put("token", SplashActivity.person.getToken());
             Http.sendHttpRequest(Http.URL_QUESTION, query, new HttpCallbackListener() {
                 @Override
                 public void onFinish(String response) {

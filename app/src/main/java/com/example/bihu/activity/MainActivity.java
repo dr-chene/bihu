@@ -1,13 +1,18 @@
 package com.example.bihu.activity;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +49,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.bihu.activity.SplashActivity.person;
 import static com.example.bihu.utils.Methods.getQuestionPage;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     public static final int TYPE_CHOOSE_PHOTO = 9;
     public static final int count = 20;
     public static int vision = 1;
-    public static Person person;
     public static int totalQuestionPage = 0;
     public static int questionPage = 0;
     public int totalCount = 0;
@@ -89,20 +94,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        getWindow().setEnterTransition(new Fade());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
         setOnClickListener();
-    }
-
-    /**
-     * 处理登录成功跳转之后的主界面加载事件
-     */
-    @Override
-    protected void onRestart() {
-        //读取用户数据
-        loadPerson();
-        super.onRestart();
     }
 
     @Override
@@ -123,12 +120,8 @@ public class MainActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.action_settings:
-                if (person.getId() != -1) {
                     Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-                    startActivity(intent);
-                } else {
-                    MyToast.showToast("请先登录或注册");
-                }
+                    startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
                 break;
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
@@ -141,8 +134,6 @@ public class MainActivity extends AppCompatActivity {
      * 加载视图，绑定数据
      */
     private void initView() {
-        person = new Person();
-        person.setId(-1);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         fabUp = findViewById(R.id.fab_up);
@@ -175,27 +166,21 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent3 = new Intent(MainActivity.this, MainActivity.class);
                         startActivity(intent3);
                         break;
-                    case R.id.nav_login:
-                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                        break;
-                    case R.id.nav_register:
-                        Intent intent1 = new Intent(MainActivity.this, RegisterActivity.class);
-                        startActivity(intent1);
-                        break;
                     case R.id.nav_favorite:
-                        if (person.getId() != -1) {
                             Intent intent2 = new Intent(MainActivity.this, FavoriteActivity.class);
                             startActivity(intent2);
-                        } else {
-                            Toast.makeText(MainActivity.this, "请先登录或注册", Toast.LENGTH_SHORT).show();
-                        }
                         break;
                 }
                 drawerLayout.closeDrawers();
                 return true;
             }
         });
+    }
+
+    @Override
+    protected void onRestart() {
+        navView.setCheckedItem(R.id.nav_home);
+        super.onRestart();
     }
 
     /**
@@ -206,12 +191,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (person.getId() != -1) {
                     Intent intent = new Intent(MainActivity.this, QuestionCommitActivity.class);
-                    startActivity(intent);
-                } else {
-                    MyToast.showToast("请先登录或注册");
-                }
+                    startActivity(intent,ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
             }
         });
         //滑到顶部并刷新
@@ -266,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
             Map<String, String> query = new HashMap<>();
             query.put("page", questionPage + "");
             query.put("count", count + "");
-            query.put("token", MainActivity.person.getToken());
+            query.put("token", SplashActivity.person.getToken());
             final int questionCount = MySQLiteOpenHelper.getQuestionCount();
             Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
                 @Override
@@ -345,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
                 Map<String, String> query = new HashMap<>();
                 query.put("page", "0");
                 query.put("count", MySQLiteOpenHelper.getQuestionCount() + "");
-                query.put("token", MainActivity.person.getToken());
+                query.put("token", SplashActivity.person.getToken());
                 Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
                     @Override
                     public void onFinish(String response) {
@@ -387,31 +368,22 @@ public class MainActivity extends AppCompatActivity {
      * 根据是否登录加载主页面
      */
     private void loadPerson() {
-        MySQLiteOpenHelper.readPerson(person);
         View headView = navView.getHeaderView(0);
         avatar = headView.findViewById(R.id.avatar);
         name = headView.findViewById(R.id.nav_header_main_username);
-        if (person.getId() == -1) {
-            swipeRefreshLayout.setVisibility(View.GONE);
-            noLogin.setVisibility(View.VISIBLE);
-            fabUp.setVisibility(View.GONE);
-            avatar.setImageResource(R.drawable.no_avatar);
-            name.setText("Android Studio");
-        } else {
             noLogin.setVisibility(View.GONE);
             swipeRefreshLayout.setVisibility(View.VISIBLE);
             fabUp.setVisibility(View.VISIBLE);
             //加载头像
-            if (MainActivity.person.getAvatar().length() >= 5) {
+            if (SplashActivity.person.getAvatar().length() >= 5) {
                 Glide.with(this)
-                        .load(MainActivity.person.getAvatar())
+                        .load(SplashActivity.person.getAvatar())
                         .error(R.drawable.error_avatar)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(avatar);
             }
-            name.setText(MainActivity.person.getUsername());
+            name.setText(SplashActivity.person.getUsername());
         }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

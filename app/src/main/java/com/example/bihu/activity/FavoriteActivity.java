@@ -40,8 +40,7 @@ public class FavoriteActivity extends AppCompatActivity {
         favoriteBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(FavoriteActivity.this, MainActivity.class);
-                startActivity(intent);
+               onBackPressed();
             }
         });
     }

@@ -1,5 +1,7 @@
 package com.example.bihu.adapter;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -11,6 +13,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -18,6 +24,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
 import com.example.bihu.activity.MainActivity;
 import com.example.bihu.activity.QuestionContentActivity;
+import com.example.bihu.activity.SplashActivity;
 import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.Question;
 
@@ -60,7 +67,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             case MainActivity.TYPE_FAVORITE:
                 question = favoriteList.get(position);
         }
-        MyInnerViewHolder itemHolder = (MyInnerViewHolder) holder;
+        final MyInnerViewHolder itemHolder = (MyInnerViewHolder) holder;
         //加载question数据
         itemHolder.questionItemAuthorName.setText(question.getAuthorName());
         itemHolder.questionItemRecent.setText(question.getRecent());
@@ -114,8 +121,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 Intent intent = new Intent(context, QuestionContentActivity.class);
                 intent.putExtra("question_id", id);
                 intent.putExtra("position", position);
-                Log.d("test", "Adapter " + position);
-                ((MainActivity) context).startActivityForResult(intent, 1);
+                ((MainActivity) context).startActivityForResult(intent, 1, ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
             }
         });
     }

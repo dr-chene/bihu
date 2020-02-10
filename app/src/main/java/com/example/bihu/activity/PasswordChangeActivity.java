@@ -62,17 +62,16 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
         switch (v.getId()) {
             //返回按钮
             case R.id.change_password_back:
-                Intent intent = new Intent(PasswordChangeActivity.this, SettingActivity.class);
-                startActivity(intent);
+                onBackPressed();
                 break;
             //请求修改密码
             case R.id.change_password_btn:
-                if (MainActivity.person != null) {
-                    if (MainActivity.person.getPassword() == changePasswordOld.getText().toString()) {
+                if (SplashActivity.person != null) {
+                    if (SplashActivity.person.getPassword() == changePasswordOld.getText().toString()) {
                         if (changePasswordNew.getText().toString().equals(changePasswordNewConfirm.getText().toString())) {
                             Map<String, String> query = new HashMap<>();
                             query.put("password", changePasswordNew.getText().toString());
-                            query.put("token", MainActivity.person.getToken());
+                            query.put("token", SplashActivity.person.getToken());
                             Http.sendHttpRequest(Http.URL_CHANGE_PASSWORD, query, new HttpCallbackListener() {
                                 @Override
                                 public void onFinish(String response) {
@@ -86,8 +85,8 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
                                         if (jsonObject.getString("info").equals("success")) {
                                             JSONObject object = jsonObject.getJSONObject("data");
                                             MySQLiteOpenHelper.changePassword(object.getString("password"), object.getString("token"));
-                                            MainActivity.person.setPassword(object.getString("password"));
-                                            MainActivity.person.setToken(object.getString("token"));
+                                            SplashActivity.person.setPassword(object.getString("password"));
+                                            SplashActivity.person.setToken(object.getString("token"));
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -104,7 +103,7 @@ public class PasswordChangeActivity extends AppCompatActivity implements View.On
 
                                 }
                             });
-                            MainActivity.person.setId(-1);
+                            SplashActivity.person.setId(-1);
                             MyToast.showToast("请重新登录");
                             Intent intent1 = new Intent(PasswordChangeActivity.this, MainActivity.class);
                             startActivity(intent1);

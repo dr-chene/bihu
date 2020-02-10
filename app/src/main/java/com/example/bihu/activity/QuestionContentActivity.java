@@ -8,11 +8,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,7 +32,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -95,6 +100,8 @@ public class QuestionContentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        getWindow().setEnterTransition(new Fade());
         setContentView(R.layout.activity_question_content);
         initView();
         setOnclickListener();
@@ -148,9 +155,8 @@ public class QuestionContentActivity extends AppCompatActivity {
         realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
         answerAdapter = new AnswerAdapter(QuestionContentActivity.this, qid);
         realQuestionRecyclerView.setAdapter(answerAdapter);
-        LinearLayoutManager linearLayoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        realQuestionRecyclerView.setLayoutManager(linearLayoutManager);
-        realQuestionRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        LinearLayoutManager layoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        realQuestionRecyclerView.setLayoutManager(layoutManager);
     }
 
     /**
@@ -270,7 +276,7 @@ public class QuestionContentActivity extends AppCompatActivity {
             queryAnswer.put("qid", qid + "");
             queryAnswer.put("content", content);
             queryAnswer.put("images", images);
-            queryAnswer.put("token", MainActivity.person.getToken());
+            queryAnswer.put("token", SplashActivity.person.getToken());
             Http.sendHttpRequest(Http.URL_ANSWER, queryAnswer, new HttpCallbackListener() {
                 @Override
                 public void onFinish(String response) {
@@ -312,7 +318,7 @@ public class QuestionContentActivity extends AppCompatActivity {
             query.put("page", page + "");
             query.put("count", 10 + "");
             query.put("qid", qid + "");
-            query.put("token", MainActivity.person.getToken());
+            query.put("token", SplashActivity.person.getToken());
             Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
                 @Override
                 public void onFinish(String response) {
@@ -342,7 +348,7 @@ public class QuestionContentActivity extends AppCompatActivity {
         query.put("page", page + "");
         query.put("count", totalCount + "");
         query.put("qid", qid + "");
-        query.put("token", MainActivity.person.getToken());
+        query.put("token", SplashActivity.person.getToken());
         Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
             @Override
             public void onFinish(String response) {

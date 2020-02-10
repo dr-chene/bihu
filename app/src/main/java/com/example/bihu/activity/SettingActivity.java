@@ -1,6 +1,7 @@
 package com.example.bihu.activity;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,9 +12,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.transition.Slide;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -67,6 +70,8 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        getWindow().setEnterTransition(new Slide(Gravity.TOP));
         setContentView(R.layout.activity_setting);
         initView();
         setOnClickListener();
@@ -96,16 +101,16 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         settingBack = findViewById(R.id.setting_back);
         settingAvatar = findViewById(R.id.setting_avatar);
         settingUsername = findViewById(R.id.setting_username);
-        if (MainActivity.person.getId() != -1) {
+        if (SplashActivity.person.getId() != -1) {
             //加载头像settingAvatar
-            if (MainActivity.person.getAvatar().length() >= 5) {
+            if (SplashActivity.person.getAvatar().length() >= 5) {
                 Glide.with(this)
-                        .load(MainActivity.person.getAvatar())
+                        .load(SplashActivity.person.getAvatar())
                         .error(R.drawable.error_avatar)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(settingAvatar);
             }
-            settingUsername.setText(MainActivity.person.getUsername());
+            settingUsername.setText(SplashActivity.person.getUsername());
 
         }
     }
@@ -148,16 +153,10 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             //退出登录
             case R.id.login_out:
                 dialog(v);
-                if (MainActivity.person.getId() == -1) {
-                    MyToast.showToast("正在返回主页");
-                    Intent intent1 = new Intent(SettingActivity.this, MainActivity.class);
-                    startActivity(intent1);
-                }
                 break;
             //返回按钮
             case R.id.setting_back:
-                Intent intent1 = new Intent(SettingActivity.this, MainActivity.class);
-                startActivity(intent1);
+                onBackPressed();
                 break;
             //拍照
             case R.id.pop_camera:
@@ -190,9 +189,9 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MySQLiteOpenHelper.deletePerson();
-                MainActivity.person.setId(-1);
-                Intent intent = new Intent(SettingActivity.this, MainActivity.class);
-                startActivity(intent);
+                SplashActivity.person.setId(-1);
+                Intent intent = new Intent(SettingActivity.this, LoginActivity.class);
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(SettingActivity.this).toBundle());
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -304,7 +303,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
      */
     private void postSuccess(final String image) {
         Map<String, String> query = new HashMap<>();
-        query.put("token", MainActivity.person.getToken());
+        query.put("token", SplashActivity.person.getToken());
         query.put("avatar", image);
         Http.sendHttpRequest(Http.URL_MODIFY_AVATAR, query, new HttpCallbackListener() {
             @Override
