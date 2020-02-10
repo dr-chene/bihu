@@ -121,7 +121,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 Intent intent = new Intent(context, QuestionContentActivity.class);
                 intent.putExtra("question_id", id);
                 intent.putExtra("position", position);
-                ((MainActivity) context).startActivityForResult(intent, 1, ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
+                ((MainActivity) context).startActivityForResult(intent, 1);
             }
         });
     }

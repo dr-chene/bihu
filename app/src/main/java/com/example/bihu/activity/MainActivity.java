@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                     Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-                    startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+                    startActivity(intent);
                 break;
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
