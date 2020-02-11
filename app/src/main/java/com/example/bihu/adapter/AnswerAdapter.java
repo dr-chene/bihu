@@ -20,7 +20,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
 import com.example.bihu.activity.MainActivity;
 import com.example.bihu.activity.QuestionContentActivity;
-import com.example.bihu.activity.SplashActivity;
 import com.example.bihu.utils.Answer;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;

@@ -3,14 +3,11 @@ package com.example.bihu.activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
-import android.transition.Transition;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.MySQLiteOpenHelper;
@@ -49,7 +46,7 @@ public class SplashActivity extends BaseActivity {
                     startActivity(intent, options.toBundle());
                     finish();
                 } else {
-                    startActivity(new Intent(SplashActivity.this, MainActivity.class),ActivityOptions.makeSceneTransitionAnimation(SplashActivity.this).toBundle());
+                    startActivity(new Intent(SplashActivity.this, MainActivity.class), ActivityOptions.makeSceneTransitionAnimation(SplashActivity.this).toBundle());
                     finish();
                 }
             }

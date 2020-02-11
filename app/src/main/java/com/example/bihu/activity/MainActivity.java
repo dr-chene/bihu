@@ -7,8 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.transition.Fade;
-import android.transition.Slide;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +20,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
@@ -48,22 +46,24 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.example.bihu.utils.Methods.getQuestionPage;
 
 public class MainActivity extends BaseActivity {
-    public static Person person;
     public static final int TYPE_QUESTION = 1;
     public static final int TYPE_ANSWER = 2;
     public static final int TYPE_LOAD_MORE = 3;
     public static final int TYPE_REFRESH = 4;
-    public static final int TYPE_MINE= 5;
+    public static final int TYPE_MINE = 5;
     public static final int TYPE_FAVORITE = 6;
     public static final int TYPE_TAKE_PHOTO = 8;
     public static final int TYPE_CHOOSE_PHOTO = 9;
     public static final int count = 20;
+    public static Person person;
     public static int vision = 1;
     public static int totalQuestionPage = 0;
     public static int questionPage = 0;
@@ -82,6 +82,8 @@ public class MainActivity extends BaseActivity {
     private FloatingActionButton fabUp;
     private NavigationView navView;
     private Toast toast;
+    private Boolean isRefresh = false;
+    private List<Question> questions;
     //处理刷新事件结果
     private Handler handler = new Handler() {
         @Override
@@ -123,8 +125,8 @@ public class MainActivity extends BaseActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.action_settings:
-                    Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-                    startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                startActivity(intent);
                 break;
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
@@ -155,9 +157,22 @@ public class MainActivity extends BaseActivity {
         //读取用户数据
         loadPerson();
 
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(true);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadMoreData();
+                    }
+                },1000);
+            }
+        });
         questionAdapter = new QuestionAdapter(MainActivity.this, MainActivity.TYPE_QUESTION);
+        questions =questionAdapter.getQuestionList();
         recyclerView.setAdapter(questionAdapter);
-        linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(linearLayoutManager);
         navView.setCheckedItem(R.id.nav_home);
         //设置nav点击事件
@@ -170,8 +185,8 @@ public class MainActivity extends BaseActivity {
                         startActivity(intent3);
                         break;
                     case R.id.nav_favorite:
-                            Intent intent2 = new Intent(MainActivity.this, FavoriteActivity.class);
-                            startActivity(intent2);
+                        Intent intent2 = new Intent(MainActivity.this, FavoriteActivity.class);
+                        startActivity(intent2);
                         break;
                     case R.id.nav_mine:
                         Intent intent = new Intent(MainActivity.this, MineActivity.class);
@@ -198,8 +213,8 @@ public class MainActivity extends BaseActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    Intent intent = new Intent(MainActivity.this, QuestionCommitActivity.class);
-                    startActivity(intent,ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+                Intent intent = new Intent(MainActivity.this, QuestionCommitActivity.class);
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
             }
         });
         //滑到顶部并刷新
@@ -210,7 +225,6 @@ public class MainActivity extends BaseActivity {
                 LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 mLayoutManager.scrollToPositionWithOffset(0, 0);
                 swipeRefreshLayout.setRefreshing(true);
-                refreshSome();
             }
         });
         //下拉刷新
@@ -224,24 +238,30 @@ public class MainActivity extends BaseActivity {
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
 
             //判断是不是往上拖动
-            public boolean isLastRefresh;
+            public boolean isLoading;
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE && isLastRefresh) {
-                    if (recyclerView.computeVerticalScrollExtent() + recyclerView.computeVerticalScrollOffset() >= recyclerView.computeVerticalScrollRange()) {
-                        questionAdapter.loadMoreData();
-                        questionAdapter.notifyDataSetChanged();
-                    }
-                }
             }
 
             //根据dy，dx可以判断是往哪个方向滑动
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                isLastRefresh = dy > 0;
+                    int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
+                    if (lastVisibleItemPosition + 1 == questionAdapter.getItemCount()) {
+                        if (!isLoading) {
+                            isLoading = true;
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    loadMoreData();
+                                    isLoading = false;
+                                }
+                            }, 1000);
+                        }
+                    }
             }
         });
     }
@@ -378,19 +398,19 @@ public class MainActivity extends BaseActivity {
         View headView = navView.getHeaderView(0);
         avatar = headView.findViewById(R.id.avatar);
         name = headView.findViewById(R.id.nav_header_main_username);
-            noLogin.setVisibility(View.GONE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
-            fabUp.setVisibility(View.VISIBLE);
-            //加载头像
-            if (MainActivity.person.getAvatar().length() >= 5) {
-                Glide.with(this)
-                        .load(MainActivity.person.getAvatar())
-                        .error(R.drawable.error_avatar)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(avatar);
-            }
-            name.setText(MainActivity.person.getUsername());
+        noLogin.setVisibility(View.GONE);
+        swipeRefreshLayout.setVisibility(View.VISIBLE);
+        fabUp.setVisibility(View.VISIBLE);
+        //加载头像
+        if (MainActivity.person.getAvatar().length() >= 5) {
+            Glide.with(this)
+                    .load(MainActivity.person.getAvatar())
+                    .error(R.drawable.error_avatar)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(avatar);
         }
+        name.setText(MainActivity.person.getUsername());
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -400,14 +420,14 @@ public class MainActivity extends BaseActivity {
                 if (resultCode == RESULT_OK) {
                     int position = data.getIntExtra("position", -1);
                     if (position != -1) {
-                        Question question = questionAdapter.getQuestion(position,TYPE_QUESTION);
+                        Question question = questionAdapter.getQuestion(position, TYPE_QUESTION);
                         question.setExciting(data.getBooleanExtra("isExciting", false));
                         question.setNaive(data.getBooleanExtra("isNaive", false));
                         question.setFavorite(data.getBooleanExtra("isFavorite", false));
                         question.setAnswerCount(data.getIntExtra("answerCount", 0));
                         question.setExciting(data.getIntExtra("excitingCount", 0));
                         question.setNaive(data.getIntExtra("naiveCount", 0));
-                        questionAdapter.notifyItemChanged(position,-1);
+                        questionAdapter.notifyItemChanged(position, -1);
                     }
                 }
                 break;
@@ -417,13 +437,20 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (toast==null){
-            toast = Toast.makeText(MainActivity.this,"再按一次退出",Toast.LENGTH_SHORT);
+        if (toast == null) {
+            toast = Toast.makeText(MainActivity.this, "再按一次退出", Toast.LENGTH_SHORT);
             toast.show();
-        }else {
+        } else {
             ActivityCollector.finishAll();
             return super.onKeyDown(keyCode, event);
         }
-       return false;
+        return false;
     }
+    public void loadMoreData() {
+        questionAdapter.curSize += 20;
+
+        MySQLiteOpenHelper.readQuestion(questions, questionAdapter.curSize, MainActivity.TYPE_LOAD_MORE);
+        swipeRefreshLayout.setRefreshing(false);
+        questionAdapter.notifyItemInserted(questionAdapter.getItemCount());
+        }
 }

@@ -8,8 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;

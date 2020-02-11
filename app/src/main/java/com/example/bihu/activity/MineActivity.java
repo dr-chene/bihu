@@ -1,5 +1,6 @@
 package com.example.bihu.activity;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -14,30 +15,22 @@ import com.example.bihu.R;
 import com.example.bihu.adapter.QuestionAdapter;
 import com.example.bihu.utils.Question;
 
-public class FavoriteActivity extends BaseActivity {
-
+public class MineActivity extends BaseActivity {
     private RecyclerView recyclerView;
-    private QuestionAdapter favoriteAdapter;
-    private LinearLayout favoriteBack;
+    private QuestionAdapter mineAdapter;
+    private LinearLayout mineBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorite);
-        initView();
-    }
-
-    /*
-    加载视图，绑定数据，设置点击事件
-     */
-    private void initView() {
-        favoriteBack = findViewById(R.id.favorite_back);
-        recyclerView = findViewById(R.id.favorite_rv);
-        favoriteAdapter = new QuestionAdapter(FavoriteActivity.this, MainActivity.TYPE_FAVORITE);
+        setContentView(R.layout.activity_mine);
+        mineBack = findViewById(R.id.mine_back);
+        recyclerView = findViewById(R.id.mine_rv);
+        mineAdapter = new QuestionAdapter(MineActivity.this, MainActivity.TYPE_MINE);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(favoriteAdapter);
+        recyclerView.setAdapter(mineAdapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        favoriteBack.setOnClickListener(new View.OnClickListener() {
+        mineBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
@@ -53,20 +46,19 @@ public class FavoriteActivity extends BaseActivity {
                 if (resultCode == RESULT_OK) {
                     int position = data.getIntExtra("position", -1);
                     if (position != -1) {
-                        Question question = favoriteAdapter.getQuestion(position, MainActivity.TYPE_FAVORITE);
+                        Question question = mineAdapter.getQuestion(position, MainActivity.TYPE_MINE);
                         question.setExciting(data.getBooleanExtra("isExciting", false));
                         question.setNaive(data.getBooleanExtra("isNaive", false));
                         question.setFavorite(data.getBooleanExtra("isFavorite", false));
                         question.setAnswerCount(data.getIntExtra("answerCount", 0));
                         question.setExciting(data.getIntExtra("excitingCount", 0));
                         question.setNaive(data.getIntExtra("naiveCount", 0));
-                        favoriteAdapter.notifyItemChanged(position, -1);
+                        mineAdapter.notifyItemChanged(position, -1);
                     }
                 }
                 break;
             default:
         }
     }
-
 
 }

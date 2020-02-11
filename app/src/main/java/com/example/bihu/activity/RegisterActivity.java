@@ -8,8 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
@@ -63,7 +61,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         switch (v.getId()) {
             //返回按钮
             case R.id.register_back:
-               onBackPressed();
+                onBackPressed();
                 break;
             //注册按钮
             case R.id.login_btn:

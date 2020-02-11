@@ -447,13 +447,11 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
             question(questionList, size, cursor);
         }
         if (type == MainActivity.TYPE_REFRESH) {
-            Log.d("first", "type == MainActivity.TYPE_REFRESH");
             List<Question> questions = new ArrayList<>();
             question(questions, preQuestionLiseSize, cursor);
             question(questionList, MainActivity.count, cursor);
             questionList.addAll(questions);
         }
-        Log.d("first", "  success ");
         sqLiteDatabase.close();
         cursor.close();
     }
