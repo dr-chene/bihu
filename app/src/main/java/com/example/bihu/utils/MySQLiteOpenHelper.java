@@ -79,8 +79,11 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
             ContentValues contentValues = new ContentValues();
             contentValues.put("avatar", avatar);
             sqLiteDatabase.update("person", contentValues, null, null);
-            sqLiteDatabase.close();
         }
+        ContentValues values = new ContentValues();
+        values.put("authorAvatar", avatar);
+        sqLiteDatabase.update("question", values, "authorName = ?", new String[]{MainActivity.person.getUsername()});
+        sqLiteDatabase.close();
     }
 
     /**
@@ -89,7 +92,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
      * @param sqLiteDatabase
      * @return
      */
-    public static Boolean searchPerson(SQLiteDatabase sqLiteDatabase) {
+    private static Boolean searchPerson(SQLiteDatabase sqLiteDatabase) {
         Cursor cursor = sqLiteDatabase.rawQuery("select * from person", null);
         while (cursor.moveToNext()) {
             cursor.close();
@@ -156,7 +159,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
      * @param sqLiteDatabase
      * @return
      */
-    public static Boolean searchAnswer(int aid, SQLiteDatabase sqLiteDatabase) {
+    private static Boolean searchAnswer(int aid, SQLiteDatabase sqLiteDatabase) {
         Cursor cursor = sqLiteDatabase.rawQuery("select * from answer where aid = ?", new String[]{aid + ""});
         while (cursor.moveToNext()) {
             cursor.close();
@@ -317,7 +320,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
      * @param sqLiteDatabase
      * @return
      */
-    public static Boolean searchQuestion(int qid, SQLiteDatabase sqLiteDatabase) {
+    private static Boolean searchQuestion(int qid, SQLiteDatabase sqLiteDatabase) {
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where qid = ?", new String[]{qid + ""});
         while (cursor.moveToNext()) {
             cursor.close();
@@ -519,6 +522,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.close();
         cursor.close();
     }
+
     public static void readMine(List<Question> mineList) {
         MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
@@ -546,6 +550,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.close();
         cursor.close();
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table person (_id integer primary key autoincrement,uid integer unique,username text,password text,avatar text,token text)");

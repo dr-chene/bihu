@@ -8,14 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Map;
 
 public class Http {
     public static final String OLD_BASE_URL = "http://bihu.blogofyb.com/";
-    public static final String NEW_BASE_URL = "http://bihu.jay86.com/";
+    private static final String NEW_BASE_URL = "http://bihu.jay86.com/";
     public static final String URL_LOGIN = NEW_BASE_URL + "login.php";
     public static final String URL_REGISTER = NEW_BASE_URL + "register.php";
     public static final String URL_MODIFY_AVATAR = NEW_BASE_URL + "modifyAvatar.php";
@@ -77,16 +75,8 @@ public class Http {
                             //回调onFinish()方法
                             listener.onFinish(response.toString());
                         }
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    } catch (ProtocolException e) {
-                        e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        if (listener != null) {
-                            //回调onError()方法
-                            listener.onError(e);
-                        }
                     } finally {
                         if (reader != null) {
                             try {

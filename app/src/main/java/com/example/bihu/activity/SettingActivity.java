@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.view.Gravity;
@@ -53,6 +54,7 @@ import static com.example.bihu.utils.Methods.getFileByUri;
 
 public class SettingActivity extends BaseActivity implements View.OnClickListener {
 
+    private PopupWindow isModifying;
     private ConstraintLayout settingAccount;
     private ConstraintLayout settingPerson;
     private ConstraintLayout settingModifyAvatar;
@@ -60,10 +62,10 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
     private TextView loginOut;
     private ImageView settingBack;
     private ImageView settingAvatar;
-    private TextView settingUsername;
     private PopupWindow popupWindow;
     private Uri imageUri;
     private File outputImage;
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +91,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
      * 加载视图
      */
     private void initView() {
+        TextView settingUsername;
         settingAccount = findViewById(R.id.setting_account);
         settingPerson = findViewById(R.id.setting_person);
         settingModifyAvatar = findViewById(R.id.setting_modify_avatar);
@@ -176,7 +179,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
      *
      * @param v
      */
-    public void dialog(View v) {
+    private void dialog(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("警示");
         builder.setMessage("是否确定退出登录");
@@ -228,7 +231,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
     /**
      * 选择图片
      */
-    public void photo() {
+    private void photo() {
         if (ContextCompat.checkSelfPermission(SettingActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(SettingActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         } else {
@@ -247,20 +250,19 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openAlum();
-                } else {
-                    MyToast.showToast("获取权限失败");
-                }
-                break;
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openAlum();
+            } else {
+                MyToast.showToast("获取权限失败");
+            }
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        isModifying();
         switch (requestCode) {
             case MainActivity.TYPE_TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
@@ -276,6 +278,9 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    MyToast.showToast("异常的错误");
+                    isModifying.dismiss();
                 }
                 break;
             case MainActivity.TYPE_CHOOSE_PHOTO:
@@ -290,6 +295,9 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                         }
                     });
                     break;
+                } else {
+                    MyToast.showToast("异常的错误");
+                    isModifying.dismiss();
                 }
         }
     }
@@ -310,10 +318,18 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                     JSONObject jsonObject = new JSONObject(response);
                     if (jsonObject.getInt("status") != 200) {
                         Looper.prepare();
+                        isModifying.dismiss();
                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                         Looper.loop();
                     } else {
                         MySQLiteOpenHelper.modifyAvatar(image);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                isModifying.dismiss();
+                                MyToast.showToast("头像更改成功");
+                            }
+                        });
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -321,14 +337,17 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
             }
 
             @Override
-            public void onError(Exception e) {
-
-            }
-
-            @Override
             public void onNetworkError() {
 
             }
         });
+    }
+
+    private void isModifying() {
+        View contentView = LayoutInflater.from(SettingActivity.this).inflate(R.layout.pop_modifying, null);
+        isModifying = new PopupWindow(contentView, ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT, true);
+        isModifying.setContentView(contentView);
+        View rootView = LayoutInflater.from(SettingActivity.this).inflate(R.layout.activity_setting, null);
+        isModifying.showAtLocation(rootView, Gravity.CENTER, 0, 0);
     }
 }

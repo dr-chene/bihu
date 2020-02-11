@@ -99,11 +99,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                         }
 
                         @Override
-                        public void onError(Exception e) {
-
-                        }
-
-                        @Override
                         public void onNetworkError() {
 
                         }

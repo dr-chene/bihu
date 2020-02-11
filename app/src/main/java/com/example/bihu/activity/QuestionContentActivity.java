@@ -51,19 +51,16 @@ import static com.example.bihu.utils.Methods.getFileByUri;
 public class QuestionContentActivity extends BaseActivity {
 
     private String images = "";
-    private RecyclerView realQuestionRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private AnswerAdapter answerAdapter;
     private EditText enterAnswerED;
     private Button enterAnswerBtn;
     private int qid = -1;
-    private int page = 0;
     private int totalCount = -1;
     private ImageView enterPic;
     private PopupWindow popupWindow;
     private ConstraintLayout hf;
     private Boolean isAnswering = false;
-    private Toolbar toolbar;
     private Uri uri;
     private int position;
     //处理刷新和发布回答成功的事件
@@ -106,19 +103,17 @@ public class QuestionContentActivity extends BaseActivity {
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                Intent intent = new Intent();
-                intent.putExtra("isExciting", answerAdapter.question.getIsExciting());
-                intent.putExtra("isNaive", answerAdapter.question.getIsNaive());
-                intent.putExtra("isFavorite", answerAdapter.question.getFavorite());
-                intent.putExtra("answerCount", answerAdapter.getItemCount() - 1);
-                intent.putExtra("position", position);
-                intent.putExtra("excitingCount", answerAdapter.question.getExciting());
-                intent.putExtra("naiveCount", answerAdapter.question.getNaive());
-                setResult(RESULT_OK, intent);
-                finish();
-                break;
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent();
+            intent.putExtra("isExciting", answerAdapter.question.getIsExciting());
+            intent.putExtra("isNaive", answerAdapter.question.getIsNaive());
+            intent.putExtra("isFavorite", answerAdapter.question.getFavorite());
+            intent.putExtra("answerCount", answerAdapter.getItemCount() - 1);
+            intent.putExtra("position", position);
+            intent.putExtra("excitingCount", answerAdapter.question.getExciting());
+            intent.putExtra("naiveCount", answerAdapter.question.getNaive());
+            setResult(RESULT_OK, intent);
+            finish();
         }
         return true;
     }
@@ -127,6 +122,8 @@ public class QuestionContentActivity extends BaseActivity {
      * 加载视图，得到intent传输数据
      */
     private void initView() {
+        Toolbar toolbar;
+        RecyclerView realQuestionRecyclerView;
         toolbar = findViewById(R.id.toolbar_answer);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -139,6 +136,7 @@ public class QuestionContentActivity extends BaseActivity {
         enterAnswerED = findViewById(R.id.enter_answer_ed);
         enterAnswerBtn = findViewById(R.id.enter_answer_btn);
         swipeRefreshLayout = findViewById(R.id.real_question_refresh);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         Intent intent = getIntent();
         qid = intent.getIntExtra("question_id", 0);
         position = intent.getIntExtra("position", -1);
@@ -159,14 +157,12 @@ public class QuestionContentActivity extends BaseActivity {
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openAlum();
-                } else {
-                    MyToast.showToast("获取权限失败");
-                }
-                break;
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openAlum();
+            } else {
+                MyToast.showToast("获取权限失败");
+            }
         }
     }
 
@@ -242,18 +238,17 @@ public class QuestionContentActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case MainActivity.TYPE_CHOOSE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    uri = data.getData();
-                    View contentView = LayoutInflater.from(QuestionContentActivity.this).inflate(R.layout.pop_img, null);
-                    popupWindow = new PopupWindow(contentView, 300, 300, true);
-                    popupWindow.setContentView(contentView);
-                    popupWindow.setFocusable(false);
-                    ImageView popImg = contentView.findViewById(R.id.pop_img);
-                    popImg.setImageURI(uri);
-                    popupWindow.showAsDropDown(hf, 750, -20);
-                }
+        if (requestCode == MainActivity.TYPE_CHOOSE_PHOTO) {
+            if (resultCode == RESULT_OK) {
+                uri = data.getData();
+                View contentView = LayoutInflater.from(QuestionContentActivity.this).inflate(R.layout.pop_img, null);
+                popupWindow = new PopupWindow(contentView, 300, 300, true);
+                popupWindow.setContentView(contentView);
+                popupWindow.setFocusable(false);
+                ImageView popImg = contentView.findViewById(R.id.pop_img);
+                popImg.setImageURI(uri);
+                popupWindow.showAsDropDown(hf, 750, -20);
+            }
         }
     }
 
@@ -289,11 +284,6 @@ public class QuestionContentActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onError(Exception e) {
-
-                }
-
-                @Override
                 public void onNetworkError() {
 
                 }
@@ -306,7 +296,7 @@ public class QuestionContentActivity extends BaseActivity {
     private void refreshAnswer() {
         if (totalCount == -1) {
             Map<String, String> query = new HashMap<>();
-            query.put("page", page + "");
+            query.put("page", 0 + "");
             query.put("count", 10 + "");
             query.put("qid", qid + "");
             query.put("token", MainActivity.person.getToken());
@@ -325,18 +315,13 @@ public class QuestionContentActivity extends BaseActivity {
                 }
 
                 @Override
-                public void onError(Exception e) {
-
-                }
-
-                @Override
                 public void onNetworkError() {
 
                 }
             });
         }
         Map<String, String> query = new HashMap<>();
-        query.put("page", page + "");
+        query.put("page", 0 + "");
         query.put("count", totalCount + "");
         query.put("qid", qid + "");
         query.put("token", MainActivity.person.getToken());
@@ -367,7 +352,7 @@ public class QuestionContentActivity extends BaseActivity {
                                 JSONObject answerData = jsonArray.getJSONObject(i);
                                 MySQLiteOpenHelper.addAnswer(answerData.getInt("id"), qid, answerData.getString("content"), answerData.getString("images"), answerData.getString("date"), answerData.getInt("best"), answerData.getInt("exciting")
                                         , answerData.getInt("naive"), answerData.getInt("authorId"), answerData.getString("authorName"), answerData.getString("authorAvatar"),
-                                        answerData.getBoolean("is_exciting") == true ? 1 : 0, answerData.getBoolean("is_naive") == true ? 1 : 0);
+                                        answerData.getBoolean("is_exciting") ? 1 : 0, answerData.getBoolean("is_naive") ? 1 : 0);
 
                             }
                             answerAdapter.refresh();
@@ -378,11 +363,6 @@ public class QuestionContentActivity extends BaseActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }
-
-            @Override
-            public void onError(Exception e) {
-
             }
 
             @Override

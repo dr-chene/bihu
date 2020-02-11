@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.Explode;
@@ -44,8 +43,6 @@ public class QuestionCommitActivity extends BaseActivity {
     private String images = "";
     private EditText titleEd;
     private EditText contentEd;
-    private FloatingActionButton questionEnterBtn;
-    private LinearLayout enterQuestionBack;
     private ImageView enterQuestionImg;
     private TextView titleCount;
     private TextView contentCount;
@@ -53,24 +50,7 @@ public class QuestionCommitActivity extends BaseActivity {
     private Uri uri;
     private Boolean imgChanged = false;
     //处理问题发布成功后的事件
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            switch (msg.what) {
-                case 1:
-                    images = "";
-                    titleEd.setText("");
-                    contentEd.setText("");
-                    enterQuestionImg.setImageResource(R.drawable.jia_question);
-                    imgChanged = false;
-                    isCommitting = false;
-                    MyToast.showToast("发布成功");
-                    break;
-                default:
-            }
-
-        }
-    };
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +65,8 @@ public class QuestionCommitActivity extends BaseActivity {
      * 加载视图，设置点击事件
      */
     private void initView() {
+        FloatingActionButton questionEnterBtn;
+        LinearLayout enterQuestionBack;
         enterQuestionImg = findViewById(R.id.enter_question_img);
         enterQuestionBack = findViewById(R.id.enter_question_back);
         titleCount = findViewById(R.id.title_count);
@@ -217,18 +199,22 @@ public class QuestionCommitActivity extends BaseActivity {
                             isCommitting = false;
                             Looper.loop();
                         } else {
-                            Message msg = new Message();
-                            msg.what = 1;
-                            handler.sendMessage(msg);
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    images = "";
+                                    titleEd.setText("");
+                                    contentEd.setText("");
+                                    enterQuestionImg.setImageResource(R.drawable.jia_question);
+                                    imgChanged = false;
+                                    isCommitting = false;
+                                    MyToast.showToast("发布成功");
+                                }
+                            });
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                }
-
-                @Override
-                public void onError(Exception e) {
-
                 }
 
                 @Override
@@ -260,14 +246,12 @@ public class QuestionCommitActivity extends BaseActivity {
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openAlum();
-                } else {
-                    MyToast.showToast("获取权限失败");
-                }
-                break;
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openAlum();
+            } else {
+                MyToast.showToast("获取权限失败");
+            }
         }
     }
 
@@ -281,13 +265,12 @@ public class QuestionCommitActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case MainActivity.TYPE_CHOOSE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    uri = data.getData();
-                    enterQuestionImg.setImageURI(uri);
-                    imgChanged = true;
-                }
+        if (requestCode == MainActivity.TYPE_CHOOSE_PHOTO) {
+            if (resultCode == RESULT_OK) {
+                uri = data.getData();
+                enterQuestionImg.setImageURI(uri);
+                imgChanged = true;
+            }
         }
     }
 }

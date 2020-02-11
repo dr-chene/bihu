@@ -92,11 +92,6 @@ public class PasswordChangeActivity extends BaseActivity implements View.OnClick
                                 }
 
                                 @Override
-                                public void onError(Exception e) {
-
-                                }
-
-                                @Override
                                 public void onNetworkError() {
 
                                 }

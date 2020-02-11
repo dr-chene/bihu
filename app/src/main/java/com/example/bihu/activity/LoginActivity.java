@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.transition.ChangeBounds;
 import android.transition.ChangeTransform;
 import android.transition.Slide;
@@ -17,8 +16,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.ActivityCollector;
@@ -44,18 +41,7 @@ public class LoginActivity extends BaseActivity {
     private Button toRegister;
     private Toast toast;
     //处理登录结果
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            switch (msg.what) {
-                case 1:
-                    MyToast.showToast("登录成功，即将跳转");
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    break;
-            }
-        }
-    };
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,18 +94,18 @@ public class LoginActivity extends BaseActivity {
                                     MainActivity.person.setToken(object.getString("token"));
                                     MainActivity.person.setAvatar(object.getString("avatar"));
                                     MySQLiteOpenHelper.addPerson(object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
-                                    Message msg = new Message();
-                                    msg.what = 1;
-                                    handler.sendMessage(msg);
+                                    handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MyToast.showToast("登录成功，即将跳转");
+                                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    });
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-
                     }
 
                     @Override

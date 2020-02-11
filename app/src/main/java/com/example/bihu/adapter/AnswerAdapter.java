@@ -41,9 +41,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Context context;
     private List<Answer> answerList = new ArrayList<>();
     private int qid;
-    private Boolean[] isExciting;
-    private Boolean[] isNaive;
-    private Boolean isFavorite = false;
     private QuestionContentActivity activity;
 
     public AnswerAdapter(Context context, int qid) {
@@ -154,11 +151,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         }
 
                         @Override
-                        public void onError(Exception e) {
-
-                        }
-
-                        @Override
                         public void onNetworkError() {
 
                         }
@@ -166,7 +158,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
             });
             //exciting点击事件
-            answerViewHolder.answerItemExcitingImg.setOnClickListener(new View.OnClickListener() {
+            answerViewHolder.answerItemExciting.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Map<String, String> query = new HashMap<>();
@@ -198,11 +190,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-
                             }
 
                             @Override
@@ -238,11 +225,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             }
 
                             @Override
-                            public void onError(Exception e) {
-
-                            }
-
-                            @Override
                             public void onNetworkError() {
 
                             }
@@ -251,7 +233,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
             });
             //naive点击事件
-            answerViewHolder.answerItemNaiveImg.setOnClickListener(new View.OnClickListener() {
+            answerViewHolder.answerItemNaive.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Map<String, String> query = new HashMap<>();
@@ -286,11 +268,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             }
 
                             @Override
-                            public void onError(Exception e) {
-
-                            }
-
-                            @Override
                             public void onNetworkError() {
 
                             }
@@ -320,11 +297,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-
                             }
 
                             @Override
@@ -375,7 +347,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             } else {
                 questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
             }
-            if (isFavorite) {
+            if (question.getFavorite()) {
                 questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star_fill);
             } else {
                 questionViewHolder.realQuestionFavoriteImg.setImageResource(R.drawable.star);
@@ -417,11 +389,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             }
 
                             @Override
-                            public void onError(Exception e) {
-
-                            }
-
-                            @Override
                             public void onNetworkError() {
 
                             }
@@ -453,11 +420,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-
                             }
 
                             @Override
@@ -506,11 +468,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             }
 
                             @Override
-                            public void onError(Exception e) {
-
-                            }
-
-                            @Override
                             public void onNetworkError() {
 
                             }
@@ -542,11 +499,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-
                             }
 
                             @Override
@@ -591,11 +543,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             }
 
                             @Override
-                            public void onError(Exception e) {
-
-                            }
-
-                            @Override
                             public void onNetworkError() {
 
                             }
@@ -623,11 +570,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-
                             }
 
                             @Override
@@ -660,17 +602,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void refresh() {
         MySQLiteOpenHelper.searchQuestion(qid, question);
         MySQLiteOpenHelper.readAnswer(answerList, qid);
-        isExciting = new Boolean[answerList.size() + 1];
-        isNaive = new Boolean[answerList.size() + 1];
-        for (int i = 0; i < isExciting.length; i++) {
-            if (i == 0) {
-                isExciting[i] = question.getIsExciting();
-                isNaive[i] = question.getIsNaive();
-            } else {
-                isExciting[i] = answerList.get(i - 1).getIsExciting();
-                isNaive[i] = answerList.get(i - 1).getIsNaive();
-            }
-        }
     }
 
     public class AnswerViewHolder extends RecyclerView.ViewHolder {
@@ -688,7 +619,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private ImageView answerItemContentImg;
         private int curPosition;
 
-        public AnswerViewHolder(@NonNull View itemView) {
+        AnswerViewHolder(@NonNull View itemView) {
             super(itemView);
             answerItemAuthorImg = itemView.findViewById(R.id.answer_item_user_img);
             answerItemAuthorName = itemView.findViewById(R.id.answer_item_username);
@@ -722,7 +653,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private LinearLayout realQuestionNaive;
         private LinearLayout realQuestionFavorite;
 
-        public QuestionViewHolder(@NonNull View itemView) {
+        QuestionViewHolder(@NonNull View itemView) {
             super(itemView);
             realQuestionUserImg = itemView.findViewById(R.id.real_question_user_img);
             realQuestionAuthorName = itemView.findViewById(R.id.real_question_username);

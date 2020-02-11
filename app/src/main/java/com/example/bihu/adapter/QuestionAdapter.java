@@ -50,16 +50,17 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (type == MainActivity.TYPE_QUESTION){
-        if (viewType == TYPE_ITEM) {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_question, parent,
-                    false);
-            return new MyInnerViewHolder(view);
-        } else if (viewType == TYPE_FOOTER) {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_foot, parent,
-                    false);
-            return new FootViewHolder(view);
-        }}else {
+        if (type == MainActivity.TYPE_QUESTION) {
+            if (viewType == TYPE_ITEM) {
+                View view = LayoutInflater.from(context).inflate(R.layout.item_question, parent,
+                        false);
+                return new MyInnerViewHolder(view);
+            } else if (viewType == TYPE_FOOTER) {
+                View view = LayoutInflater.from(context).inflate(R.layout.item_foot, parent,
+                        false);
+                return new FootViewHolder(view);
+            }
+        } else {
             View view = LayoutInflater.from(context).inflate(R.layout.item_question, parent,
                     false);
             return new MyInnerViewHolder(view);
@@ -70,80 +71,79 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
 
-            if (holder instanceof MyInnerViewHolder) {
-                Question question = new Question();
-                switch (type) {
-                    case MainActivity.TYPE_QUESTION:
-                        question = questionList.get(position);
-                        break;
-                    case MainActivity.TYPE_FAVORITE:
-                        question = favoriteList.get(position);
-                        break;
-                    case MainActivity.TYPE_MINE:
-                        question = mineList.get(position);
-                        break;
-                }
-                final MyInnerViewHolder itemHolder = (MyInnerViewHolder) holder;
-                //加载question数据
-                itemHolder.questionItemAuthorName.setText(question.getAuthorName());
-                itemHolder.questionItemRecent.setText(question.getRecent());
-                itemHolder.questionItemTitle.setText(question.getTitle());
-                itemHolder.questionItemContent.setText(question.getContent());
-                itemHolder.questionItemExcitingCount.setText(question.getExciting() + "");
-                itemHolder.questionItemAnswerCount.setText(question.getAnswerCount() + "");
-                itemHolder.questionItemNaiveCount.setText(question.getNaive() + "");
-                //加载question作者头像
-                if (question.getAuthorAvatar().length() >= 5) {
-                    Glide.with(context)
-                            .load(question.getAuthorAvatar())
-                            .error(R.drawable.error_avatar)
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                            .into(itemHolder.questionItemUserImg);
-                }
-                //加载question图片
-                if (question.getImages().length() >= 5) {
-                    Glide.with(context)
-                            .load(question.getImages())
-                            .error(R.drawable.error)
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                            .fitCenter()
-                            .into(itemHolder.questionItemContentImg);
-                } else {
-                    itemHolder.questionItemContentImg.setVisibility(View.GONE);
-                }
-                //加载是否点赞
-                if (question.getIsExciting()) {
-                    itemHolder.questionItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
-                } else {
-                    itemHolder.questionItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
-                }
-                //加载是否点踩
-                if (question.getIsNaive()) {
-                    itemHolder.questionItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
-                } else {
-                    itemHolder.questionItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
-                }
-                //加载是否收藏
-                if (question.getFavorite()) {
-                    itemHolder.questionItemFavoriteImg.setImageResource(R.drawable.star_fill);
-                } else {
-                    itemHolder.questionItemFavoriteImg.setImageResource(R.drawable.star);
-                }
-                final int id = question.getId();
-                //设置item点击事件（进入详情页面）
-                itemHolder.questionItem.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, QuestionContentActivity.class);
-                        intent.putExtra("question_id", id);
-                        intent.putExtra("position", position);
-                        ((Activity) context).startActivityForResult(intent, 1);
-                    }
-                });
+        if (holder instanceof MyInnerViewHolder) {
+            Question question = new Question();
+            switch (type) {
+                case MainActivity.TYPE_QUESTION:
+                    question = questionList.get(position);
+                    break;
+                case MainActivity.TYPE_FAVORITE:
+                    question = favoriteList.get(position);
+                    break;
+                case MainActivity.TYPE_MINE:
+                    question = mineList.get(position);
+                    break;
             }
-            else {
+            final MyInnerViewHolder itemHolder = (MyInnerViewHolder) holder;
+            //加载question数据
+            itemHolder.questionItemAuthorName.setText(question.getAuthorName());
+            itemHolder.questionItemRecent.setText(question.getRecent());
+            itemHolder.questionItemTitle.setText(question.getTitle());
+            itemHolder.questionItemContent.setText(question.getContent());
+            itemHolder.questionItemExcitingCount.setText(question.getExciting() + "");
+            itemHolder.questionItemAnswerCount.setText(question.getAnswerCount() + "");
+            itemHolder.questionItemNaiveCount.setText(question.getNaive() + "");
+            //加载question作者头像
+            if (question.getAuthorAvatar().length() >= 5) {
+                Glide.with(context)
+                        .load(question.getAuthorAvatar())
+                        .error(R.drawable.error_avatar)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(itemHolder.questionItemUserImg);
+            }
+            //加载question图片
+            if (question.getImages().length() >= 5) {
+                Glide.with(context)
+                        .load(question.getImages())
+                        .error(R.drawable.error)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .fitCenter()
+                        .into(itemHolder.questionItemContentImg);
+            } else {
+                itemHolder.questionItemContentImg.setVisibility(View.GONE);
+            }
+            //加载是否点赞
+            if (question.getIsExciting()) {
+                itemHolder.questionItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
+            } else {
+                itemHolder.questionItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
+            }
+            //加载是否点踩
+            if (question.getIsNaive()) {
+                itemHolder.questionItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
+            } else {
+                itemHolder.questionItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
+            }
+            //加载是否收藏
+            if (question.getFavorite()) {
+                itemHolder.questionItemFavoriteImg.setImageResource(R.drawable.star_fill);
+            } else {
+                itemHolder.questionItemFavoriteImg.setImageResource(R.drawable.star);
+            }
+            final int id = question.getId();
+            //设置item点击事件（进入详情页面）
+            itemHolder.questionItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, QuestionContentActivity.class);
+                    intent.putExtra("question_id", id);
+                    intent.putExtra("position", position);
+                    ((Activity) context).startActivityForResult(intent, 1);
+                }
+            });
+        } else {
 
-            }
+        }
     }
 
     @Override
@@ -167,7 +167,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             } else {
                 return TYPE_ITEM;
             }
-        }else {
+        } else {
             return TYPE_ITEM;
         }
     }
@@ -178,13 +178,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @param type
      */
     public void refresh(int type) {
-        switch (type) {
-            case MainActivity.TYPE_QUESTION:
-                MySQLiteOpenHelper.readQuestion(questionList, getItemCount(), MainActivity.TYPE_REFRESH);
-                break;
-//            case MainActivity.TYPE_FAVORITE:
-//                MySQLiteOpenHelper.readFavorite(favoriteList, getItemCount());
-//                break;
+        if (type == MainActivity.TYPE_QUESTION) {
+            MySQLiteOpenHelper.readQuestion(questionList, getItemCount(), MainActivity.TYPE_REFRESH);
         }
     }
 
@@ -240,8 +235,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public class FootViewHolder extends RecyclerView.ViewHolder {
-        public ProgressBar loadBar;
-        public TextView loadText;
+        ProgressBar loadBar;
+        TextView loadText;
+
         FootViewHolder(View view) {
             super(view);
             loadBar = view.findViewById(R.id.load_bar);

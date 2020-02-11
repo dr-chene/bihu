@@ -31,8 +31,7 @@ public class QiNiu {
      * @param qiNiuCallbackListener
      */
     public void upload(final File img, final QiNiuCallbackListener qiNiuCallbackListener) {
-        Log.d("test", "upLoad");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmSS");
         final String key = "icon_" + sdf.format(new Date());
         final String upToken = auth.uploadToken(BUCKET_NAME);
         new Thread(new Runnable() {

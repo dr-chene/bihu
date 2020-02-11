@@ -5,16 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.transition.Fade;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +44,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,37 +62,23 @@ public class MainActivity extends BaseActivity {
     public static final int count = 20;
     public static Person person;
     public static int vision = 1;
-    public static int totalQuestionPage = 0;
-    public static int questionPage = 0;
-    public int totalCount = 0;
+    private int totalQuestionPage = 0;
+    private int questionPage = 0;
+    private int totalCount = 0;
     private Thread thread;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private QuestionAdapter questionAdapter;
-    private Toolbar toolbar;
     private FloatingActionButton fab;
     private ConstraintLayout noLogin;
     private LinearLayoutManager linearLayoutManager;
     private DrawerLayout drawerLayout;
-    private ImageView avatar;
-    private TextView name;
     private FloatingActionButton fabUp;
     private NavigationView navView;
     private Toast toast;
-    private Boolean isFirst= true;
     private List<Question> questions;
     //处理刷新事件结果
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            switch (msg.what) {
-                case MainActivity.TYPE_REFRESH:
-                    questionAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
-                    break;
-            }
-        }
-    };
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +122,7 @@ public class MainActivity extends BaseActivity {
      * 加载视图，绑定数据
      */
     private void initView() {
+        Toolbar toolbar;
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         fabUp = findViewById(R.id.fab_up);
@@ -157,7 +140,7 @@ public class MainActivity extends BaseActivity {
         }
         //读取用户数据
         loadPerson();
-
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -167,11 +150,11 @@ public class MainActivity extends BaseActivity {
                     public void run() {
                         loadMoreData();
                     }
-                },1000);
+                }, 1000);
             }
         });
         questionAdapter = new QuestionAdapter(MainActivity.this, MainActivity.TYPE_QUESTION);
-        questions =questionAdapter.getQuestionList();
+        questions = questionAdapter.getQuestionList();
         recyclerView.setAdapter(questionAdapter);
         linearLayoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -203,7 +186,21 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onRestart() {
         navView.setCheckedItem(R.id.nav_home);
+        loadPerson();
+        refreshAvatar();
         super.onRestart();
+    }
+
+    private void refreshAvatar() {
+        String name = person.getUsername();
+        String avatar = person.getAvatar();
+        for (Question question : questions
+        ) {
+            if (question.getAuthorName().equals(name)) {
+                question.setAuthorAvatar(avatar);
+            }
+        }
+        questionAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -231,7 +228,6 @@ public class MainActivity extends BaseActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Log.d("refresh", "run: refresh");
                 refreshSome();
             }
         });
@@ -239,7 +235,7 @@ public class MainActivity extends BaseActivity {
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
 
             //判断是不是往上拖动
-            public boolean isLoading;
+            boolean isLoading;
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -250,14 +246,14 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy>0){
+                if (dy > 0) {
                     int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
                     if (lastVisibleItemPosition + 1 == questionAdapter.getItemCount()) {
                         if (!isLoading) {
                             isLoading = true;
-                            View view =  linearLayoutManager.findViewByPosition(questionAdapter.getItemCount()-1);
+                            View view = linearLayoutManager.findViewByPosition(questionAdapter.getItemCount() - 1);
                             view.findViewById(R.id.load_bar).setVisibility(View.VISIBLE);
-                            ((TextView)view.findViewById(R.id.load_text)).setText("正在加载");
+                            ((TextView) view.findViewById(R.id.load_text)).setText("正在加载");
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -312,17 +308,21 @@ public class MainActivity extends BaseActivity {
                                         questionData = jsonArray.getJSONObject(i);
                                         MySQLiteOpenHelper.addQuestion(questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
                                                 , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
-                                                questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
-                                                questionData.getBoolean("is_favorite") == true ? 1 : 0);
+                                                questionData.getBoolean("is_exciting") ? 1 : 0, questionData.getBoolean("is_naive") ? 1 : 0,
+                                                questionData.getBoolean("is_favorite") ? 1 : 0);
                                     }
                                     questionPage = getQuestionPage();
                                     if (questionPage < totalQuestionPage - 1) {
                                         questionPage++;
                                     }
                                     questionAdapter.refresh(MainActivity.TYPE_QUESTION);
-                                    Message msg = new Message();
-                                    msg.what = TYPE_REFRESH;
-                                    handler.sendMessage(msg);
+                                    handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            questionAdapter.notifyDataSetChanged();
+                                            swipeRefreshLayout.setRefreshing(false);
+                                        }
+                                    });
                                 } else {
                                     Looper.prepare();
                                     MyToast.showToast("暂无最新问题");
@@ -335,10 +335,6 @@ public class MainActivity extends BaseActivity {
                     }
                 }
 
-                @Override
-                public void onError(Exception e) {
-
-                }
 
                 @Override
                 public void onNetworkError() {
@@ -373,18 +369,13 @@ public class MainActivity extends BaseActivity {
                                     questionData = jsonArray.getJSONObject(i);
                                     MySQLiteOpenHelper.addQuestion(questionData.getInt("id"), questionData.getString("title"), questionData.getString("content"), questionData.getString("images"), questionData.getString("date"), questionData.getInt("exciting")
                                             , questionData.getInt("naive"), questionData.getString("recent"), questionData.getInt("answerCount"), questionData.getInt("authorId"), questionData.getString("authorName"), questionData.getString("authorAvatar"),
-                                            questionData.getBoolean("is_exciting") == true ? 1 : 0, questionData.getBoolean("is_naive") == true ? 1 : 0,
-                                            questionData.getBoolean("is_favorite") == true ? 1 : 0);
+                                            questionData.getBoolean("is_exciting") ? 1 : 0, questionData.getBoolean("is_naive") ? 1 : 0,
+                                            questionData.getBoolean("is_favorite") ? 1 : 0);
                                 }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-
                     }
 
                     @Override
@@ -401,6 +392,9 @@ public class MainActivity extends BaseActivity {
      * 根据是否登录加载主页面
      */
     private void loadPerson() {
+        ImageView avatar;
+        TextView name;
+        MySQLiteOpenHelper.readPerson(person);
         View headView = navView.getHeaderView(0);
         avatar = headView.findViewById(R.id.avatar);
         name = headView.findViewById(R.id.nav_header_main_username);
@@ -421,23 +415,20 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case 1:
-                if (resultCode == RESULT_OK) {
-                    int position = data.getIntExtra("position", -1);
-                    if (position != -1) {
-                        Question question = questionAdapter.getQuestion(position, TYPE_QUESTION);
-                        question.setExciting(data.getBooleanExtra("isExciting", false));
-                        question.setNaive(data.getBooleanExtra("isNaive", false));
-                        question.setFavorite(data.getBooleanExtra("isFavorite", false));
-                        question.setAnswerCount(data.getIntExtra("answerCount", 0));
-                        question.setExciting(data.getIntExtra("excitingCount", 0));
-                        question.setNaive(data.getIntExtra("naiveCount", 0));
-                        questionAdapter.notifyItemChanged(position, -1);
-                    }
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                int position = data.getIntExtra("position", -1);
+                if (position != -1) {
+                    Question question = questionAdapter.getQuestion(position, TYPE_QUESTION);
+                    question.setExciting(data.getBooleanExtra("isExciting", false));
+                    question.setNaive(data.getBooleanExtra("isNaive", false));
+                    question.setFavorite(data.getBooleanExtra("isFavorite", false));
+                    question.setAnswerCount(data.getIntExtra("answerCount", 0));
+                    question.setExciting(data.getIntExtra("excitingCount", 0));
+                    question.setNaive(data.getIntExtra("naiveCount", 0));
+                    questionAdapter.notifyItemChanged(position, -1);
                 }
-                break;
-            default:
+            }
         }
     }
 
@@ -452,16 +443,17 @@ public class MainActivity extends BaseActivity {
         }
         return false;
     }
-    public void loadMoreData() {
+
+    private void loadMoreData() {
         questionAdapter.curSize += 20;
         int preSize = questions.size();
         MySQLiteOpenHelper.readQuestion(questions, questionAdapter.curSize, MainActivity.TYPE_LOAD_MORE);
-        if (preSize != questions.size()){
+        if (preSize != questions.size()) {
             questionAdapter.notifyItemInserted(questionAdapter.getItemCount());
-        }else {
-           View view =  linearLayoutManager.findViewByPosition(questionAdapter.getItemCount()-1);
-           view.findViewById(R.id.load_bar).setVisibility(View.GONE);
-            ((TextView)view.findViewById(R.id.load_text)).setText(".....没有更多数据.....");
+        } else {
+            View view = linearLayoutManager.findViewByPosition(questionAdapter.getItemCount() - 1);
+            view.findViewById(R.id.load_bar).setVisibility(View.GONE);
+            ((TextView) view.findViewById(R.id.load_text)).setText(".....没有更多数据.....");
         }
         swipeRefreshLayout.post(new Runnable() {
             @Override
@@ -469,5 +461,5 @@ public class MainActivity extends BaseActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-        }
+    }
 }
