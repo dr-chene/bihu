@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -140,6 +141,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                 });
             }
+            else {
+
+            }
     }
 
     @Override
@@ -236,9 +240,12 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public class FootViewHolder extends RecyclerView.ViewHolder {
-
+        public ProgressBar loadBar;
+        public TextView loadText;
         FootViewHolder(View view) {
             super(view);
+            loadBar = view.findViewById(R.id.load_bar);
+            loadText = view.findViewById(R.id.load_text);
         }
     }
 }

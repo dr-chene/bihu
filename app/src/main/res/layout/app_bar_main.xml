@@ -42,7 +42,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="85dp"
-        android:src="@drawable/refresh"
+        android:src="@drawable/up"
         app:backgroundTint="#FFFFFF" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

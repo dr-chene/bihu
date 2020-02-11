@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,7 +83,7 @@ public class MainActivity extends BaseActivity {
     private FloatingActionButton fabUp;
     private NavigationView navView;
     private Toast toast;
-    private Boolean isRefresh = false;
+    private Boolean isFirst= true;
     private List<Question> questions;
     //处理刷新事件结果
     private Handler handler = new Handler() {
@@ -217,20 +218,20 @@ public class MainActivity extends BaseActivity {
                 startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
             }
         });
-        //滑到顶部并刷新
+        //滑到顶部
         fabUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 recyclerView.scrollToPosition(0);
                 LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 mLayoutManager.scrollToPositionWithOffset(0, 0);
-                swipeRefreshLayout.setRefreshing(true);
             }
         });
         //下拉刷新
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Log.d("refresh", "run: refresh");
                 refreshSome();
             }
         });
@@ -249,10 +250,14 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                if (dy>0){
                     int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
                     if (lastVisibleItemPosition + 1 == questionAdapter.getItemCount()) {
                         if (!isLoading) {
                             isLoading = true;
+                            View view =  linearLayoutManager.findViewByPosition(questionAdapter.getItemCount()-1);
+                            view.findViewById(R.id.load_bar).setVisibility(View.VISIBLE);
+                            ((TextView)view.findViewById(R.id.load_text)).setText("正在加载");
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -262,6 +267,7 @@ public class MainActivity extends BaseActivity {
                             }, 1000);
                         }
                     }
+                }
             }
         });
     }
@@ -270,7 +276,7 @@ public class MainActivity extends BaseActivity {
      * 刷新
      */
     private void refreshSome() {
-        if (totalQuestionPage == 0 || questionPage < totalQuestionPage - 1) {
+        if (totalQuestionPage == 0 || questionPage < totalQuestionPage) {
             Map<String, String> query = new HashMap<>();
             query.put("page", questionPage + "");
             query.put("count", count + "");
@@ -448,9 +454,20 @@ public class MainActivity extends BaseActivity {
     }
     public void loadMoreData() {
         questionAdapter.curSize += 20;
-
+        int preSize = questions.size();
         MySQLiteOpenHelper.readQuestion(questions, questionAdapter.curSize, MainActivity.TYPE_LOAD_MORE);
-        swipeRefreshLayout.setRefreshing(false);
-        questionAdapter.notifyItemInserted(questionAdapter.getItemCount());
+        if (preSize != questions.size()){
+            questionAdapter.notifyItemInserted(questionAdapter.getItemCount());
+        }else {
+           View view =  linearLayoutManager.findViewByPosition(questionAdapter.getItemCount()-1);
+           view.findViewById(R.id.load_bar).setVisibility(View.GONE);
+            ((TextView)view.findViewById(R.id.load_text)).setText(".....没有更多数据.....");
+        }
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
         }
 }
