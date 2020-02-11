@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
+public class RegisterActivity extends BaseActivity implements View.OnClickListener {
 
     private LinearLayout registerBack;
     private EditText registerUsername;
@@ -86,10 +86,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                         break;
                                     case 200:
                                         JSONObject object = jsonObject.getJSONObject("data");
-                                        SplashActivity.person.setId(object.getInt("id"));
-                                        SplashActivity.person.setUsername(object.getString("username"));
-                                        SplashActivity.person.setToken(object.getString("token"));
-                                        SplashActivity.person.setAvatar(object.getString("avatar"));
+                                        MainActivity.person.setId(object.getInt("id"));
+                                        MainActivity.person.setUsername(object.getString("username"));
+                                        MainActivity.person.setToken(object.getString("token"));
+                                        MainActivity.person.setAvatar(object.getString("avatar"));
                                         MySQLiteOpenHelper.addPerson(object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
                                         MyToast.showToast("登录成功，即将跳转");
                                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);

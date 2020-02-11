@@ -40,7 +40,7 @@ import java.util.Map;
 
 import static com.example.bihu.utils.Methods.getFileByUri;
 
-public class QuestionCommitActivity extends AppCompatActivity {
+public class QuestionCommitActivity extends BaseActivity {
 
     private String images = "";
     private EditText titleEd;
@@ -206,7 +206,7 @@ public class QuestionCommitActivity extends AppCompatActivity {
             query.put("title", title);
             query.put("content", content);
             query.put("images", images);
-            query.put("token", SplashActivity.person.getToken());
+            query.put("token", MainActivity.person.getToken());
             Http.sendHttpRequest(Http.URL_QUESTION, query, new HttpCallbackListener() {
                 @Override
                 public void onFinish(String response) {

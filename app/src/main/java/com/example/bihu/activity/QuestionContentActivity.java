@@ -55,7 +55,7 @@ import java.util.Map;
 
 import static com.example.bihu.utils.Methods.getFileByUri;
 
-public class QuestionContentActivity extends AppCompatActivity {
+public class QuestionContentActivity extends BaseActivity {
 
     private String images = "";
     private RecyclerView realQuestionRecyclerView;
@@ -274,7 +274,7 @@ public class QuestionContentActivity extends AppCompatActivity {
             queryAnswer.put("qid", qid + "");
             queryAnswer.put("content", content);
             queryAnswer.put("images", images);
-            queryAnswer.put("token", SplashActivity.person.getToken());
+            queryAnswer.put("token", MainActivity.person.getToken());
             Http.sendHttpRequest(Http.URL_ANSWER, queryAnswer, new HttpCallbackListener() {
                 @Override
                 public void onFinish(String response) {
@@ -316,7 +316,7 @@ public class QuestionContentActivity extends AppCompatActivity {
             query.put("page", page + "");
             query.put("count", 10 + "");
             query.put("qid", qid + "");
-            query.put("token", SplashActivity.person.getToken());
+            query.put("token", MainActivity.person.getToken());
             Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
                 @Override
                 public void onFinish(String response) {
@@ -346,7 +346,7 @@ public class QuestionContentActivity extends AppCompatActivity {
         query.put("page", page + "");
         query.put("count", totalCount + "");
         query.put("qid", qid + "");
-        query.put("token", SplashActivity.person.getToken());
+        query.put("token", MainActivity.person.getToken());
         Http.sendHttpRequest(Http.URL_GET_ANSWER_LIST, query, new HttpCallbackListener() {
             @Override
             public void onFinish(String response) {

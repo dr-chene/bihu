@@ -9,6 +9,7 @@ import android.os.Message;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
 import com.example.bihu.adapter.QuestionAdapter;
+import com.example.bihu.utils.ActivityCollector;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
@@ -49,15 +51,15 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.example.bihu.activity.SplashActivity.person;
 import static com.example.bihu.utils.Methods.getQuestionPage;
 
-public class MainActivity extends AppCompatActivity {
-
+public class MainActivity extends BaseActivity {
+    public static Person person;
     public static final int TYPE_QUESTION = 1;
     public static final int TYPE_ANSWER = 2;
     public static final int TYPE_LOAD_MORE = 3;
     public static final int TYPE_REFRESH = 4;
+    public static final int TYPE_MINE= 5;
     public static final int TYPE_FAVORITE = 6;
     public static final int TYPE_TAKE_PHOTO = 8;
     public static final int TYPE_CHOOSE_PHOTO = 9;
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView name;
     private FloatingActionButton fabUp;
     private NavigationView navView;
+    private Toast toast;
     //处理刷新事件结果
     private Handler handler = new Handler() {
         @Override
@@ -170,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
                             Intent intent2 = new Intent(MainActivity.this, FavoriteActivity.class);
                             startActivity(intent2);
                         break;
+                    case R.id.nav_mine:
+                        Intent intent = new Intent(MainActivity.this, MineActivity.class);
+                        startActivity(intent);
+                        break;
                 }
                 drawerLayout.closeDrawers();
                 return true;
@@ -247,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             Map<String, String> query = new HashMap<>();
             query.put("page", questionPage + "");
             query.put("count", count + "");
-            query.put("token", SplashActivity.person.getToken());
+            query.put("token", MainActivity.person.getToken());
             final int questionCount = MySQLiteOpenHelper.getQuestionCount();
             Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
                 @Override
@@ -326,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
                 Map<String, String> query = new HashMap<>();
                 query.put("page", "0");
                 query.put("count", MySQLiteOpenHelper.getQuestionCount() + "");
-                query.put("token", SplashActivity.person.getToken());
+                query.put("token", MainActivity.person.getToken());
                 Http.sendHttpRequest(Http.URL_GET_QUESTION_LIST, query, new HttpCallbackListener() {
                     @Override
                     public void onFinish(String response) {
@@ -375,14 +382,14 @@ public class MainActivity extends AppCompatActivity {
             swipeRefreshLayout.setVisibility(View.VISIBLE);
             fabUp.setVisibility(View.VISIBLE);
             //加载头像
-            if (SplashActivity.person.getAvatar().length() >= 5) {
+            if (MainActivity.person.getAvatar().length() >= 5) {
                 Glide.with(this)
-                        .load(SplashActivity.person.getAvatar())
+                        .load(MainActivity.person.getAvatar())
                         .error(R.drawable.error_avatar)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(avatar);
             }
-            name.setText(SplashActivity.person.getUsername());
+            name.setText(MainActivity.person.getUsername());
         }
 
     @Override
@@ -393,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     int position = data.getIntExtra("position", -1);
                     if (position != -1) {
-                        Question question = questionAdapter.getQuestion(position);
+                        Question question = questionAdapter.getQuestion(position,TYPE_QUESTION);
                         question.setExciting(data.getBooleanExtra("isExciting", false));
                         question.setNaive(data.getBooleanExtra("isNaive", false));
                         question.setFavorite(data.getBooleanExtra("isFavorite", false));
@@ -406,5 +413,17 @@ public class MainActivity extends AppCompatActivity {
                 break;
             default:
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (toast==null){
+            toast = Toast.makeText(MainActivity.this,"再按一次退出",Toast.LENGTH_SHORT);
+            toast.show();
+        }else {
+            ActivityCollector.finishAll();
+            return super.onKeyDown(keyCode, event);
+        }
+       return false;
     }
 }

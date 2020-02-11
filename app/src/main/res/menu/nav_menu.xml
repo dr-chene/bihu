@@ -13,13 +13,12 @@
         android:icon="@drawable/nav_favorite"
         android:title="收藏" />
     <item
+        android:id="@+id/nav_mine"
+        android:icon="@drawable/nav_register"
+        android:title="我的" />
+    <item
         android:id="@+id/nav_login"
         android:icon="@drawable/nav_login"
-        android:checkable="false"
-        android:title="占位" />
-    <item
-        android:id="@+id/nav_register"
-        android:icon="@drawable/nav_register"
         android:checkable="false"
         android:title="占位" />
 </group>

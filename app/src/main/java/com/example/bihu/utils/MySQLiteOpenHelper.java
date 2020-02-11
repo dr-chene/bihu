@@ -493,9 +493,8 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
      * 读取favorite
      *
      * @param favoriteList
-     * @param size
      */
-    public static void readFavorite(List<Question> favoriteList, int size) {
+    public static void readFavorite(List<Question> favoriteList) {
         MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where isFavorite = ?", new String[]{"1"});
@@ -516,12 +515,39 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
             question.setAuthorAvatar(cursor.getString(cursor.getColumnIndex("authorAvatar")));
             question.setExciting(cursor.getInt(cursor.getColumnIndex("isExciting")) == 1);
             question.setNaive(cursor.getInt(cursor.getColumnIndex("isNaive")) == 1);
+            question.setFavorite(cursor.getInt(cursor.getColumnIndex("isFavorite")) == 1);
             favoriteList.add(question);
         }
         sqLiteDatabase.close();
         cursor.close();
     }
-
+    public static void readMine(List<Question> mineList) {
+        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
+        SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from question where  authorName= ?", new String[]{MainActivity.person.getUsername()});
+        mineList.clear();
+        while (cursor.moveToNext()) {
+            Question question = new Question();
+            question.setId(cursor.getInt(cursor.getColumnIndex("qid")));
+            question.setTitle(cursor.getString(cursor.getColumnIndex("title")));
+            question.setContent(cursor.getString(cursor.getColumnIndex("content")));
+            question.setImages(cursor.getString(cursor.getColumnIndex("images")));
+            question.setDate(cursor.getString(cursor.getColumnIndex("date")));
+            question.setExciting(cursor.getInt(cursor.getColumnIndex("exciting")));
+            question.setNaive(cursor.getInt(cursor.getColumnIndex("naive")));
+            question.setRecent(cursor.getString(cursor.getColumnIndex("recent")));
+            question.setAnswerCount(cursor.getInt(cursor.getColumnIndex("answerCount")));
+            question.setAuthorId(cursor.getInt(cursor.getColumnIndex("authorId")));
+            question.setAuthorName(cursor.getString(cursor.getColumnIndex("authorName")));
+            question.setAuthorAvatar(cursor.getString(cursor.getColumnIndex("authorAvatar")));
+            question.setExciting(cursor.getInt(cursor.getColumnIndex("isExciting")) == 1);
+            question.setNaive(cursor.getInt(cursor.getColumnIndex("isNaive")) == 1);
+            question.setFavorite(cursor.getInt(cursor.getColumnIndex("isFavorite")) == 1);
+            mineList.add(question);
+        }
+        sqLiteDatabase.close();
+        cursor.close();
+    }
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table person (_id integer primary key autoincrement,uid integer unique,username text,password text,avatar text,token text)");

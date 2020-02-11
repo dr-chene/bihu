@@ -36,7 +36,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private List<Question> questionList = new ArrayList<>();
     private List<Question> favoriteList = new ArrayList<>();
-    private Question question;
+    private List<Question> mineList = new ArrayList<>();
+     private Question question;
     private int curSize = 20;
     private int type;
     private Context context;
@@ -47,7 +48,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (type == MainActivity.TYPE_QUESTION) {
             MySQLiteOpenHelper.readQuestion(questionList, curSize, MainActivity.TYPE_LOAD_MORE);
         } else if (type == MainActivity.TYPE_FAVORITE) {
-            MySQLiteOpenHelper.readFavorite(favoriteList, curSize);
+            MySQLiteOpenHelper.readFavorite(favoriteList);
+        }else if (type == MainActivity.TYPE_MINE){
+            MySQLiteOpenHelper.readMine(mineList);
         }
     }
 
@@ -66,6 +69,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 break;
             case MainActivity.TYPE_FAVORITE:
                 question = favoriteList.get(position);
+                break;
+            case MainActivity.TYPE_MINE:
+                question = mineList.get(position);
         }
         final MyInnerViewHolder itemHolder = (MyInnerViewHolder) holder;
         //加载question数据
@@ -96,19 +102,19 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             itemHolder.questionItemContentImg.setVisibility(View.GONE);
         }
         //加载是否点赞
-        if (questionList.get(position).getIsExciting()) {
+        if (question.getIsExciting()) {
             itemHolder.questionItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
         } else {
             itemHolder.questionItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
         }
         //加载是否点踩
-        if (questionList.get(position).getIsNaive()) {
+        if (question.getIsNaive()) {
             itemHolder.questionItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
         } else {
             itemHolder.questionItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
         }
         //加载是否收藏
-        if (questionList.get(position).getFavorite()) {
+        if (question.getFavorite()) {
             itemHolder.questionItemFavoriteImg.setImageResource(R.drawable.star_fill);
         } else {
             itemHolder.questionItemFavoriteImg.setImageResource(R.drawable.star);
@@ -121,7 +127,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 Intent intent = new Intent(context, QuestionContentActivity.class);
                 intent.putExtra("question_id", id);
                 intent.putExtra("position", position);
-                ((MainActivity) context).startActivityForResult(intent, 1);
+                ((Activity) context).startActivityForResult(intent, 1);
             }
         });
     }
@@ -133,6 +139,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 return questionList.size();
             case MainActivity.TYPE_FAVORITE:
                 return favoriteList.size();
+            case MainActivity.TYPE_MINE:
+                return mineList.size();
         }
         return 0;
     }
@@ -147,9 +155,9 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             case MainActivity.TYPE_QUESTION:
                 MySQLiteOpenHelper.readQuestion(questionList, getItemCount(), MainActivity.TYPE_REFRESH);
                 break;
-            case MainActivity.TYPE_FAVORITE:
-                MySQLiteOpenHelper.readFavorite(favoriteList, getItemCount());
-                break;
+//            case MainActivity.TYPE_FAVORITE:
+//                MySQLiteOpenHelper.readFavorite(favoriteList, getItemCount());
+//                break;
         }
     }
 
@@ -159,14 +167,22 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void loadMoreData() {
         curSize += 20;
         if (type == MainActivity.TYPE_QUESTION) {
-            MySQLiteOpenHelper.readQuestion(questionList, curSize, MainActivity.TYPE_LOAD_MORE);
-        } else if (type == MainActivity.TYPE_FAVORITE) {
-            MySQLiteOpenHelper.readFavorite(favoriteList, curSize);
-        }
+            MySQLiteOpenHelper.readQuestion(questionList, curSize, MainActivity.TYPE_LOAD_MORE);}
+//        } else if (type == MainActivity.TYPE_FAVORITE) {
+//            MySQLiteOpenHelper.readFavorite(favoriteList, curSize);
+//        }
     }
 
-    public Question getQuestion(int position) {
-        return questionList.get(position);
+    public Question getQuestion(int position,int type) {
+        switch (type) {
+            case MainActivity.TYPE_QUESTION:
+                return questionList.get(position);
+            case MainActivity.TYPE_FAVORITE:
+                return favoriteList.get(position);
+            case MainActivity.TYPE_MINE:
+                return mineList.get(position);
+        }
+        return null;
     }
 
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {

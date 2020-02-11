@@ -111,7 +111,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             } else {
                 answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
             }
-            if (!(question.getAuthorId() == SplashActivity.person.getId())) {
+            if (!(question.getAuthorId() == MainActivity.person.getId())) {
                 answerViewHolder.answerItemBestBtn.setVisibility(View.GONE);
             }
             if (answer.getBest() == 1) {
@@ -127,7 +127,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Map<String, String> queryBest = new HashMap<>();
                     queryBest.put("qid", qid + "");
                     queryBest.put("aid", answerList.get(position - 1).getId() + "");
-                    queryBest.put("token", SplashActivity.person.getToken());
+                    queryBest.put("token", MainActivity.person.getToken());
                     Http.sendHttpRequest(Http.URL_ACCEPT, queryBest, new HttpCallbackListener() {
                         @Override
                         public void onFinish(String response) {
@@ -173,7 +173,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Map<String, String> query = new HashMap<>();
                     query.put("id", answerList.get(position - 1).getId() + "");
                     query.put("type", MainActivity.TYPE_ANSWER + "");
-                    query.put("token", SplashActivity.person.getToken());
+                    query.put("token", MainActivity.person.getToken());
                     if (answerList.get(position - 1).getIsExciting()) {
                         Http.sendHttpRequest(Http.URL_CANCEL_EXCITING, query, new HttpCallbackListener() {
                             @Override
@@ -258,7 +258,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Map<String, String> query = new HashMap<>();
                     query.put("id", answerList.get(position - 1).getId() + "");
                     query.put("type", MainActivity.TYPE_ANSWER + "");
-                    query.put("token", SplashActivity.person.getToken());
+                    query.put("token", MainActivity.person.getToken());
                     if (answerList.get(position - 1).getIsNaive()) {
                         Http.sendHttpRequest(Http.URL_CANCEL_NAIVE, query, new HttpCallbackListener() {
                             @Override
@@ -388,7 +388,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Map<String, String> query = new HashMap<>();
                     query.put("id", qid + "");
                     query.put("type", MainActivity.TYPE_QUESTION + "");
-                    query.put("token", SplashActivity.person.getToken());
+                    query.put("token", MainActivity.person.getToken());
                     if (question.getIsExciting()) {
                         Http.sendHttpRequest(Http.URL_CANCEL_EXCITING, query, new HttpCallbackListener() {
                             @Override
@@ -477,7 +477,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Map<String, String> query = new HashMap<>();
                     query.put("id", qid + "");
                     query.put("type", MainActivity.TYPE_QUESTION + "");
-                    query.put("token", SplashActivity.person.getToken());
+                    query.put("token", MainActivity.person.getToken());
                     if (question.getIsNaive()) {
                         Http.sendHttpRequest(Http.URL_CANCEL_NAIVE, query, new HttpCallbackListener() {
                             @Override
@@ -565,7 +565,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public void onClick(View v) {
                     Map<String, String> queryFavorite = new HashMap<>();
                     queryFavorite.put("id", qid + "");
-                    queryFavorite.put("token", SplashActivity.person.getToken());
+                    queryFavorite.put("token", MainActivity.person.getToken());
                     if (question.getFavorite()) {
                         Http.sendHttpRequest(Http.URL_CANCEL_FAVORITE, queryFavorite, new HttpCallbackListener() {
                             @Override
@@ -722,7 +722,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private LinearLayout realQuestionExciting;
         private LinearLayout realQuestionNaive;
         private LinearLayout realQuestionFavorite;
-        private int curPosition;
 
         public QuestionViewHolder(@NonNull View itemView) {
             super(itemView);

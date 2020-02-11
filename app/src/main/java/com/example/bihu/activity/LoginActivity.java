@@ -1,6 +1,5 @@
 package com.example.bihu.activity;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,21 +7,22 @@ import android.os.Looper;
 import android.os.Message;
 import android.transition.ChangeBounds;
 import android.transition.ChangeTransform;
-import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionSet;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bihu.R;
+import com.example.bihu.utils.ActivityCollector;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
@@ -34,7 +34,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 
     private Button loginButton;
     private EditText loginUsernameET;
@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private String password;
     private ImageView img;
     private Button toRegister;
+    private Toast toast;
     //处理登录结果
     private Handler handler = new Handler() {
         @Override
@@ -103,10 +104,10 @@ public class LoginActivity extends AppCompatActivity {
                                     break;
                                 case 200:
                                     JSONObject object = jsonObject.getJSONObject("data");
-                                    SplashActivity.person.setId(object.getInt("id"));
-                                    SplashActivity.person.setUsername(object.getString("username"));
-                                    SplashActivity.person.setToken(object.getString("token"));
-                                    SplashActivity.person.setAvatar(object.getString("avatar"));
+                                    MainActivity.person.setId(object.getInt("id"));
+                                    MainActivity.person.setUsername(object.getString("username"));
+                                    MainActivity.person.setToken(object.getString("token"));
+                                    MainActivity.person.setAvatar(object.getString("avatar"));
                                     MySQLiteOpenHelper.addPerson(object.getInt("id"), object.getString("username"), 0 + "", object.getString("avatar"), object.getString("token"));
                                     Message msg = new Message();
                                     msg.what = 1;
@@ -132,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
         toRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this,RegisterActivity.class));
+                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             }
         });
     }
@@ -148,4 +149,15 @@ public class LoginActivity extends AppCompatActivity {
         loginPasswordET = findViewById(R.id.register_password);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (toast == null) {
+            toast = Toast.makeText(LoginActivity.this, "再按一次退出", Toast.LENGTH_SHORT);
+            toast.show();
+        } else {
+            ActivityCollector.finishAll();
+            return super.onKeyDown(keyCode, event);
+        }
+        return false;
+    }
 }

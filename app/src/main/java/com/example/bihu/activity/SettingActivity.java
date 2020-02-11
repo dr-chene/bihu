@@ -36,6 +36,7 @@ import androidx.core.content.FileProvider;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
+import com.example.bihu.utils.ActivityCollector;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
@@ -55,7 +56,7 @@ import java.util.Map;
 import static android.widget.Toast.LENGTH_SHORT;
 import static com.example.bihu.utils.Methods.getFileByUri;
 
-public class SettingActivity extends AppCompatActivity implements View.OnClickListener {
+public class SettingActivity extends BaseActivity implements View.OnClickListener {
 
     private ConstraintLayout settingAccount;
     private ConstraintLayout settingPerson;
@@ -101,16 +102,16 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         settingBack = findViewById(R.id.setting_back);
         settingAvatar = findViewById(R.id.setting_avatar);
         settingUsername = findViewById(R.id.setting_username);
-        if (SplashActivity.person.getId() != -1) {
+        if (MainActivity.person.getId() != -1) {
             //加载头像settingAvatar
-            if (SplashActivity.person.getAvatar().length() >= 5) {
+            if (MainActivity.person.getAvatar().length() >= 5) {
                 Glide.with(this)
-                        .load(SplashActivity.person.getAvatar())
+                        .load(MainActivity.person.getAvatar())
                         .error(R.drawable.error_avatar)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(settingAvatar);
             }
-            settingUsername.setText(SplashActivity.person.getUsername());
+            settingUsername.setText(MainActivity.person.getUsername());
 
         }
     }
@@ -189,9 +190,11 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MySQLiteOpenHelper.deletePerson();
-                SplashActivity.person.setId(-1);
+                MainActivity.person.setId(-1);
                 Intent intent = new Intent(SettingActivity.this, LoginActivity.class);
+                ActivityCollector.finishAll();
                 startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(SettingActivity.this).toBundle());
+
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -303,7 +306,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
      */
     private void postSuccess(final String image) {
         Map<String, String> query = new HashMap<>();
-        query.put("token", SplashActivity.person.getToken());
+        query.put("token", MainActivity.person.getToken());
         query.put("avatar", image);
         Http.sendHttpRequest(Http.URL_MODIFY_AVATAR, query, new HttpCallbackListener() {
             @Override

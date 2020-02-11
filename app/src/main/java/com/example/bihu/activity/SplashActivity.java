@@ -16,9 +16,11 @@ import com.example.bihu.R;
 import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.Person;
 
-public class SplashActivity extends AppCompatActivity {
+import static com.example.bihu.activity.MainActivity.person;
 
-    public static Person person;
+public class SplashActivity extends BaseActivity {
+
+
     private ImageView img;
 
     @Override
@@ -45,8 +47,10 @@ public class SplashActivity extends AppCompatActivity {
                     Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
                     ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(SplashActivity.this, img, "share_logo");
                     startActivity(intent, options.toBundle());
+                    finish();
                 } else {
                     startActivity(new Intent(SplashActivity.this, MainActivity.class),ActivityOptions.makeSceneTransitionAnimation(SplashActivity.this).toBundle());
+                    finish();
                 }
             }
 
