@@ -6,42 +6,33 @@
     android:layout_height="match_parent"
     tools:context=".activity.RegisterActivity">
 
-    <LinearLayout
+    <TextView
         android:id="@+id/register_back"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:text="返回"
+        android:textColor="#1E90FF"
+        android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/register_username"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.01"
+        app:layout_constraintHorizontal_bias="0.03"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.1">
-
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/fanhui" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:layout_gravity="center_vertical"
-            android:text="返回"
-            android:textColor="#1E90FF"
-            android:textSize="20dp" />
-    </LinearLayout>
+        app:layout_constraintVertical_bias="0.1" />
 
     <EditText
         android:id="@+id/register_username"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:hint="用户"
+        android:inputType="text"
         android:lines="1"
         android:maxLength="10"
-        android:paddingLeft="40dp"
+        android:paddingStart="40dp"
         android:paddingBottom="15dp"
         android:textColorHint="#1E90FF"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,10 +47,10 @@
         android:inputType="textPassword"
         android:lines="1"
         android:maxLength="15"
-        android:paddingLeft="40dp"
+        android:paddingStart="40dp"
         android:paddingBottom="15dp"
         android:textColorHint="#1E90FF"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -74,10 +65,10 @@
         android:inputType="textPassword"
         android:lines="1"
         android:maxLength="15"
-        android:paddingLeft="40dp"
+        android:paddingStart="40dp"
         android:paddingBottom="15dp"
         android:textColorHint="#1E90FF"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -126,7 +117,7 @@
         android:layout_height="40dp"
         android:background="#1E90FF"
         android:text="注册"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

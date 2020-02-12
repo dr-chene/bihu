@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".activity.FavoriteActivity">
 
-    <LinearLayout
-        android:id="@+id/favorite_back"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:background="#F0F8FF">
+        android:layout_height="wrap_content"
+        app:elevation="5dp">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/fanhui" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:gravity="center_vertical"
-            android:text="返回"
-            android:textColor="#1E90FF"
-            android:textSize="17dp" />
-    </LinearLayout>
+            android:background="#F0F8FF">
+
+            <TextView
+                android:id="@+id/favorite_back"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:gravity="center_vertical"
+                android:paddingStart="5dp"
+                android:text="返回"
+                android:textColor="#1E90FF"
+                android:textSize="17sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/favorite_rv"

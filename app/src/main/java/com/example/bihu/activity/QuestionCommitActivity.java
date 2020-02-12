@@ -3,6 +3,7 @@ package com.example.bihu.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,7 +15,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -66,9 +66,12 @@ public class QuestionCommitActivity extends BaseActivity {
      */
     private void initView() {
         FloatingActionButton questionEnterBtn;
-        LinearLayout enterQuestionBack;
+        TextView enterQuestionBack;
         enterQuestionImg = findViewById(R.id.enter_question_img);
         enterQuestionBack = findViewById(R.id.enter_question_back);
+        Drawable drawable = getResources().getDrawable(R.drawable.fanhui);
+        drawable.setBounds(0, 0, 40, 40);
+        enterQuestionBack.setCompoundDrawables(drawable, null, null, null);
         titleCount = findViewById(R.id.title_count);
         contentCount = findViewById(R.id.content_count);
         questionEnterBtn = findViewById(R.id.enter_question_btn);
@@ -267,6 +270,7 @@ public class QuestionCommitActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == MainActivity.TYPE_CHOOSE_PHOTO) {
             if (resultCode == RESULT_OK) {
+                assert data != null;
                 uri = data.getData();
                 enterQuestionImg.setImageURI(uri);
                 imgChanged = true;

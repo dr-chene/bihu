@@ -6,31 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".activity.QuestionCommitActivity">
 
-    <LinearLayout
+    <TextView
         android:id="@+id/enter_question_back"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:text="返回"
+        android:textColor="#1E90FF"
+        android:textSize="17sp"
         app:layout_constraintBottom_toTopOf="@+id/title_ed"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.01"
+        app:layout_constraintHorizontal_bias="0.03"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.1">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/fanhui" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:gravity="center_vertical"
-            android:text="返回"
-            android:textColor="#1E90FF"
-            android:textSize="17dp" />
-    </LinearLayout>
+        app:layout_constraintVertical_bias="0.1" />
 
     <EditText
         android:id="@+id/title_ed"
@@ -41,8 +30,9 @@
         android:hint="一个好的的标题往往更容易引人注目"
         android:lines="1"
         android:maxLength="20"
+        android:textColor="#191970"
         android:textColorHint="#1E90FF"
-        android:textSize="15dp"
+        android:textSize="15sp"
         android:theme="@style/MyEditText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -72,8 +62,9 @@
         android:layout_marginRight="20dp"
         android:gravity="top"
         android:hint="撒，尽情发挥你的才能吧，不过，还请尽量清晰，令人信服"
+        android:textColor="#191970"
         android:textColorHint="#1E90FF"
-        android:textSize="17dp"
+        android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

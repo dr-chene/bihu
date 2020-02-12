@@ -5,155 +5,158 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="2dp"
     app:elevation="5dp">
-<LinearLayout
-    android:orientation="vertical"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="7dp"
         android:orientation="vertical">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="10dp">
+            android:layout_margin="7dp"
+            android:orientation="vertical">
 
-            <com.example.bihu.widget.CircleImageView
-                android:id="@+id/answer_item_user_img"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/no_avatar"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.01"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <TextView
-                android:id="@+id/answer_item_username"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="赤暮"
-                android:textColor="#000000"
-                android:textSize="15dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.01"
-                app:layout_constraintStart_toEndOf="@+id/answer_item_user_img"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.5" />
-
-            <Button
-                android:id="@+id/answer_item_best"
-                android:layout_width="60dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/question_answer_best_bg"
-                android:gravity="center"
-                android:text="采纳"
-                android:textColor="#4169E1"
-                android:textSize="10dp"
-                app:layout_constraintBottom_toBottomOf="@+id/answer_item_user_img"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.85"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.5" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/answer_item_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:text="这是回答"
-            android:textColor="#121212"
-            android:textSize="15dp" />
-
-        <ImageView
-            android:id="@+id/answer_item_img"
-            android:layout_width="wrap_content"
-            android:layout_height="250dp"
-            android:padding="10dp" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_marginTop="3dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/answer_item_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2020-01-17"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.02"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <LinearLayout
-                android:id="@+id/answer_item_exciting"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
                 android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.75"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:paddingTop="10dp">
 
-                <ImageView
-                    android:id="@+id/answer_item_exciting_img"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/exciting" />
+                <com.example.bihu.widget.CircleImageView
+                    android:id="@+id/answer_item_user_img"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/no_avatar"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.01"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
 
                 <TextView
-                    android:id="@+id/answer_item_exciting_count"
+                    android:id="@+id/answer_item_username"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:paddingLeft="5dp"
-                    android:text="0" />
-            </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:text="赤暮"
+                    android:textColor="#000000"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.01"
+                    app:layout_constraintStart_toEndOf="@+id/answer_item_user_img"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.5" />
 
-            <LinearLayout
-                android:id="@+id/answer_item_naive"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.92"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/answer_item_naive_img"
-                    android:layout_width="20dp"
+                <Button
+                    android:id="@+id/answer_item_best"
+                    android:layout_width="60dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/naive" />
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/question_answer_best_bg"
+                    android:gravity="center"
+                    android:text="采纳"
+                    android:textColor="#4169E1"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/answer_item_user_img"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.85"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.5" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/answer_item_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:text="这是回答"
+                android:textColor="#121212"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/answer_item_img"
+                android:layout_width="wrap_content"
+                android:layout_height="250dp"
+                android:padding="10dp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp">
 
                 <TextView
-                    android:id="@+id/answer_item_naive_count"
+                    android:id="@+id/answer_item_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2020-01-17"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.02"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <LinearLayout
+                    android:id="@+id/answer_item_exciting"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:paddingLeft="5dp"
-                    android:text="0" />
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.75"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/answer_item_exciting_img"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/hand_thumbsdown_fill" />
+
+                    <TextView
+                        android:id="@+id/answer_item_exciting_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:paddingStart="5dp"
+                        android:text="0" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/answer_item_naive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.92"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/answer_item_naive_img"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/naive" />
+
+                    <TextView
+                        android:id="@+id/answer_item_naive_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:paddingStart="5dp"
+                        android:text="0" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="#EAEAEA" />
     </LinearLayout>
-    <View
-    android:layout_width="match_parent"
-    android:layout_height="3dp"
-        android:background="#EAEAEA"/>
-</LinearLayout>
 </androidx.cardview.widget.CardView>

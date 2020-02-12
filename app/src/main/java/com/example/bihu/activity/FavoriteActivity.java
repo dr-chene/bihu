@@ -1,9 +1,10 @@
 package com.example.bihu.activity;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,8 +30,11 @@ public class FavoriteActivity extends BaseActivity {
      */
     private void initView() {
         RecyclerView recyclerView;
-        LinearLayout favoriteBack;
+        TextView favoriteBack;
         favoriteBack = findViewById(R.id.favorite_back);
+        Drawable drawable = getResources().getDrawable(R.drawable.fanhui);
+        drawable.setBounds(0, 0, 40, 40);
+        favoriteBack.setCompoundDrawables(drawable, null, null, null);
         recyclerView = findViewById(R.id.favorite_rv);
         favoriteAdapter = new QuestionAdapter(FavoriteActivity.this, MainActivity.TYPE_FAVORITE);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -48,6 +52,7 @@ public class FavoriteActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
+                assert data != null;
                 int position = data.getIntExtra("position", -1);
                 if (position != -1) {
                     Question question = favoriteAdapter.getQuestion(position, MainActivity.TYPE_FAVORITE);

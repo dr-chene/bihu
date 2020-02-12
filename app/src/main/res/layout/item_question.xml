@@ -30,7 +30,7 @@
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 android:src="@drawable/no_avatar"
-                android:transitionName="sharedAvatar"/>
+                android:transitionName="sharedAvatar" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -44,15 +44,15 @@
                     android:layout_height="wrap_content"
                     android:text="赤暮"
                     android:textColor="#000000"
-                    android:textSize="15dp"
-                    android:transitionName="sharedName"/>
+                    android:textSize="15sp"
+                    android:transitionName="sharedName" />
 
                 <TextView
                     android:id="@+id/question_item_recent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="回复于8分钟前"
-                    android:textSize="10dp" />
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -60,10 +60,10 @@
             android:id="@+id/question_item_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingStart="5dp"
             android:text="这是标题"
             android:textColor="#000000"
-            android:textSize="17dp" />
+            android:textSize="17sp" />
 
         <TextView
             android:id="@+id/question_item_content"
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="2"
-            android:paddingLeft="5dp"
+            android:paddingStart="5dp"
             android:text="这是正文\nsjnsjsovdiosvoidjsiovjsovjsoivhsiubvisjbvksjbvksdjvbskjvbisjvbsvs" />
 
         <ImageView
@@ -94,7 +94,7 @@
                     android:id="@+id/question_item_exciting_img"
                     android:layout_width="20dp"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
+                    android:paddingStart="5dp"
                     android:src="@drawable/hand_thumbsup" />
 
                 <TextView
@@ -102,7 +102,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:paddingLeft="5dp"
+                    android:paddingStart="5dp"
                     android:text="0" />
             </LinearLayout>
 
@@ -115,7 +115,7 @@
                     android:id="@+id/question_item_answer_img"
                     android:layout_width="20dp"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
+                    android:paddingStart="5dp"
                     android:src="@drawable/chat" />
 
                 <TextView
@@ -123,7 +123,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:paddingLeft="5dp"
+                    android:paddingStart="5dp"
                     android:text="0" />
             </LinearLayout>
 
@@ -136,7 +136,7 @@
                     android:id="@+id/question_item_naive_img"
                     android:layout_width="20dp"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
+                    android:paddingStart="5dp"
                     android:src="@drawable/hand_thumbsdown" />
 
                 <TextView
@@ -144,15 +144,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:paddingLeft="5dp"
+                    android:paddingStart="5dp"
                     android:text="0" />
             </LinearLayout>
+
             <ImageView
                 android:id="@+id/question_item_favorite_img"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:paddingLeft="5dp"
-                android:src="@drawable/star"/>
+                android:paddingStart="5dp"
+                android:src="@drawable/star" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

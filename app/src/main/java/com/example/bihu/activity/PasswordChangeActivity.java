@@ -1,12 +1,13 @@
 package com.example.bihu.activity;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
@@ -22,7 +23,7 @@ import java.util.Map;
 
 public class PasswordChangeActivity extends BaseActivity implements View.OnClickListener {
 
-    private LinearLayout changePasswordBack;
+    private TextView changePasswordBack;
     private EditText changePasswordOld;
     private EditText changePasswordNew;
     private EditText changePasswordNewConfirm;
@@ -49,9 +50,12 @@ public class PasswordChangeActivity extends BaseActivity implements View.OnClick
      */
     private void initView() {
         changePasswordBack = findViewById(R.id.change_password_back);
+        Drawable drawable = getResources().getDrawable(R.drawable.fanhui);
+        drawable.setBounds(0, 0, 40, 40);
+        changePasswordBack.setCompoundDrawables(drawable, null, null, null);
         changePasswordOld = findViewById(R.id.change_password_old);
         changePasswordNew = findViewById(R.id.change_password_new);
-        changePasswordNewConfirm = findViewById(R.id.change_password_new);
+        changePasswordNewConfirm = findViewById(R.id.change_password_new_confirm);
         changePasswordBtn = findViewById(R.id.change_password_btn);
     }
 

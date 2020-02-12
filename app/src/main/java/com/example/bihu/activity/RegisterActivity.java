@@ -1,12 +1,13 @@
 package com.example.bihu.activity;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
@@ -22,7 +23,7 @@ import java.util.Map;
 
 public class RegisterActivity extends BaseActivity implements View.OnClickListener {
 
-    private LinearLayout registerBack;
+    private TextView registerBack;
     private EditText registerUsername;
     private EditText registerPassword;
     private EditText registerPasswordConfirm;
@@ -49,6 +50,9 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
      */
     private void initView() {
         registerBack = findViewById(R.id.register_back);
+        Drawable drawable = getResources().getDrawable(R.drawable.fanhui);
+        drawable.setBounds(0, 0, 50, 50);
+        registerBack.setCompoundDrawables(drawable, null, null, null);
         registerUsername = findViewById(R.id.register_username);
         registerPassword = findViewById(R.id.register_password);
         registerPasswordConfirm = findViewById(R.id.register_password_confirm);

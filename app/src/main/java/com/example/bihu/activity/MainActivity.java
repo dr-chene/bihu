@@ -40,6 +40,7 @@ import com.example.bihu.utils.Question;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -104,7 +105,7 @@ public class MainActivity extends BaseActivity {
      * @return
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NotNull MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.action_settings:
@@ -221,6 +222,7 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 recyclerView.scrollToPosition(0);
                 LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                assert mLayoutManager != null;
                 mLayoutManager.scrollToPositionWithOffset(0, 0);
             }
         });
@@ -238,13 +240,13 @@ public class MainActivity extends BaseActivity {
             boolean isLoading;
 
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NotNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
 
             //根据dy，dx可以判断是往哪个方向滑动
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NotNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 if (dy > 0) {
                     int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
@@ -252,6 +254,7 @@ public class MainActivity extends BaseActivity {
                         if (!isLoading) {
                             isLoading = true;
                             View view = linearLayoutManager.findViewByPosition(questionAdapter.getItemCount() - 1);
+                            assert view != null;
                             view.findViewById(R.id.load_bar).setVisibility(View.VISIBLE);
                             ((TextView) view.findViewById(R.id.load_text)).setText("正在加载");
                             handler.postDelayed(new Runnable() {
@@ -417,6 +420,7 @@ public class MainActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
+                assert data != null;
                 int position = data.getIntExtra("position", -1);
                 if (position != -1) {
                     Question question = questionAdapter.getQuestion(position, TYPE_QUESTION);
@@ -452,6 +456,7 @@ public class MainActivity extends BaseActivity {
             questionAdapter.notifyItemInserted(questionAdapter.getItemCount());
         } else {
             View view = linearLayoutManager.findViewByPosition(questionAdapter.getItemCount() - 1);
+            assert view != null;
             view.findViewById(R.id.load_bar).setVisibility(View.GONE);
             ((TextView) view.findViewById(R.id.load_text)).setText(".....没有更多数据.....");
         }

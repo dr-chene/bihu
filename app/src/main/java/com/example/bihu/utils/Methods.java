@@ -33,6 +33,7 @@ public class Methods {
                 Cursor cur = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{MediaStore.Images.ImageColumns._ID, MediaStore.Images.ImageColumns.DATA}, buff.toString(), null, null);
                 int index = 0;
                 int dataIdx = 0;
+                assert cur != null;
                 for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
                     index = cur.getColumnIndex(MediaStore.Images.ImageColumns._ID);
                     index = cur.getInt(index);
@@ -53,12 +54,14 @@ public class Methods {
             // 4.2.2以后
             String[] proj = {MediaStore.Images.Media.DATA};
             Cursor cursor = context.getContentResolver().query(uri, proj, null, null, null);
+            assert cursor != null;
             if (cursor.moveToFirst()) {
                 int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 path = cursor.getString(columnIndex);
             }
             cursor.close();
 
+            assert path != null;
             return new File(path);
         } else {
             Log.i("debug", "Uri Scheme:" + uri.getScheme());

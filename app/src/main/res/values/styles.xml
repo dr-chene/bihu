@@ -12,8 +12,8 @@
         <item name="colorControlActivated">#1E90FF</item>
     </style>
 
-    <style name="OverflowMenuStyle"  parent="@style/Widget.AppCompat.PopupMenu.Overflow">
-       <item name="overlapAnchor">false</item>
+    <style name="OverflowMenuStyle" parent="@style/Widget.AppCompat.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>
         <item name="android:background">#1E90FF</item>
     </style>
 
@@ -23,8 +23,6 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
 </resources>

@@ -287,6 +287,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                 if (data != null) {
                     Uri uri = data.getData();
                     settingAvatar.setImageURI(uri);
+                    assert uri != null;
                     File file = getFileByUri(uri);
                     new QiNiu().upload(file, new QiNiuCallbackListener() {
                         @Override

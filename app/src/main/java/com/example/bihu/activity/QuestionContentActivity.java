@@ -240,6 +240,7 @@ public class QuestionContentActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == MainActivity.TYPE_CHOOSE_PHOTO) {
             if (resultCode == RESULT_OK) {
+                assert data != null;
                 uri = data.getData();
                 View contentView = LayoutInflater.from(QuestionContentActivity.this).inflate(R.layout.pop_img, null);
                 popupWindow = new PopupWindow(contentView, 300, 300, true);

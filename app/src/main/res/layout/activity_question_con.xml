@@ -11,7 +11,7 @@
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/real_question_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -39,8 +39,9 @@
                 android:layout_height="30dp"
                 android:background="@drawable/enter_answer_ed_bg"
                 android:hint="是时候展现真正技术了"
-                android:paddingLeft="3dp"
-                android:textSize="10dp"
+                android:inputType="text"
+                android:paddingStart="3dp"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.1"
