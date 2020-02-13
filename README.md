@@ -6,27 +6,21 @@
 
 ##### 功能：目前实现了api全部接口功能
 
-![](https://github.com/dr-chene/bihu/blob/master/bihu_demo.gif)
-
 注册，登录 
 
-![](https://github.com/dr-chene/bihu/blob/master/bihu_login.gif)
-
-刷新问题
-
-![](https://github.com/dr-chene/bihu/blob/master/bihu_recyclerview.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_answer_plus.gif)
 
 修改头像（可拍照或从本地选择相片）修改密码
 
-![](https://github.com/dr-chene/bihu/blob/master/bihu_setting.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_setting_plus.gif)
 
-发布问题~~一直500~~
+刷新问题,发布问题~~一直500~~
 
-![](https://github.com/dr-chene/bihu/blob/master/bihu_question.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_question_plus.gif)
 
 发布回答~~（发布文字回答会500，图片没问题）~~ 刷新回答 收藏~~一直500~~ 取消收藏 采纳 点赞问题，回答 取消点赞 踩问题，回答 取消踩
 
-![](https://github.com/dr-chene/bihu/blob/master/bihu_answer.gif)
+![](https://github.com/dr-chene/bihu/blob/master/bihu_answer_plus.gif)
 
 因为个人技术与时间有限，因此发布回答与问题时只可上传一张图片，且存在回答问题后无法自动刷新成功的bug，会严重影响使用体验~~i am so vegetable~~。
 
@@ -51,4 +45,4 @@
     算法的重要性：在编程的过程中，我曾一度感觉有种与算法脱离的感觉，直到我为了如何算出请求的页数与总数而头疼时才发现了问题的严重性虽然因为菜最后还是没有找到好的解决方案
     坚定了我在Java与Android方面学习下去的决心：计算机包括了太多的方面，比起学得多还不如学得深，于是终于下定决心，在这两方面深造，希望能在毕业这前成为一个合格的开发者
     编程虽然充满了各式各样的bug和令人崩溃的瞬间，但，真的很有趣
-
+说实话，一开始做app的时候，脑袋里一片空白，没有半点app的雏形，现在能做成这样，可以说是很不容易了~~感动菜鸡（我）~~。~~虽然还没有做到最好~~
