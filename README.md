@@ -7,7 +7,7 @@
 ##### 功能：目前实现了api全部接口功能
 
 注册，登录 
-
+![](https://github.com/dr-chene/bihu/blob/master/bihu_login_plus.gif)
 
 
 修改头像（可拍照或从本地选择相片）修改密码
@@ -16,11 +16,11 @@
 
 刷新问题,发布问题~~一直500~~
 
-
+![](https://github.com/dr-chene/bihu/blob/master/bihu_question_plus.gif)
 
 发布回答~~（发布文字回答会500，图片没问题）~~ 刷新回答 收藏~~一直500~~ 取消收藏 采纳 点赞问题，回答 取消点赞 踩问题，回答 取消踩
 
-
+![](https://github.com/dr-chene/bihu/blob/master/bihu_answer_plus.gif)
 
 因为个人技术与时间有限，因此发布回答与问题时只可上传一张图片，且存在回答问题后无法自动刷新成功的bug，会严重影响使用体验~~i am so vegetable~~。
 
