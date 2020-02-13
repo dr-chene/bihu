@@ -454,7 +454,7 @@ public class MainActivity extends BaseActivity {
         MySQLiteOpenHelper.readQuestion(questions, questionAdapter.curSize, MainActivity.TYPE_LOAD_MORE);
         if (preSize != questions.size()) {
             questionAdapter.notifyItemInserted(questionAdapter.getItemCount());
-        } else {
+        } else if (questions.size() != 0) {
             View view = linearLayoutManager.findViewByPosition(questionAdapter.getItemCount() - 1);
             assert view != null;
             view.findViewById(R.id.load_bar).setVisibility(View.GONE);

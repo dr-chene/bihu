@@ -69,12 +69,11 @@ public class QuestionContentActivity extends BaseActivity {
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case MainActivity.TYPE_REFRESH:
-                    answerAdapter.notifyItemInserted(answerAdapter.getItemCount() - 1);
+                    answerAdapter.notifyItemChanged(answerAdapter.getItemCount()-1);
                     swipeRefreshLayout.setRefreshing(false);
                     break;
                 case MainActivity.TYPE_ANSWER:
                     enterAnswerED.setText("");
-                    swipeRefreshLayout.setRefreshing(true);
                     refreshAnswer();
                     if (popupWindow != null) {
                         popupWindow.dismiss();
@@ -132,7 +131,6 @@ public class QuestionContentActivity extends BaseActivity {
         }
         hf = findViewById(R.id.hf);
         enterPic = findViewById(R.id.enter_pic_btn);
-        realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
         enterAnswerED = findViewById(R.id.enter_answer_ed);
         enterAnswerBtn = findViewById(R.id.enter_answer_btn);
         swipeRefreshLayout = findViewById(R.id.real_question_refresh);
