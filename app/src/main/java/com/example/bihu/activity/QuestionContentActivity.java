@@ -132,7 +132,6 @@ public class QuestionContentActivity extends BaseActivity {
         }
         hf = findViewById(R.id.hf);
         enterPic = findViewById(R.id.enter_pic_btn);
-        realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
         enterAnswerED = findViewById(R.id.enter_answer_ed);
         enterAnswerBtn = findViewById(R.id.enter_answer_btn);
         swipeRefreshLayout = findViewById(R.id.real_question_refresh);
