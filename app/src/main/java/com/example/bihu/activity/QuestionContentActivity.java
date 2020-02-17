@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,13 +65,14 @@ public class QuestionContentActivity extends BaseActivity {
     private Boolean isAnswering = false;
     private Uri uri;
     private int position;
+    private PopupWindow popAnswering;
     //处理刷新和发布回答成功的事件
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case MainActivity.TYPE_REFRESH:
-                    answerAdapter.notifyItemChanged(answerAdapter.getItemCount()-1);
+                    answerAdapter.notifyItemChanged(answerAdapter.getItemCount() - 1);
                     swipeRefreshLayout.setRefreshing(false);
                     break;
                 case MainActivity.TYPE_ANSWER:
@@ -79,6 +82,7 @@ public class QuestionContentActivity extends BaseActivity {
                         popupWindow.dismiss();
                     }
                     images = "";
+                    popAnswering.dismiss();
                     isAnswering = false;
                     MyToast.showToast("回答成功");
                     break;
@@ -173,6 +177,7 @@ public class QuestionContentActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (!isAnswering) {
+                    popAnswering();
                     isAnswering = true;
                     if (popupWindow != null) {
                         Log.d("test", "popupWindow!=null");
@@ -181,6 +186,7 @@ public class QuestionContentActivity extends BaseActivity {
                             public void onSuccess(String image) {
                                 if (image == "") {
                                     isAnswering = false;
+                                    popAnswering.dismiss();
                                     MyToast.showToast("图片上传失败");
                                 } else {
                                     images = image;
@@ -270,7 +276,14 @@ public class QuestionContentActivity extends BaseActivity {
                         if (jsonObject.getInt("status") != 200) {
                             Looper.prepare();
                             MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
-                            isAnswering = false;
+
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    popAnswering.dismiss();
+                                    isAnswering = false;
+                                }
+                            });
                             Looper.loop();
                         } else {
                             Message msg = new Message();
@@ -288,6 +301,7 @@ public class QuestionContentActivity extends BaseActivity {
                 }
             });
         } else {
+            popAnswering.dismiss();
             isAnswering = false;
         }
     }
@@ -383,5 +397,14 @@ public class QuestionContentActivity extends BaseActivity {
         intent.putExtra("naiveCount", answerAdapter.question.getNaive());
         setResult(RESULT_OK, intent);
         return super.onKeyDown(keyCode, event);
+    }
+
+    private void popAnswering() {
+        View contentView = LayoutInflater.from(QuestionContentActivity.this).inflate(R.layout.pop_modifying, null);
+        ((TextView) contentView.findViewById(R.id.pop_loading_text)).setText("正在发布回答");
+        popAnswering = new PopupWindow(contentView, ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT, true);
+        popAnswering.setContentView(contentView);
+        View rootView = LayoutInflater.from(QuestionContentActivity.this).inflate(R.layout.activity_setting, null);
+        popAnswering.showAtLocation(rootView, Gravity.CENTER, 0, 0);
     }
 }

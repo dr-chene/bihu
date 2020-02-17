@@ -54,7 +54,7 @@ import static com.example.bihu.utils.Methods.getFileByUri;
 
 public class SettingActivity extends BaseActivity implements View.OnClickListener {
 
-    private PopupWindow isModifying;
+    private PopupWindow popModifying;
     private ConstraintLayout settingAccount;
     private ConstraintLayout settingPerson;
     private ConstraintLayout settingModifyAvatar;
@@ -262,7 +262,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        isModifying();
+        popModifying();
         switch (requestCode) {
             case MainActivity.TYPE_TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
@@ -279,8 +279,8 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                         e.printStackTrace();
                     }
                 } else {
-                    MyToast.showToast("异常的错误");
-                    isModifying.dismiss();
+                    MyToast.showToast("未获取到图片");
+                    popModifying.dismiss();
                 }
                 break;
             case MainActivity.TYPE_CHOOSE_PHOTO:
@@ -297,8 +297,8 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                     });
                     break;
                 } else {
-                    MyToast.showToast("异常的错误");
-                    isModifying.dismiss();
+                    MyToast.showToast("未获取到图片");
+                    popModifying.dismiss();
                 }
         }
     }
@@ -319,7 +319,12 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                     JSONObject jsonObject = new JSONObject(response);
                     if (jsonObject.getInt("status") != 200) {
                         Looper.prepare();
-                        isModifying.dismiss();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                popModifying.dismiss();
+                            }
+                        });
                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                         Looper.loop();
                     } else {
@@ -327,7 +332,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                isModifying.dismiss();
+                                popModifying.dismiss();
                                 MyToast.showToast("头像更改成功");
                             }
                         });
@@ -344,11 +349,12 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
         });
     }
 
-    private void isModifying() {
+    private void popModifying() {
         View contentView = LayoutInflater.from(SettingActivity.this).inflate(R.layout.pop_modifying, null);
-        isModifying = new PopupWindow(contentView, ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT, true);
-        isModifying.setContentView(contentView);
+        ((TextView) contentView.findViewById(R.id.pop_loading_text)).setText("正在上传头像");
+        popModifying = new PopupWindow(contentView, ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT, true);
+        popModifying.setContentView(contentView);
         View rootView = LayoutInflater.from(SettingActivity.this).inflate(R.layout.activity_setting, null);
-        isModifying.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+        popModifying.showAtLocation(rootView, Gravity.CENTER, 0, 0);
     }
 }

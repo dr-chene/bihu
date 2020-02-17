@@ -11,14 +11,18 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.Explode;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -51,6 +55,7 @@ public class QuestionCommitActivity extends BaseActivity {
     private Boolean imgChanged = false;
     //处理问题发布成功后的事件
     private Handler handler = new Handler();
+    private PopupWindow popQuestioning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +154,7 @@ public class QuestionCommitActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (!isCommitting) {
+                    popQuestioning();
                     isCommitting = true;
                     if (imgChanged) {
                         new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
@@ -199,7 +205,13 @@ public class QuestionCommitActivity extends BaseActivity {
                         if (jsonObject.getInt("status") != 200) {
                             Looper.prepare();
                             MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
-                            isCommitting = false;
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    popQuestioning.dismiss();
+                                    isCommitting = false;
+                                }
+                            });
                             Looper.loop();
                         } else {
                             handler.post(new Runnable() {
@@ -210,6 +222,7 @@ public class QuestionCommitActivity extends BaseActivity {
                                     contentEd.setText("");
                                     enterQuestionImg.setImageResource(R.drawable.jia_question);
                                     imgChanged = false;
+                                    popQuestioning.dismiss();
                                     isCommitting = false;
                                     MyToast.showToast("发布成功");
                                 }
@@ -276,5 +289,14 @@ public class QuestionCommitActivity extends BaseActivity {
                 imgChanged = true;
             }
         }
+    }
+
+    private void popQuestioning() {
+        View contentView = LayoutInflater.from(QuestionCommitActivity.this).inflate(R.layout.pop_modifying, null);
+        ((TextView) contentView.findViewById(R.id.pop_loading_text)).setText("正在发布问题");
+        popQuestioning = new PopupWindow(contentView, ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT, true);
+        popQuestioning.setContentView(contentView);
+        View rootView = LayoutInflater.from(QuestionCommitActivity.this).inflate(R.layout.activity_setting, null);
+        popQuestioning.showAtLocation(rootView, Gravity.CENTER, 0, 0);
     }
 }
