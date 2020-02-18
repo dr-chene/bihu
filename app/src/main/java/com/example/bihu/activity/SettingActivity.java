@@ -32,7 +32,6 @@ import androidx.core.content.FileProvider;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
-import com.example.bihu.utils.ActivityCollector;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.MySQLiteOpenHelper;
@@ -190,7 +189,6 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                 MySQLiteOpenHelper.deletePerson();
                 MainActivity.person.setId(-1);
                 Intent intent = new Intent(SettingActivity.this, LoginActivity.class);
-                ActivityCollector.finishAll();
                 startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(SettingActivity.this).toBundle());
 
             }

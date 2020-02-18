@@ -13,11 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bihu.R;
 import com.example.bihu.adapter.QuestionAdapter;
+import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.Question;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MineActivity extends BaseActivity {
 
     private QuestionAdapter mineAdapter;
+    private List<Question> questions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +35,9 @@ public class MineActivity extends BaseActivity {
         drawable.setBounds(0, 0, 40, 40);
         mineBack.setCompoundDrawables(drawable, null, null, null);
         recyclerView = findViewById(R.id.mine_rv);
-        mineAdapter = new QuestionAdapter(MineActivity.this, MainActivity.TYPE_MINE);
+        questions = new ArrayList<>();
+        MySQLiteOpenHelper.readMine(questions);
+        mineAdapter = new QuestionAdapter(MineActivity.this, MainActivity.TYPE_MINE, questions);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mineAdapter);
         mineBack.setOnClickListener(new View.OnClickListener() {
@@ -49,13 +56,14 @@ public class MineActivity extends BaseActivity {
                 assert data != null;
                 int position = data.getIntExtra("position", -1);
                 if (position != -1) {
-                    Question question = mineAdapter.getQuestion(position, MainActivity.TYPE_MINE);
+                    Question question = questions.get(position);
                     question.setExciting(data.getBooleanExtra("isExciting", false));
                     question.setNaive(data.getBooleanExtra("isNaive", false));
                     question.setFavorite(data.getBooleanExtra("isFavorite", false));
                     question.setAnswerCount(data.getIntExtra("answerCount", 0));
                     question.setExciting(data.getIntExtra("excitingCount", 0));
                     question.setNaive(data.getIntExtra("naiveCount", 0));
+                    mineAdapter.setQuestions(questions);
                     mineAdapter.notifyItemChanged(position, -1);
                 }
             }

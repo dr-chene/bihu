@@ -19,10 +19,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
 import com.example.bihu.activity.MainActivity;
 import com.example.bihu.activity.QuestionContentActivity;
-import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.Question;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,21 +28,14 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_FOOTER = 1;
-    public int curSize = 0;
-    private List<Question> questionList = new ArrayList<>();
-    private List<Question> favoriteList = new ArrayList<>();
-    private List<Question> mineList = new ArrayList<>();
+    private List<Question> questions;
     private int type;
     private Context context;
 
-    public QuestionAdapter(Context context, int type) {
+    public QuestionAdapter(Context context, int type, List<Question> questions) {
         this.type = type;
         this.context = context;
-        if (type == MainActivity.TYPE_FAVORITE) {
-            MySQLiteOpenHelper.readFavorite(favoriteList);
-        } else if (type == MainActivity.TYPE_MINE) {
-            MySQLiteOpenHelper.readMine(mineList);
-        }
+        this.questions = questions;
     }
 
     @NonNull
@@ -70,20 +61,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
-
         if (holder instanceof MyInnerViewHolder) {
-            Question question = new Question();
-            switch (type) {
-                case MainActivity.TYPE_QUESTION:
-                    question = questionList.get(position);
-                    break;
-                case MainActivity.TYPE_FAVORITE:
-                    question = favoriteList.get(position);
-                    break;
-                case MainActivity.TYPE_MINE:
-                    question = mineList.get(position);
-                    break;
-            }
+            Question question = questions.get(position);
             final MyInnerViewHolder itemHolder = (MyInnerViewHolder) holder;
             //加载question数据
             itemHolder.questionItemAuthorName.setText(question.getAuthorName());
@@ -150,11 +129,10 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemCount() {
         switch (type) {
             case MainActivity.TYPE_QUESTION:
-                return questionList.size() == 0 ? 0 : questionList.size() + 1;
+                return questions.size() == 0 ? 0 : questions.size() + 1;
             case MainActivity.TYPE_FAVORITE:
-                return favoriteList.size();
             case MainActivity.TYPE_MINE:
-                return mineList.size();
+                return questions.size();
         }
         return 0;
     }
@@ -172,32 +150,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    /**
-     * 刷新问题
-     *
-     * @param type
-     */
-    public void refresh(int type) {
-        if (type == MainActivity.TYPE_QUESTION) {
-            MySQLiteOpenHelper.readQuestion(questionList, getItemCount(), MainActivity.TYPE_REFRESH);
-        }
-    }
-
-
-    public Question getQuestion(int position, int type) {
-        switch (type) {
-            case MainActivity.TYPE_QUESTION:
-                return questionList.get(position);
-            case MainActivity.TYPE_FAVORITE:
-                return favoriteList.get(position);
-            case MainActivity.TYPE_MINE:
-                return mineList.get(position);
-        }
-        return null;
-    }
-
-    public List<Question> getQuestionList() {
-        return questionList;
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
 
     public class MyInnerViewHolder extends RecyclerView.ViewHolder {

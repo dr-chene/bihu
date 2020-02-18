@@ -354,12 +354,12 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
      * 读取question
      *
      * @param qid
-     * @param question
      */
-    public static void searchQuestion(int qid, Question question) {
+    public static Question searchQuestion(int qid) {
         MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(MainActivity.vision);
         SQLiteDatabase sqLiteDatabase = mySQLiteOpenHelper.getReadableDatabase();
         Cursor cursor = sqLiteDatabase.rawQuery("select * from question where qid = ?", new String[]{qid + ""});
+        Question question = new Question();
         while (cursor.moveToNext()) {
             question.setId(cursor.getInt(cursor.getColumnIndex("qid")));
             question.setTitle(cursor.getString(cursor.getColumnIndex("title")));
@@ -379,6 +379,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
         }
         sqLiteDatabase.close();
         cursor.close();
+        return question;
     }
 
 

@@ -3,6 +3,7 @@ package com.example.bihu.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.bihu.R;
 import com.example.bihu.activity.MainActivity;
-import com.example.bihu.activity.QuestionContentActivity;
 import com.example.bihu.utils.Answer;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
@@ -30,7 +30,6 @@ import com.example.bihu.utils.Question;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,16 +38,15 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public Question question;
     private Context context;
-    private List<Answer> answerList = new ArrayList<>();
+    private List<Answer> answers;
     private int qid;
-    private QuestionContentActivity activity;
+    private Handler handler = new Handler();
 
-    public AnswerAdapter(Context context, int qid) {
-        this.qid = qid;
+    public AnswerAdapter(Context context, List<Answer> answers, Question question) {
+        this.question = question;
+        this.qid = question.getId();
         this.context = context;
-        question = new Question();
-        refresh();
-        activity = (QuestionContentActivity) context;
+        this.answers = answers;
     }
 
     @NonNull
@@ -65,10 +63,10 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         if (getItemViewType(position) == MainActivity.TYPE_ANSWER) {
             final AnswerViewHolder answerViewHolder = (AnswerViewHolder) holder;
-            Answer answer = answerList.get(position - 1);
+            Answer answer = answers.get(position - 1);
             //加载answer作者头像
             if (answer.getAuthorAvatar().length() >= 5) {
                 Glide.with(context)
@@ -122,7 +120,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public void onClick(View v) {
                     Map<String, String> queryBest = new HashMap<>();
                     queryBest.put("qid", qid + "");
-                    queryBest.put("aid", answerList.get(position - 1).getId() + "");
+                    queryBest.put("aid", answers.get(position - 1).getId() + "");
                     queryBest.put("token", MainActivity.person.getToken());
                     Http.sendHttpRequest(Http.URL_ACCEPT, queryBest, new HttpCallbackListener() {
                         @Override
@@ -134,7 +132,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                     MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                     Looper.loop();
                                 } else {
-                                    activity.runOnUiThread(new Runnable() {
+                                    handler.post(new Runnable() {
                                         @Override
                                         public void run() {
                                             MySQLiteOpenHelper.answerAccept(qid);
@@ -162,10 +160,10 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onClick(View v) {
                     Map<String, String> query = new HashMap<>();
-                    query.put("id", answerList.get(position - 1).getId() + "");
+                    query.put("id", answers.get(position - 1).getId() + "");
                     query.put("type", MainActivity.TYPE_ANSWER + "");
                     query.put("token", MainActivity.person.getToken());
-                    if (answerList.get(position - 1).getIsExciting()) {
+                    if (answers.get(position - 1).getIsExciting()) {
                         Http.sendHttpRequest(Http.URL_CANCEL_EXCITING, query, new HttpCallbackListener() {
                             @Override
                             public void onFinish(String response) {
@@ -176,14 +174,14 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup);
                                                 String s = answerViewHolder.answerItemExcitingCount.getText().toString();
                                                 answerViewHolder.answerItemExcitingCount.setText(Integer.parseInt(s) - 1 + "");
-                                                answerList.get(position - 1).setExciting(false);
-                                                MySQLiteOpenHelper.answerChange(answerList.get(position - 1).getId(), "isExciting", 0);
+                                                answers.get(position - 1).setExciting(false);
+                                                MySQLiteOpenHelper.answerChange(answers.get(position - 1).getId(), "isExciting", 0);
                                             }
                                         });
                                     }
@@ -208,14 +206,14 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 answerViewHolder.answerItemExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
                                                 String s = answerViewHolder.answerItemExcitingCount.getText().toString();
                                                 answerViewHolder.answerItemExcitingCount.setText((Integer.parseInt(s) + 1) + "");
-                                                answerList.get(position - 1).setExciting(true);
-                                                MySQLiteOpenHelper.answerChange(answerList.get(position - 1).getId(), "isExciting", 1);
+                                                answers.get(position - 1).setExciting(true);
+                                                MySQLiteOpenHelper.answerChange(answers.get(position - 1).getId(), "isExciting", 1);
                                             }
                                         });
                                     }
@@ -237,10 +235,10 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onClick(View v) {
                     Map<String, String> query = new HashMap<>();
-                    query.put("id", answerList.get(position - 1).getId() + "");
+                    query.put("id", answers.get(position - 1).getId() + "");
                     query.put("type", MainActivity.TYPE_ANSWER + "");
                     query.put("token", MainActivity.person.getToken());
-                    if (answerList.get(position - 1).getIsNaive()) {
+                    if (answers.get(position - 1).getIsNaive()) {
                         Http.sendHttpRequest(Http.URL_CANCEL_NAIVE, query, new HttpCallbackListener() {
                             @Override
                             public void onFinish(String response) {
@@ -251,14 +249,14 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
                                                 String s = answerViewHolder.answerItemNaiveCount.getText().toString();
                                                 answerViewHolder.answerItemNaiveCount.setText(Integer.parseInt(s) - 1 + "");
-                                                answerList.get(position - 1).setNaive(false);
-                                                MySQLiteOpenHelper.answerChange(answerList.get(position - 1).getId(), "isNaive", 0);
+                                                answers.get(position - 1).setNaive(false);
+                                                MySQLiteOpenHelper.answerChange(answers.get(position - 1).getId(), "isNaive", 0);
                                             }
                                         });
                                     }
@@ -283,14 +281,14 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 answerViewHolder.answerItemNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
                                                 String s = answerViewHolder.answerItemNaiveCount.getText().toString();
                                                 answerViewHolder.answerItemNaiveCount.setText((Integer.parseInt(s) + 1) + "");
-                                                answerList.get(position - 1).setNaive(true);
-                                                MySQLiteOpenHelper.answerChange(answerList.get(position - 1).getId(), "isNaive", 1);
+                                                answers.get(position - 1).setNaive(true);
+                                                MySQLiteOpenHelper.answerChange(answers.get(position - 1).getId(), "isNaive", 1);
                                             }
                                         });
                                     }
@@ -371,7 +369,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup);
@@ -405,7 +403,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 questionViewHolder.realQuestionExcitingImg.setImageResource(R.drawable.hand_thumbsup_fill);
@@ -450,7 +448,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown);
@@ -484,7 +482,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 questionViewHolder.realQuestionNaiveImg.setImageResource(R.drawable.hand_thumbsdown_fill);
@@ -528,7 +526,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 MySQLiteOpenHelper.questionChange(qid, "isFavorite", 0);
@@ -558,7 +556,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                         MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
                                         Looper.loop();
                                     } else {
-                                        activity.runOnUiThread(new Runnable() {
+                                        handler.post(new Runnable() {
                                             @Override
                                             public void run() {
                                                 MySQLiteOpenHelper.questionChange(qid, "isFavorite", 1);
@@ -593,15 +591,11 @@ public class AnswerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return answerList.size() + 1;
+        return answers.size() + 1;
     }
 
-    /**
-     * 刷新回答
-     */
-    public void refresh() {
-        MySQLiteOpenHelper.searchQuestion(qid, question);
-        MySQLiteOpenHelper.readAnswer(answerList, qid);
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
     }
 
     public class AnswerViewHolder extends RecyclerView.ViewHolder {

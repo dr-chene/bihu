@@ -45,6 +45,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,7 @@ public class MainActivity extends BaseActivity {
     private FloatingActionButton fabUp;
     private NavigationView navView;
     private Toast toast;
-    private List<Question> questions;
+    private List<Question> questions = new ArrayList<>();
     //处理刷新事件结果
     private Handler handler = new Handler();
 
@@ -154,8 +155,8 @@ public class MainActivity extends BaseActivity {
                 }, 1000);
             }
         });
-        questionAdapter = new QuestionAdapter(MainActivity.this, MainActivity.TYPE_QUESTION);
-        questions = questionAdapter.getQuestionList();
+        MySQLiteOpenHelper.readQuestion(questions, 0, TYPE_LOAD_MORE);
+        questionAdapter = new QuestionAdapter(MainActivity.this, MainActivity.TYPE_QUESTION, questions);
         recyclerView.setAdapter(questionAdapter);
         linearLayoutManager = new LinearLayoutManager(MainActivity.this);
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -201,6 +202,7 @@ public class MainActivity extends BaseActivity {
                 question.setAuthorAvatar(avatar);
             }
         }
+        questionAdapter.setQuestions(questions);
         questionAdapter.notifyDataSetChanged();
     }
 
@@ -318,11 +320,10 @@ public class MainActivity extends BaseActivity {
                                     if (questionPage < totalQuestionPage - 1) {
                                         questionPage++;
                                     }
-                                    questionAdapter.refresh(MainActivity.TYPE_QUESTION);
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            questionAdapter.notifyDataSetChanged();
+                                            refresh();
                                             swipeRefreshLayout.setRefreshing(false);
                                         }
                                     });
@@ -423,13 +424,14 @@ public class MainActivity extends BaseActivity {
                 assert data != null;
                 int position = data.getIntExtra("position", -1);
                 if (position != -1) {
-                    Question question = questionAdapter.getQuestion(position, TYPE_QUESTION);
+                    Question question = questions.get(position);
                     question.setExciting(data.getBooleanExtra("isExciting", false));
                     question.setNaive(data.getBooleanExtra("isNaive", false));
                     question.setFavorite(data.getBooleanExtra("isFavorite", false));
                     question.setAnswerCount(data.getIntExtra("answerCount", 0));
                     question.setExciting(data.getIntExtra("excitingCount", 0));
                     question.setNaive(data.getIntExtra("naiveCount", 0));
+                    questionAdapter.setQuestions(questions);
                     questionAdapter.notifyItemChanged(position, -1);
                 }
             }
@@ -449,16 +451,17 @@ public class MainActivity extends BaseActivity {
     }
 
     private void loadMoreData() {
-        questionAdapter.curSize += 20;
         int preSize = questions.size();
-        MySQLiteOpenHelper.readQuestion(questions, questionAdapter.curSize, MainActivity.TYPE_LOAD_MORE);
+        MySQLiteOpenHelper.readQuestion(questions, questions.size() + 20, TYPE_LOAD_MORE);
         if (preSize != questions.size()) {
+            questionAdapter.setQuestions(questions);
             questionAdapter.notifyItemInserted(questionAdapter.getItemCount());
-        } else if (questions.size() != 0) {
+        } else if (questions.size() > 0) {
             View view = linearLayoutManager.findViewByPosition(questionAdapter.getItemCount() - 1);
-            assert view != null;
-            view.findViewById(R.id.load_bar).setVisibility(View.GONE);
-            ((TextView) view.findViewById(R.id.load_text)).setText(".....没有更多数据.....");
+            if (view != null) {
+                view.findViewById(R.id.load_bar).setVisibility(View.GONE);
+                ((TextView) view.findViewById(R.id.load_text)).setText(".....没有更多数据.....");
+            }
         }
         swipeRefreshLayout.post(new Runnable() {
             @Override
@@ -466,5 +469,11 @@ public class MainActivity extends BaseActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void refresh() {
+        MySQLiteOpenHelper.readQuestion(questions, questionAdapter.getItemCount(), TYPE_REFRESH);
+        questionAdapter.setQuestions(questions);
+        questionAdapter.notifyDataSetChanged();
     }
 }

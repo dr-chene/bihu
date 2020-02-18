@@ -7,8 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -33,6 +31,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bihu.R;
 import com.example.bihu.adapter.AnswerAdapter;
+import com.example.bihu.utils.Answer;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
 import com.example.bihu.utils.Methods;
@@ -46,7 +45,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.example.bihu.utils.Methods.getFileByUri;
@@ -67,29 +68,9 @@ public class QuestionContentActivity extends BaseActivity {
     private Uri uri;
     private int position;
     private PopupWindow popAnswering;
+    private List<Answer> answers;
     //处理刷新和发布回答成功的事件
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            switch (msg.what) {
-                case MainActivity.TYPE_REFRESH:
-                    answerAdapter.notifyItemChanged(answerAdapter.getItemCount() - 1);
-                    swipeRefreshLayout.setRefreshing(false);
-                    break;
-                case MainActivity.TYPE_ANSWER:
-                    enterAnswerED.setText("");
-                    refreshAnswer();
-                    if (popupWindow != null) {
-                        popupWindow.dismiss();
-                    }
-                    images = "";
-                    popAnswering.dismiss();
-                    isAnswering = false;
-                    MyToast.showToast("回答成功");
-                    break;
-            }
-        }
-    };
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +126,9 @@ public class QuestionContentActivity extends BaseActivity {
         position = intent.getIntExtra("position", -1);
 
         realQuestionRecyclerView = findViewById(R.id.real_question_answer_rv);
-        answerAdapter = new AnswerAdapter(QuestionContentActivity.this, qid);
+        answers = new ArrayList<>();
+        MySQLiteOpenHelper.readAnswer(answers, qid);
+        answerAdapter = new AnswerAdapter(QuestionContentActivity.this, answers, MySQLiteOpenHelper.searchQuestion(qid));
         realQuestionRecyclerView.setAdapter(answerAdapter);
         LinearLayoutManager layoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         realQuestionRecyclerView.setLayoutManager(layoutManager);
@@ -184,7 +167,6 @@ public class QuestionContentActivity extends BaseActivity {
                         popAnswering();
                         isAnswering = true;
                         if (popupWindow != null) {
-                            Log.d("test", "popupWindow!=null");
                             new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
                                 @Override
                                 public void onSuccess(String image) {
@@ -221,6 +203,9 @@ public class QuestionContentActivity extends BaseActivity {
                 if (ContextCompat.checkSelfPermission(QuestionContentActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(QuestionContentActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 } else {
+                    if (popupWindow != null) {
+                        popupWindow.dismiss();
+                    }
                     openAlum();
                 }
             }
@@ -287,7 +272,7 @@ public class QuestionContentActivity extends BaseActivity {
                         if (jsonObject.getInt("status") != 200) {
                             Looper.prepare();
                             MyToast.showToast(jsonObject.getInt("status") + " : " + jsonObject.getString("info"));
-
+                            Looper.loop();
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
@@ -297,9 +282,20 @@ public class QuestionContentActivity extends BaseActivity {
                             });
                             Looper.loop();
                         } else {
-                            Message msg = new Message();
-                            msg.what = MainActivity.TYPE_ANSWER;
-                            handler.sendMessage(msg);
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    enterAnswerED.setText("");
+                                    refreshAnswer();
+                                    if (popupWindow != null) {
+                                        popupWindow.dismiss();
+                                    }
+                                    images = "";
+                                    popAnswering.dismiss();
+                                    isAnswering = false;
+                                    MyToast.showToast("回答成功");
+                                }
+                            });
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -379,10 +375,7 @@ public class QuestionContentActivity extends BaseActivity {
                                         answerData.getBoolean("is_exciting") ? 1 : 0, answerData.getBoolean("is_naive") ? 1 : 0);
 
                             }
-                            answerAdapter.refresh();
-                            Message msg = new Message();
-                            msg.what = MainActivity.TYPE_REFRESH;
-                            handler.sendMessage(msg);
+                            refresh();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -417,5 +410,17 @@ public class QuestionContentActivity extends BaseActivity {
         popAnswering.setContentView(contentView);
         View rootView = LayoutInflater.from(QuestionContentActivity.this).inflate(R.layout.activity_setting, null);
         popAnswering.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+    }
+
+    private void refresh() {
+        MySQLiteOpenHelper.readAnswer(answers, qid);
+        answerAdapter.setAnswers(answers);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                answerAdapter.notifyItemChanged(answerAdapter.getItemCount());
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 }
