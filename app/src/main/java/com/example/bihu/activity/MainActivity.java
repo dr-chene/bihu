@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity {
     public static final int TYPE_TAKE_PHOTO = 8;
     public static final int TYPE_CHOOSE_PHOTO = 9;
     public static final int count = 20;
-    public static Person person;
+    public static Person person = new Person();
     public static int vision = 1;
     private int totalQuestionPage = 0;
     private int questionPage = 0;

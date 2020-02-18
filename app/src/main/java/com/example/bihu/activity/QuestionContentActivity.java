@@ -35,6 +35,7 @@ import com.example.bihu.R;
 import com.example.bihu.adapter.AnswerAdapter;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
+import com.example.bihu.utils.Methods;
 import com.example.bihu.utils.MySQLiteOpenHelper;
 import com.example.bihu.utils.MyToast;
 import com.example.bihu.utils.QiNiu;
@@ -176,30 +177,33 @@ public class QuestionContentActivity extends BaseActivity {
         enterAnswerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isAnswering) {
-                    popAnswering();
-                    isAnswering = true;
-                    if (popupWindow != null) {
-                        Log.d("test", "popupWindow!=null");
-                        new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
-                            @Override
-                            public void onSuccess(String image) {
-                                if (image == "") {
-                                    isAnswering = false;
-                                    popAnswering.dismiss();
-                                    MyToast.showToast("图片上传失败");
-                                } else {
-                                    images = image;
-                                    Log.d("test", 1 + images);
-                                    postAnswer();
-                                }
-                            }
-                        });
-                    } else {
-                        postAnswer();
-                    }
+                if (!Methods.isNetworkAvailable()) {
+                    MyToast.showToast("当前网络不可用");
                 } else {
-                    MyToast.showToast("正在发布回答");
+                    if (!isAnswering) {
+                        popAnswering();
+                        isAnswering = true;
+                        if (popupWindow != null) {
+                            Log.d("test", "popupWindow!=null");
+                            new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
+                                @Override
+                                public void onSuccess(String image) {
+                                    if (image == "") {
+                                        isAnswering = false;
+                                        popAnswering.dismiss();
+                                        MyToast.showToast("图片上传失败");
+                                    } else {
+                                        images = image;
+                                        postAnswer();
+                                    }
+                                }
+                            });
+                        } else {
+                            postAnswer();
+                        }
+                    } else {
+                        MyToast.showToast("正在发布回答");
+                    }
                 }
             }
         });
@@ -253,6 +257,13 @@ public class QuestionContentActivity extends BaseActivity {
                 ImageView popImg = contentView.findViewById(R.id.pop_img);
                 popImg.setImageURI(uri);
                 popupWindow.showAsDropDown(hf, 750, -20);
+                contentView.findViewById(R.id.answer_commit_img_cancel).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        images = "";
+                        popupWindow.dismiss();
+                    }
+                });
             }
         }
     }

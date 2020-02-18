@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import com.example.bihu.R;
 import com.example.bihu.utils.Http;
 import com.example.bihu.utils.HttpCallbackListener;
+import com.example.bihu.utils.Methods;
 import com.example.bihu.utils.MyToast;
 import com.example.bihu.utils.QiNiu;
 import com.example.bihu.utils.QiNiuCallbackListener;
@@ -53,6 +54,7 @@ public class QuestionCommitActivity extends BaseActivity {
     private Boolean isCommitting = false;
     private Uri uri;
     private Boolean imgChanged = false;
+    private ImageView imgCancel;
     //处理问题发布成功后的事件
     private Handler handler = new Handler();
     private PopupWindow popQuestioning;
@@ -82,11 +84,21 @@ public class QuestionCommitActivity extends BaseActivity {
         questionEnterBtn = findViewById(R.id.enter_question_btn);
         titleEd = findViewById(R.id.title_ed);
         contentEd = findViewById(R.id.content_ed);
+        imgCancel = findViewById(R.id.question_commit_img_cancel);
+        imgCancel.setVisibility(View.GONE);
         //返回按钮
         enterQuestionBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
+            }
+        });
+        imgCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imgCancel.setVisibility(View.GONE);
+                images = "";
+                enterQuestionImg.setImageResource(R.drawable.jia_question);
             }
         });
         //实时监听title框字数
@@ -153,22 +165,26 @@ public class QuestionCommitActivity extends BaseActivity {
         questionEnterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isCommitting) {
-                    popQuestioning();
-                    isCommitting = true;
-                    if (imgChanged) {
-                        new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
-                            @Override
-                            public void onSuccess(String image) {
-                                images = image;
-                                postQuestion();
-                            }
-                        });
-                    } else {
-                        postQuestion();
-                    }
+                if (!Methods.isNetworkAvailable()) {
+                    MyToast.showToast("当前网络不可用");
                 } else {
-                    MyToast.showToast("正在发布问题");
+                    if (!isCommitting) {
+                        popQuestioning();
+                        isCommitting = true;
+                        if (imgChanged) {
+                            new QiNiu().upload(getFileByUri(uri), new QiNiuCallbackListener() {
+                                @Override
+                                public void onSuccess(String image) {
+                                    images = image;
+                                    postQuestion();
+                                }
+                            });
+                        } else {
+                            postQuestion();
+                        }
+                    } else {
+                        MyToast.showToast("正在发布问题");
+                    }
                 }
             }
         });
@@ -241,6 +257,12 @@ public class QuestionCommitActivity extends BaseActivity {
         } else {
             MyToast.showToast("请补全问题描述");
             isCommitting = false;
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    popQuestioning.dismiss();
+                }
+            });
         }
     }
 
@@ -286,6 +308,7 @@ public class QuestionCommitActivity extends BaseActivity {
                 assert data != null;
                 uri = data.getData();
                 enterQuestionImg.setImageURI(uri);
+                imgCancel.setVisibility(View.VISIBLE);
                 imgChanged = true;
             }
         }
