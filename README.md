@@ -5,6 +5,8 @@
 ##### 背景：一款简单的问答APP
 
 ##### 功能：目前实现了api全部接口功能
+![](https://github.com/dr-chene/bihu/blob/master/bihu_login_plus.gif) ![](https://github.com/dr-chene/bihu/blob/master/bihu_setting_plus.gif) 
+![](https://github.com/dr-chene/bihu/blob/master/bihu_question_plus.gif) ![](https://github.com/dr-chene/bihu/blob/master/bihu_answer_plus.gif)
 
 注册，登录 
 
